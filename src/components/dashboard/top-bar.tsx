@@ -35,6 +35,24 @@ export function TopBar({ onMenuClick }: TopBarProps) {
   const [isNotifOpen, setIsNotifOpen] = React.useState(false)
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false)
 
+  const notifRef = React.useRef<HTMLDivElement>(null)
+  const settingsRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setIsNotifOpen(false)
+      }
+      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
+        setIsSettingsOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
+
   return (
     <header className="h-20 bg-white dark:bg-[#0D0518] border-b border-gray-100 dark:border-white/10 flex items-center justify-between px-4 md:px-8 sticky top-0 z-50 gap-4 transition-colors">
       <button 
@@ -59,7 +77,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         <ThemeToggle />
 
         {/* Notifications Dropdown */}
-        <div className="relative">
+        <div className="relative" ref={notifRef}>
           <button 
             onClick={() => {
               setIsNotifOpen(!isNotifOpen)
@@ -107,7 +125,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         </div>
 
         {/* Settings Dropdown */}
-        <div className="relative">
+        <div className="relative" ref={settingsRef}>
           <button 
             onClick={() => {
               setIsSettingsOpen(!isSettingsOpen)

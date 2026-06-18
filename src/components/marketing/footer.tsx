@@ -1,11 +1,17 @@
 import Link from 'next/link';
-import { Instagram, Linkedin, Twitter } from 'lucide-react';
+import { Instagram, Linkedin } from 'lucide-react';
+
+const XIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
 
 const products = [
-  { name: 'Features', href: '#' },
-  { name: 'Pricing', href: '#' },
-  { name: 'Dashboard', href: '#' },
-  { name: 'Integrations', href: '#' },
+  { name: 'Features', href: '#features' },
+  { name: 'Pricing', href: '#pricing' },
+  { name: 'Dashboard', href: '/dashboard' },
+  { name: 'Integrations', href: '#integrations' },
 ];
 
 const solutions = [
@@ -18,20 +24,20 @@ const solutions = [
 
 const resources = [
   { name: 'Blog', href: '#' },
-  { name: 'Help Center', href: '#' },
-  { name: 'Documentation', href: '#' },
-  { name: 'Tutorials', href: '#' },
+  { name: 'Help Center', href: '/dashboard/help' },
+  { name: 'Documentation', href: '/dashboard/documentation' },
+  { name: 'Tutorials', href: '/dashboard' },
 ];
 
 const legal = [
-  { name: 'Privacy Policy', href: '#' },
-  { name: 'Terms of Service', href: '#' },
+  { name: 'Privacy Policy', href: '/privacy-policy' },
+  { name: 'Terms of Service', href: '/terms-of-service' },
   { name: 'Cookie Policy', href: '#' },
 ];
 
 const support = [
-  { name: 'Contact Us', href: '#' },
-  { name: 'Email: support@recure.com', href: '#' },
+  { name: 'Contact Us', href: '#contact' },
+  { name: 'Email: support@recure.com', href: 'mailto:support@recure.com' },
 ];
 
 export function Footer() {
@@ -117,8 +123,8 @@ export function Footer() {
                  <div className="flex flex-col gap-4 lg:col-span-1">
                     <h3 className="text-xl font-semibold text-white">Socials</h3>
                     <div className="flex gap-4">
-                        <Link href="#" className="text-white/80 hover:text-white transition-transform hover:scale-110">
-                            <Twitter className="w-6 h-6" /> {/* Using Twitter icon for X as per common practice if X icon not available, or standard Lucide Twitter */}
+                        <Link href="#" className="text-white/80 hover:text-white transition-transform hover:scale-110 flex items-center justify-center">
+                            <XIcon className="w-5 h-5 fill-current" />
                         </Link>
                          <Link href="#" className="text-white/80 hover:text-white transition-transform hover:scale-110">
                             <Linkedin className="w-6 h-6" />

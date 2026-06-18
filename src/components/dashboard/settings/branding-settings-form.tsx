@@ -52,6 +52,7 @@ const FileUploadButton = ({ label, className, onUpload }: { label: string, class
 )
 
 export function BrandingSettingsForm() {
+  const [logoUrl, setLogoUrl] = useState<string | null>(null)
   const [formData, setFormData] = useState<BrandingFormData>({
     companyName: "Recura",
     primaryColor: "#7c3aed",
@@ -118,9 +119,20 @@ export function BrandingSettingsForm() {
 
   const handleFileUpload = (label: string, e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      const url = URL.createObjectURL(file)
+      
+      if (
+        label === "Main Brand Logo" || 
+        label === "Upload Main Logo" || 
+        label === "Upload Square Logo"
+      ) {
+        setLogoUrl(url)
+      }
+      
       setModalType("success")
       setModalTitle("File Uploaded")
-      setModalMessage(`${label} successfully selected: ${e.target.files[0].name}`)
+      setModalMessage(`${label} successfully selected: ${file.name}`)
       setShowModal(true)
     }
   }
@@ -145,10 +157,14 @@ export function BrandingSettingsForm() {
             <div className="flex items-center justify-between p-5 border border-slate-100 dark:border-white/10 rounded-2xl bg-slate-50/50 dark:bg-white/5">
               <div className="flex items-center gap-4">
                 <div 
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-sm"
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-sm overflow-hidden"
                   style={{ backgroundColor: formData.primaryColor }}
                 >
-                  {formData.companyName.charAt(0)}
+                  {logoUrl ? (
+                    <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                  ) : (
+                    formData.companyName.charAt(0)
+                  )}
                 </div>
                 <div className="flex flex-col">
                   <span className="font-bold text-slate-900 dark:text-white text-lg leading-tight">{formData.companyName}</span>
@@ -391,8 +407,8 @@ export function BrandingSettingsForm() {
 
           {/* Experience Card */}
           <div className="dashboard-card space-y-6 flex flex-col h-full">
-            <h2 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-               <div className="w-8 h-8 rounded-lg bg-fuchsia-50 flex items-center justify-center text-fuchsia-600">
+            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+               <div className="w-8 h-8 rounded-lg bg-fuchsia-50 dark:bg-fuchsia-500/10 flex items-center justify-center text-fuchsia-600 dark:text-fuchsia-400">
                 <Bell className="w-5 h-5" />
               </div>
               Experience Settings
@@ -509,10 +525,14 @@ export function BrandingSettingsForm() {
                     formData.themeMode === 'Dark' ? 'border-slate-800 bg-slate-900' : 'border-slate-200/60 bg-white'
                   )}>
                     <div 
-                      className="w-11 h-11 rounded-2xl flex items-center justify-center text-white font-black shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)] transform transition-transform group-hover/preview:scale-110 text-2xl"
+                      className="w-11 h-11 rounded-2xl flex items-center justify-center text-white font-black shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)] transform transition-transform group-hover/preview:scale-110 text-2xl overflow-hidden"
                       style={{ backgroundColor: formData.primaryColor }}
                     >
-                      {formData.companyName.charAt(0)}
+                      {logoUrl ? (
+                        <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                      ) : (
+                        formData.companyName.charAt(0)
+                      )}
                     </div>
                     
                     <div className="w-full flex-1 space-y-4 mt-2">

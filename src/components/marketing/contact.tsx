@@ -9,10 +9,10 @@ import Image from 'next/image';
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
 const mapMarkers = [
-    { name: "Canada", coordinates: [-106, 56] as [number, number], image: "/images/landing/map/tag-2.png" }, 
-    { name: "Brazil", coordinates: [-51, -14] as [number, number], image: "/images/landing/map/tag-3.png" },
-    { name: "Germany", coordinates: [10, 51] as [number, number], image: "/images/landing/map/tag-1.png" },
-    { name: "Pakistan", coordinates: [69, 30] as [number, number], image: "/images/landing/map/tag.png" },
+    { name: "Canada", coordinates: [-106, 56] as [number, number], image: "/images/landing/map/tag.png" }, 
+    { name: "Brazil", coordinates: [-58, -62] as [number, number], image: "/images/landing/map/tag-3.png" },
+    { name: "Germany", coordinates: [50, -18] as [number, number], image: "/images/landing/map/tag-1.png" },
+    { name: "Australia", coordinates: [110, -30] as [number, number], image: "/images/landing/map/tag-2.png" },
 ];
 
 export function Contact() {
@@ -130,14 +130,14 @@ function WorldMap() {
         const [x, y] = coords;
         return (
           <g key={name} transform={`translate(${x}, ${y})`}>
-            <foreignObject x="-104" y="-100" width="208" height="104">
-              <div className="relative group cursor-pointer transition-transform hover:scale-110 hover:z-10 flex items-center justify-center h-full">
+            <foreignObject x="-110" y="-120" width="220" height="120" className="overflow-visible">
+              <div className="relative group cursor-pointer transition-transform hover:scale-110 hover:z-50 flex items-end justify-center w-full h-full">
                 <Image 
                     src={image} 
                     alt={name} 
-                    width={208} 
-                    height={104} 
-                    className="w-52 h-auto object-contain drop-shadow-xl mx-auto"
+                    width={200} 
+                    height={100} 
+                    className="w-[200px] h-auto object-contain drop-shadow-xl mx-auto"
                 />
               </div>
             </foreignObject>
