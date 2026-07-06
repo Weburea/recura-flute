@@ -5,6 +5,7 @@ import { Services } from '@/components/marketing/services';
 import { Stats } from '@/components/marketing/stats';
 import { Invoice } from '@/components/marketing/invoice';
 import { Testimonials } from '@/components/marketing/testimonials';
+import { Pricing } from '@/components/marketing/pricing';
 import Integration from '@/components/marketing/integration';
 import { Contact } from '@/components/marketing/contact';
 import { Faq } from '@/components/marketing/faq';
@@ -21,6 +22,7 @@ export default function LandingPage() {
       <Stats />
       <Invoice />
       <Testimonials />
+      <Pricing />
       <Integration />
       <Faq />
       <Contact />
