@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Check } from 'lucide-react';
+import { Check, ArrowRight } from 'lucide-react';
 
 const checkmarks = [
   'No credit card required',
@@ -14,23 +15,16 @@ const checkmarks = [
 export function Cta() {
   return (
     <section className="py-24 bg-white dark:bg-transparent overflow-hidden relative border-t border-slate-200/40 dark:border-white/5">
-      {/* CSS grid overlay background */}
-      <div 
-        className="absolute inset-0 opacity-40 dark:opacity-20 pointer-events-none z-0"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(124, 58, 237, 0.08) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(124, 58, 237, 0.08) 1px, transparent 1px)
-          `,
-          backgroundSize: '48px 48px',
-          backgroundPosition: 'center center',
-          maskImage: 'radial-gradient(ellipse 60% 60% at 50% 50%, black, transparent)',
-          WebkitMaskImage: 'radial-gradient(ellipse 60% 60% at 50% 50%, black, transparent)',
-        }}
-      />
-
-      {/* Background radial glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-purple-100 dark:bg-purple-950/20 blur-[130px] rounded-full pointer-events-none z-0" />
+      {/* Background Pattern using same lines SVG as Hero */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1200px] h-[550px] z-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(124,58,237,0.06),transparent_60%)] dark:bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.12),transparent_65%)]" />
+        <Image
+          src="/images/landing/Grid_hero_lines.svg"
+          alt="Background Pattern"
+          fill
+          className="object-contain opacity-75 dark:opacity-50 pointer-events-none"
+        />
+      </div>
 
       <div className="container mx-auto px-4 relative z-10 text-center max-w-4xl">
         {/* Label */}
@@ -48,20 +42,25 @@ export function Cta() {
           Join 12,000+ businesses that simplified their billing. Up and running in under 15 minutes.
         </p>
 
-        {/* Action Buttons */}
+        {/* Action Buttons styled identically to Hero */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto mb-12">
-          <Button 
-            className="w-full sm:w-auto py-6 px-8 rounded-full font-bold bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-800 text-white transition-all duration-300 shadow-md shadow-purple-600/10 text-base"
-          >
-            Start free trial
-          </Button>
-          <Button 
-            variant="outline"
-            className="w-full sm:w-auto py-6 px-8 rounded-full font-bold bg-white dark:bg-transparent border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-white/5 transition-all duration-300 flex items-center justify-center gap-1.5 text-base"
-          >
-            <span>Book a demo</span>
-            <span className="text-sm">→</span>
-          </Button>
+          <div className="w-full sm:w-auto">
+            <Button 
+              variant="primary" 
+              className="w-full px-8 py-6 text-lg rounded-xl font-bold shadow-lg shadow-purple-500/20 transition-all hover:scale-105 hover:-translate-y-0.5"
+            >
+              Start free trial
+            </Button>
+          </div>
+          <div className="w-full sm:w-auto">
+            <Button 
+              variant="outline-brand" 
+              className="group w-full px-8 py-6 text-lg rounded-xl font-bold transition-all hover:scale-105 hover:-translate-y-0.5 flex items-center justify-center gap-2"
+            >
+              <span>Book a demo</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </Button>
+          </div>
         </div>
 
         {/* Checkmarks List */}
