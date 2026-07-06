@@ -10,30 +10,29 @@ const brands = [
 
 export function Brands() {
   return (
-    <section className="py-4 bg-white dark:bg-transparent shadow-sm dark:shadow-none">
-      <div className="container mx-auto px-2  flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 border-y border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-white/5 py-4">
-        <div className="md:w-auto shrink-0">
-          <p className="text-slate-600 dark:text-slate-300 font-medium text-lg text-center md:text-left">
-            Trusted by businesses <br className="hidden md:inline" />
-            worldwide
+    <section className="py-8 bg-white dark:bg-transparent">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col items-center justify-center border-y border-slate-200/60 dark:border-white/10 bg-slate-50/20 dark:bg-white/5 py-8 gap-6">
+          <p className="text-slate-500 dark:text-slate-400 font-medium text-sm text-center tracking-wide">
+            Powering billing for 12,000+ companies worldwide
           </p>
-        </div>
-        
-        <div className="flex flex-wrap items-center justify-center md:justify-start gap-8 md:gap-12 opacity-80 mix-blend-multiply dark:mix-blend-normal dark:invert">
-          {brands.map((brand) => (
-            <div 
-              key={brand.name} 
-              className="relative w-120 h-40 md:w-32 md:h-48 grayscale hover:grayscale-0 transition-all duration-300"
-            >
-              <Image
-                src={brand.src}
-                alt={`${brand.name} logo`}
-                fill
-                className="object-contain"
-                sizes="(max-width: 768px) 100px, 150px"
-              />
-            </div>
-          ))}
+          
+          <div className="w-full grid grid-cols-3 md:grid-cols-5 items-center gap-6 md:gap-0 opacity-65 dark:opacity-85 mix-blend-multiply dark:mix-blend-normal dark:invert">
+            {brands.map((brand) => (
+              <div 
+                key={brand.name} 
+                className="relative h-[56px] md:h-[96px] flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300"
+              >
+                <Image
+                  src={brand.src}
+                  alt={`${brand.name} logo`}
+                  fill
+                  className="object-contain"
+                  sizes="(max-width: 768px) 20vw, 200px"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

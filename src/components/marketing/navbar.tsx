@@ -80,7 +80,7 @@ export function Navbar() {
         {/* 2. Desktop Navigation */}
         <div className="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-600 dark:text-slate-300">
           
-          {/* Dashboard Mega-Menu Trigger */}
+          {/* Features Mega-Menu Trigger */}
           <div className="relative group">
             <button 
               className={cn(
@@ -91,7 +91,7 @@ export function Navbar() {
               onMouseEnter={() => setIsDashboardOpen(true)}
               onMouseLeave={() => setIsDashboardOpen(false)}
             >
-              Dashboard <ChevronDown className={cn("w-4 h-4 transition-transform duration-300", isDashboardOpen ? "rotate-180 text-primary" : "text-slate-400")} />
+              Features <ChevronDown className={cn("w-4 h-4 transition-transform duration-300", isDashboardOpen ? "rotate-180 text-primary" : "text-slate-400")} />
             </button>
             
             {/* Dashboard Mega-Menu Content */}
@@ -190,9 +190,10 @@ export function Navbar() {
           </div>
 
           <Link href="#pricing" className="hover:text-primary dark:hover:text-primary transition-colors">Pricing</Link>
+          <Link href="#customers" className="hover:text-primary dark:hover:text-primary transition-colors">Customers</Link>
           <Link href="#integrations" className="hover:text-primary dark:hover:text-primary transition-colors">Integrations</Link>
-          <Link href="#about" className="hover:text-primary dark:hover:text-primary transition-colors">About Us</Link>
-          <Link href="/dashboard/documentation" className="hover:text-primary dark:hover:text-primary transition-colors">Documentation</Link>
+          <Link href="#resources" className="hover:text-primary dark:hover:text-primary transition-colors">Resources</Link>
+          <Link href="#blog" className="hover:text-primary dark:hover:text-primary transition-colors">Blog</Link>
         </div>
 
         {/* 3. Action Buttons & Mobile Toggle */}
@@ -245,7 +246,7 @@ export function Navbar() {
             </Link>
             <Link href="/sign-up">
                 <Button variant="brand" className="rounded-xl font-bold shadow-lg shadow-primary/20 hover:-translate-y-0.5 transition-all">
-                  Get Started
+                  Start free trial
                 </Button>
             </Link>
           </div>
@@ -272,7 +273,7 @@ export function Navbar() {
                   onClick={() => setIsDashboardOpen(!isDashboardOpen)}
                   className="flex items-center justify-between text-lg font-bold text-slate-900 dark:text-white py-3 border-b border-slate-100 dark:border-white/10"
                 >
-                    Dashboard 
+                    Features 
                     <ChevronDown className={cn("w-5 h-5 transition-transform text-slate-400", isDashboardOpen ? "rotate-180 text-primary" : "")} />
                 </button>
                 {isDashboardOpen && (
@@ -299,16 +300,17 @@ export function Navbar() {
             </div>
             
             <Link href="#pricing" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-slate-900 dark:text-white py-3 border-b border-slate-100 dark:border-white/10">Pricing</Link>
+            <Link href="#customers" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-slate-900 dark:text-white py-3 border-b border-slate-100 dark:border-white/10">Customers</Link>
             <Link href="#integrations" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-slate-900 dark:text-white py-3 border-b border-slate-100 dark:border-white/10">Integrations</Link>
-            <Link href="#" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-slate-900 dark:text-white py-3 border-b border-slate-100 dark:border-white/10">Documentation</Link>
-            <Link href="#about" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-slate-900 dark:text-white py-3 border-b border-slate-100 dark:border-white/10">About Us</Link>
+            <Link href="#resources" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-slate-900 dark:text-white py-3 border-b border-slate-100 dark:border-white/10">Resources</Link>
+            <Link href="#blog" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-slate-900 dark:text-white py-3 border-b border-slate-100 dark:border-white/10">Blog</Link>
             
             <div className="flex flex-col gap-3 mt-6">
                  <Link href="/sign-in" onClick={() => setIsMobileMenuOpen(false)}>
                     <Button variant="outline-brand" className="w-full justify-center rounded-xl py-6 font-bold">Sign In</Button>
                  </Link>
                  <Link href="/sign-up" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="brand" className="w-full justify-center rounded-xl py-6 font-bold shadow-lg shadow-primary/20">Get Started</Button>
+                    <Button variant="brand" className="w-full justify-center rounded-xl py-6 font-bold shadow-lg shadow-primary/20">Start free trial</Button>
                  </Link>
             </div>
         </div>

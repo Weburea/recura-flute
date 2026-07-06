@@ -1,110 +1,80 @@
-"use client";
+import React from 'react';
 
-import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-const TESTIMONIALS = [
+const testimonials = [
   {
-    logo: "ONEPLUS",
-    quote: "Managing subscriptions and billing used to be stressful. (Webname) made everything simple and organized",
-    author: "John D.",
-    role: "ONEPLUS",
-    color: "text-red-600",
-    borderColor: "border-red-600",
-    iconText: "1+"
+    quote: 'Recura replaced three billing tools we were stitching together. Setup took one afternoon. We recovered 11% of churned revenue in the first 30 days.',
+    author: 'Sarah Kim',
+    role: 'Head of Revenue, Retool',
+    initials: 'SK',
+    avatarBg: 'bg-purple-500 dark:bg-purple-600',
   },
   {
-    logo: "Spotify",
-    quote: "The analytics features have completely transformed how we understand our user base. Highly recommended!",
-    author: "Sarah M.",
-    role: "Product Manager",
-    color: "text-green-500",
-    borderColor: "border-green-500",
-    iconText: "Sp"
+    quote: 'The MRR waterfall is the first thing I open every morning. Recura turned our revenue data from a monthly spreadsheet into a live dashboard that actually drives decisions.',
+    author: 'Marcus Reid',
+    role: 'CFO, Loom',
+    initials: 'MR',
+    avatarBg: 'bg-emerald-500 dark:bg-emerald-600',
   },
   {
-    logo: "Slack",
-    quote: "We've saved countless hours on invoicing thanks to the automated billing system. It just works.",
-    author: "Mike R.",
-    role: "Operations Director",
-    color: "text-blue-500",
-    borderColor: "border-blue-500",
-    iconText: "Sl"
-  }
+    quote: "Our support team used to spend hours on subscription changes. With Recura's customer portal, 80% of those requests are now fully self-served.",
+    author: 'Jamie Park',
+    role: 'VP Operations, Pitch',
+    initials: 'JP',
+    avatarBg: 'bg-amber-500 dark:bg-amber-600',
+  },
 ];
 
 export function Testimonials() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const nextTestimonial = () => {
-    setCurrentIndex((prev) => (prev + 1) % TESTIMONIALS.length);
-  };
-
-  const prevTestimonial = () => {
-    setCurrentIndex((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
-  };
-
-  const current = TESTIMONIALS[currentIndex];
-
   return (
-    <section className="py-24 bg-white dark:bg-transparent overflow-hidden">
+    <section className="py-20 bg-white dark:bg-transparent overflow-hidden">
       <div className="container mx-auto px-4">
-        {/* Header - Aligned to the start of the card container */}
-        <div className="max-w-6xl mx-auto ps-3 mb-12">
-          <h2 className="section-title mb-4 text-gradient-bold dark:bg-white dark:bg-clip-text dark:text-transparent inline-block">
+        {/* Header */}
+        <div className="max-w-4xl mb-16">
+          <span className="text-purple-600 dark:text-purple-400 font-semibold text-xs tracking-wider uppercase mb-3 block">
             Testimonials
+          </span>
+          <h2 className="text-3xl md:text-5xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
+            Loved by the teams building tomorrow.
           </h2>
-          <p className="section-description text-gray-600 dark:text-slate-300 max-w-3xl mx-0">
-            Business across different industries use (webname) to manage
-            subscription with ease
-          </p>
         </div>
 
-        {/* Main Card */}
-        <div className="max-w-6xl mx-auto rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-[500px] border border-transparent dark:border-white/10">
-          {/* Left Side - Brand/Logo Area */}
-          <div className="md:w-5/12 bg-fuchsia-50 dark:bg-[#1a0f30] flex items-center justify-center p-12 min-h-[300px] transition-all duration-300">
-             <div className="flex items-center gap-2 animate-in fade-in zoom-in duration-300" key={currentIndex}>
-                <div className={cn("w-12 h-12 border-2 flex items-center justify-center font-bold text-2xl rounded-sm", current.borderColor, current.color)}>
-                    {current.iconText}
-                </div>
-                <span className={cn("font-bold text-4xl tracking-tight", current.color)}>{current.logo}</span>
-             </div>
-          </div>
-
-          {/* Right Side - Content Area */}
-          <div className="md:w-7/12 bg-gradient-purple p-12 flex flex-col justify-between relative text-white">
-            
-            <div className="flex-1 flex flex-col justify-center animate-in slide-in-from-right-4 duration-300 fade-in" key={currentIndex}>
-              <blockquote className="text-2xl md:text-3xl font-medium leading-relaxed mb-12">
-                &quot;{current.quote}&quot;
-              </blockquote>
-
+        {/* Testimonials Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+          {testimonials.map((t, index) => (
+            <div 
+              key={index} 
+              className="bg-slate-50/20 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/10 rounded-3xl p-8 flex flex-col justify-between min-h-[300px] shadow-sm hover:shadow-md transition-all duration-300 hover:bg-slate-50/40 dark:hover:bg-white/[0.04]"
+            >
+              {/* Top Section */}
               <div>
-                <div className="font-semibold text-xl mb-1">{current.author}</div>
-                <div className="text-white/80 text-lg">{current.role}</div>
+                {/* 5 Stars Rating */}
+                <div className="text-purple-600 dark:text-purple-400 tracking-wider mb-6 text-sm">
+                  ★★★★★
+                </div>
+                {/* Quote */}
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed font-medium text-sm md:text-base">
+                  &quot;{t.quote}&quot;
+                </p>
+              </div>
+
+              {/* Author Footer */}
+              <div className="flex items-center gap-4 mt-8 pt-6 border-t border-slate-200/40 dark:border-white/5">
+                {/* Circular Avatar */}
+                <div className={`w-12 h-12 flex items-center justify-center rounded-full text-white font-bold text-sm shrink-0 ${t.avatarBg}`}>
+                  {t.initials}
+                </div>
+                {/* Name & Role */}
+                <div className="flex flex-col">
+                  <span className="text-slate-900 dark:text-white font-bold text-sm md:text-base">
+                    {t.author}
+                  </span>
+                  <span className="text-slate-400 dark:text-slate-500 text-xs md:text-sm font-medium">
+                    {t.role}
+                  </span>
+                </div>
               </div>
             </div>
-
-            {/* Navigation Buttons */}
-            <div className="flex gap-4 self-end mt-8">
-              <button 
-                onClick={prevTestimonial}
-                className="btn-icon"
-                aria-label="Previous testimonial"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              <button 
-                onClick={nextTestimonial}
-                className="btn-icon"
-                aria-label="Next testimonial"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>
