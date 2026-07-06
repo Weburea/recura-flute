@@ -53,7 +53,7 @@ export function Faq() {
             src="/images/landing/circle_Pattern.svg"
             alt="Circle Pattern"
             fill
-            className="object-contain opacity-80 dark:opacity-30"
+            className="object-contain opacity-95 dark:opacity-90 filter saturate-[2] brightness-[1.05] drop-shadow-[0_0_15px_rgba(147,51,234,0.25)] dark:saturate-[2.5] dark:brightness-[1.5] dark:drop-shadow-[0_0_30px_rgba(168,85,247,0.65)]"
           />
         </div>
       </div>
