@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -35,8 +36,29 @@ export function Faq() {
   };
 
   return (
-    <section className="py-24 bg-white dark:bg-transparent overflow-hidden">
-      <div className="container mx-auto px-4 max-w-4xl">
+    <section id="faq" className="py-24 bg-white dark:bg-transparent overflow-hidden relative">
+      {/* Animated Dotted Circle Pattern (top-right side) */}
+      <div className="absolute top-0 right-0 w-[450px] h-[450px] pointer-events-none z-0 translate-x-[15%] -translate-y-[20%] overflow-hidden select-none">
+        <style>{`
+          @keyframes beehive-vibrate {
+            0%, 100% { transform: scale(1) translate(0px, 0px); opacity: 0.55; }
+            50% { transform: scale(1.08) translate(5px, -5px); opacity: 0.9; }
+          }
+          .animate-beehive {
+            animation: beehive-vibrate 8s ease-in-out infinite;
+          }
+        `}</style>
+        <div className="w-full h-full relative animate-beehive">
+          <Image
+            src="/images/landing/circle_Pattern.svg"
+            alt="Circle Pattern"
+            fill
+            className="object-contain opacity-80 dark:opacity-30"
+          />
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 max-w-4xl relative z-10">
         {/* Header */}
         <div className="text-center mb-16">
           <span className="text-purple-600 dark:text-purple-400 font-semibold text-xs tracking-wider uppercase mb-3 block">
