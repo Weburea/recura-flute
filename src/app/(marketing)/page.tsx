@@ -5,10 +5,10 @@ import { Services } from '@/components/marketing/services';
 import { Stats } from '@/components/marketing/stats';
 import { Invoice } from '@/components/marketing/invoice';
 import { Testimonials } from '@/components/marketing/testimonials';
-import { Pricing } from '@/components/marketing/pricing';
 import Integration from '@/components/marketing/integration';
-import { Contact } from '@/components/marketing/contact';
+import { Pricing } from '@/components/marketing/pricing';
 import { Faq } from '@/components/marketing/faq';
+import { Cta } from '@/components/marketing/cta';
 import { Footer } from '@/components/marketing/footer';
 
 export default function LandingPage() {
@@ -22,10 +22,10 @@ export default function LandingPage() {
       <Stats />
       <Invoice />
       <Testimonials />
-      <Pricing />
       <Integration />
+      <Pricing />
       <Faq />
-      <Contact />
+      <Cta />
       <Footer />
     </main>
   );

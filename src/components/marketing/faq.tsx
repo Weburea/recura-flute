@@ -1,116 +1,93 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import Image from "next/image";
-import { Plus, Minus } from "lucide-react";
-import { cn } from "@/lib/utils"; // Assuming cn utility exists, otherwise I'll use template literals or check for clsx. 
-// Actually, I should check if @/lib/utils exists or similar. The user has clsx and tailwind-merge installed.
-// I will assume standard shadcn-like utility or just write inline for now if I am not sure, but looking at package.json, they have the deps.
-// Let's safe check utils existence or just implement simple logic.
-// I saw "lib" in previous lists? No. I checked "src/app" and "src/components".
-// Let's assume standard react patterns.
+import React, { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const faqs = [
   {
-    question: "Who is your primary target audience?",
-    answer: "Our primary target audience includes SaaS businesses, startups, and enterprises looking to streamline their billing and operational workflows."
+    question: 'Can I migrate from my current billing tool?',
+    answer: 'Yes. We offer fully assisted migrations from Stripe Billing, Chargebee, Recurly, or custom setups, importing customer profiles, active subscriptions, and card tokens with zero downtime.',
   },
   {
-    question: "What problem is Recura solving for your users?",
-    answer: "Recura solves the complexity of recurring billing, subscription management, and workflow automation, allowing businesses to focus on growth."
+    question: 'Do you support usage-based pricing?',
+    answer: 'Yes. Recura supports any combination of flat, tiered, per-seat, and metered billing. You can send real-time usage events via our API to automatically charge customers for what they use.',
   },
   {
-    question: "What core features does your SaaS currently offer?",
-    answer: "We offer advanced subscription management, automated invoicing, dunning management, and seamless integrations with popular tools."
+    question: 'What payment gateways do you support?',
+    answer: 'We support Stripe, PayPal, Adyen, Braintree, and direct bank transfers (ACH/SEPA). More gateways can be configured via our custom API integrations.',
   },
   {
-    question: "Which features are used the most?",
-    answer: "Our automated billing engine and comprehensive analytics dashboard are among the most utilized features by our customers."
+    question: 'Is Recura SOC 2 compliant?',
+    answer: 'Yes, Recura is SOC 2 Type II certified, PCI-DSS Level 1 compliant, and GDPR ready. All payment details are encrypted and stored in secure, tokenized vaults.',
   },
   {
-    question: "How do you currently deliver value to customers?",
-    answer: "We deliver value by reducing manual operational overhead, minimizing churn through smart retries, and providing actionable insights."
-  }
+    question: 'Can I white-label the customer portal?',
+    answer: 'Absolutely. You can customize the domain, logo, brand colors, and email templates so your customers have a fully branded self-service billing experience.',
+  },
 ];
 
-export const Faq = () => {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+export function Faq() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const toggleFaq = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
   return (
-    <section className="w-full py-20 bg-gray-50 dark:bg-transparent relative overflow-hidden">
-      <div className="container mx-auto px-4 relative z-10">
-        
+    <section className="py-24 bg-white dark:bg-transparent overflow-hidden">
+      <div className="container mx-auto px-4 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="section-title">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">
-              Frequently Asked Questions
-            </span>
+          <span className="text-purple-600 dark:text-purple-400 font-semibold text-xs tracking-wider uppercase mb-3 block">
+            FAQ
+          </span>
+          <h2 className="text-3xl md:text-5xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Common questions.
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-          
-          {/* Left Column: Accordion */}
-          <div className="space-y-4">
-            {faqs.map((faq, index) => (
+        {/* Accordion Rows */}
+        <div className="border-t border-slate-200/60 dark:border-white/10">
+          {faqs.map((faq, index) => {
+            const isOpen = openIndex === index;
+            return (
               <div 
                 key={index}
-                className={cn(
-                  "bg-white dark:bg-white/5 rounded-2xl overflow-hidden transition-all duration-300 dark:border dark:border-white/10",
-                   openIndex === index ? "shadow-lg shadow-purple-100 dark:shadow-purple-900/20" : "shadow-sm"
-                )}
+                className="border-b border-slate-200/60 dark:border-white/10 transition-all duration-300"
               >
                 <button
                   onClick={() => toggleFaq(index)}
-                  className="w-full flex items-center justify-between p-6 text-left"
+                  className="w-full flex items-center justify-between py-6 text-left focus:outline-none group"
                 >
-                  <span className="font-semibold text-slate-800 dark:text-white text-lg pr-4">{faq.question}</span>
-                  <div className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 shrink-0",
-                    openIndex === index ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900" : "bg-white dark:bg-white/10 text-slate-900 dark:text-white"
-                  )}>
-                    {openIndex === index ? <Minus size={18} /> : <Plus size={18} />}
-                  </div>
+                  <span className="font-bold text-slate-900 dark:text-white text-base md:text-lg pr-8 transition-colors group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                    {faq.question}
+                  </span>
+                  <ChevronDown className={cn(
+                    'w-5 h-5 text-slate-400 dark:text-slate-500 transition-transform duration-300 shrink-0',
+                    isOpen && 'transform rotate-180 text-purple-600 dark:text-purple-400'
+                  )} />
                 </button>
-                
+
                 <div 
                   className={cn(
-                    "grid transition-[grid-template-rows] duration-300 ease-out",
-                    openIndex === index ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                    'grid transition-[grid-template-rows] duration-300 ease-in-out',
+                    isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
                   )}
                 >
                   <div className="overflow-hidden">
-                    <div className="p-6 pt-0 text-gray-600 dark:text-slate-300 leading-relaxed">
+                    <p className="pb-6 text-slate-500 dark:text-slate-400 leading-relaxed text-sm md:text-base font-medium">
                       {faq.answer}
-                    </div>
+                    </p>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* Right Column: Image */}
-          <div className="flex justify-center items-center">
-            <div className="relative w-full max-w-[300px] aspect-square">
-               {/* Using the user provided image path */}
-               <Image 
-                 src="/images/landing/question_mark.png"
-                 alt="FAQ Visualization"
-                 fill
-                 className="object-contain"
-               />
-            </div>
-          </div>
-
+            );
+          })}
         </div>
       </div>
     </section>
   );
-};
+}
 
-
+export default Faq;
