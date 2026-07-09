@@ -141,7 +141,7 @@ export default function CustomersPage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1200px] h-[550px] z-0 overflow-hidden pointer-events-none select-none">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(124,58,237,0.06),transparent_60%)] dark:bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.12),transparent_65%)]" />
           <Image
-            src="/images/landing/Grid_hero_lines.svg"
+            src="https://res.cloudinary.com/weburea/image/upload/v1783571760/Grid_hero_lines.svg"
             alt="Background Pattern"
             fill
             className="object-contain opacity-75 dark:opacity-50 pointer-events-none"

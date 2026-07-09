@@ -139,7 +139,7 @@ export function StatusModal({ isOpen, onClose, type, title, message }: StatusMod
         <div className="bg-slate-50/50 p-6 flex flex-col items-center gap-3 border-t border-slate-100">
            <div className="relative w-20 h-6 opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300">
               <Image 
-                src="/logo_plan.svg" 
+                src="https://res.cloudinary.com/weburea/image/upload/v1783571840/logo_plan.svg" 
                 alt="Recura Logo" 
                 fill
                 className="object-contain"

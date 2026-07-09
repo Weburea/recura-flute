@@ -234,7 +234,7 @@ export function GlobalBarsDoc() {
           lightLayer={
             <div className="w-full h-full bg-white/95 backdrop-blur-md px-10 border-b border-slate-100 relative overflow-hidden flex items-center justify-between">
                <div className="flex items-center gap-2">
-                  <Image src="/logo_dark.svg" alt="Recura" width={100} height={24} className="h-6 w-auto object-contain" />
+                  <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571838/logo_dark.svg" alt="Recura" width={100} height={24} className="h-6 w-auto object-contain" />
                </div>
                <div className="hidden lg:flex items-center gap-8 text-[11px] font-bold text-slate-500 tracking-wider">
                   <div className="flex items-center gap-1 text-purple-600">
@@ -258,7 +258,7 @@ export function GlobalBarsDoc() {
           darkLayer={
             <div className="w-full h-full bg-[#0D0518]/90 backdrop-blur-md px-10 border-b border-white/5 relative overflow-hidden flex items-center justify-between">
                <div className="flex items-center gap-2">
-                  <Image src="/logo.svg" alt="Recura" width={100} height={24} className="h-6 w-auto object-contain" />
+                  <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571835/logo.svg" alt="Recura" width={100} height={24} className="h-6 w-auto object-contain" />
                </div>
                <div className="hidden lg:flex items-center gap-8 text-[11px] font-bold text-slate-400 tracking-wider">
                   <div className="flex items-center gap-1 text-purple-400">
@@ -310,8 +310,8 @@ export function GlobalBarsDoc() {
     <nav className="fixed top-0 w-full z-50 bg-white/95 dark:bg-[#0D0518]/80 backdrop-blur-md border-b border-slate-200/60 dark:border-white/10">
       <div className="container mx-auto px-6 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-           <Image src="/logo_dark.svg" className="dark:hidden" />
-           <Image src="/logo.svg" className="hidden dark:block" />
+           <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571838/logo_dark.svg" className="dark:hidden" />
+           <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571835/logo.svg" className="hidden dark:block" />
         </Link>
         <div className="hidden lg:flex items-center gap-8 text-[11px] font-bold text-slate-500 tracking-wider">
           <DashboardMegaMenu />
@@ -340,8 +340,8 @@ export function GlobalBarsDoc() {
     <nav className="fixed top-0 w-full z-50 bg-white/95 dark:bg-[#0D0518]/80 backdrop-blur-md border-b border-slate-200/60 dark:border-white/10">
       <div className="container mx-auto px-6 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-           <Image src="/logo_dark.svg" className="dark:hidden" />
-           <Image src="/logo.svg" className="hidden dark:block" />
+           <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571838/logo_dark.svg" className="dark:hidden" />
+           <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571835/logo.svg" className="hidden dark:block" />
         </Link>
         <div className="hidden lg:flex items-center gap-8 text-[11px] font-bold text-slate-500 tracking-wider">
           <DashboardMegaMenu />
@@ -392,7 +392,7 @@ export function GlobalBarsDoc() {
               <div className="w-full h-full bg-white flex items-center justify-between px-10 border-t border-slate-200">
                 <div className="flex items-center gap-3">
                    <div className="relative w-10 h-6">
-                      <Image src="/logo_plan.svg" alt="Recura" fill className="object-contain" />
+                      <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571840/logo_plan.svg" alt="Recura" fill className="object-contain" />
                    </div>
                    <div className="h-4 w-[1px] bg-slate-200 mx-1" />
                    <span className="text-[11px] font-bold text-purple-600">Dashboard v1.0</span>
@@ -415,7 +415,7 @@ export function GlobalBarsDoc() {
               <div className="w-full h-full bg-[#0D0518] flex items-center justify-between px-10 border-t border-white/10">
                 <div className="flex items-center gap-3">
                    <div className="relative w-10 h-6">
-                      <Image src="/logo_plan.svg" alt="Recura" fill className="object-contain brightness-110" />
+                      <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571840/logo_plan.svg" alt="Recura" fill className="object-contain brightness-110" />
                    </div>
                    <div className="h-4 w-[1px] bg-white/10 mx-1" />
                    <span className="text-[11px] font-bold text-purple-400">Dashboard v1.0</span>
@@ -464,7 +464,7 @@ export function GlobalBarsDoc() {
     <footer className="border-t border-slate-200 dark:border-white/10 bg-white/50 dark:bg-[#0D0518] py-5 px-10">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Image src="/logo_plan.svg" width={48} height={24} />
+          <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571840/logo_plan.svg" width={48} height={24} />
           <span className="font-bold text-sm">Dashboard v1.0</span>
         </div>
         <div className="flex gap-8 text-sm font-bold text-slate-500">
@@ -488,7 +488,7 @@ export function GlobalBarsDoc() {
     <footer className="border-t border-slate-200 dark:border-white/10 bg-white/50 dark:bg-[#0D0518] py-5 px-10">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Image src="/logo_plan.svg" width={48} height={24} />
+          <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571840/logo_plan.svg" width={48} height={24} />
           <span className="font-bold text-sm">Dashboard v1.0</span>
         </div>
         <div className="flex gap-8 text-sm font-bold text-slate-500">

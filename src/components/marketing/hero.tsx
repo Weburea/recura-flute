@@ -9,7 +9,7 @@ export function Hero() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1200px] h-[550px] z-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(124,58,237,0.06),transparent_60%)] dark:bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.12),transparent_65%)]" />
         <Image
-          src="/images/landing/Grid_hero_lines.svg"
+          src="https://res.cloudinary.com/weburea/image/upload/v1783571760/Grid_hero_lines.svg"
           alt="Background Pattern"
           fill
           className="object-contain opacity-75 dark:opacity-50 pointer-events-none"
@@ -103,7 +103,7 @@ export function Hero() {
             {/* Screen Content Wrapper */}
             <div className="relative z-20 rounded-xl overflow-hidden bg-slate-950">
               <Image 
-                src="/images/landing/light_mode.png" 
+                src="https://res.cloudinary.com/weburea/image/upload/v1783571816/light_mode.png" 
                 alt="Recura Dashboard Light Mode"
                 width={1248}
                 height={851}
@@ -111,7 +111,7 @@ export function Hero() {
                 priority 
               />
               <Image 
-                src="/images/landing/dark_mode.png" 
+                src="https://res.cloudinary.com/weburea/image/upload/v1783571752/dark_mode.png" 
                 alt="Recura Dashboard Dark Mode"
                 width={1248}
                 height={851}

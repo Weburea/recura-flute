@@ -67,10 +67,10 @@ export default function ModalsDocPage() {
   ]);
 
   const [users] = React.useState([
-    { id: 1, name: 'Admin User', role: 'Owner', img: '/images/dashboard/9 1.png', active: true },
-    { id: 2, name: 'Sarah Wilson', role: 'Admin', img: '/images/dashboard/11 1.png', active: true },
-    { id: 3, name: 'John Doe', role: 'Editor', img: '/images/dashboard/24 1.png', active: true },
-    { id: 4, name: 'Emily Chen', role: 'Manager', img: '/images/dashboard/59 1.png', active: false },
+    { id: 1, name: 'Admin User', role: 'Owner', img: 'https://res.cloudinary.com/weburea/image/upload/v1783571700/9%201.png', active: true },
+    { id: 2, name: 'Sarah Wilson', role: 'Admin', img: 'https://res.cloudinary.com/weburea/image/upload/v1783571687/11%201.png', active: true },
+    { id: 3, name: 'John Doe', role: 'Editor', img: 'https://res.cloudinary.com/weburea/image/upload/v1783571691/24%201.png', active: true },
+    { id: 4, name: 'Emily Chen', role: 'Manager', img: 'https://res.cloudinary.com/weburea/image/upload/v1783571691/59%201.png', active: false },
   ]);
 
   const [userFilter, setUserFilter] = React.useState<'active' | 'inactive'>('active');

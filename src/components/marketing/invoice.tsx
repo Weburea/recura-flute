@@ -94,7 +94,7 @@ export function Invoice() {
           {/* Left Column: Mockup */}
           <div className="order-last lg:order-first">
             <DeviceMockup 
-              src="/images/landing/invoice-INV-1267.png" 
+              src="https://res.cloudinary.com/weburea/image/upload/v1783571813/invoice-INV-1267.png" 
               alt="Invoices that send themselves mockup" 
             />
           </div>
@@ -159,7 +159,7 @@ export function Invoice() {
           {/* Right Column: Mockup */}
           <div>
             <DeviceMockup 
-              src="/images/landing/Recura-Invoice.png" 
+              src="https://res.cloudinary.com/weburea/image/upload/v1783571823/Recura-Invoice.png" 
               alt="Revenue Intelligence analytics mockup" 
             />
           </div>

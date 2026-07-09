@@ -156,7 +156,7 @@ export function InvoiceModal({ isOpen, onClose, invoice, onDownload, isDownloadi
                   <div className="space-y-3">
                     <div className="relative w-36 h-9 sm:w-44 sm:h-11">
                       <Image 
-                        src="/logo_dark.svg" 
+                        src="https://res.cloudinary.com/weburea/image/upload/v1783571838/logo_dark.svg" 
                         alt="Recura" 
                         fill 
                         className="object-contain brightness-0 invert" 

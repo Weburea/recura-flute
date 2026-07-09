@@ -9,10 +9,10 @@ import Image from 'next/image';
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
 const mapMarkers = [
-    { name: "Canada", coordinates: [-106, 56] as [number, number], image: "/images/landing/map/tag.png" }, 
-    { name: "Brazil", coordinates: [-58, -62] as [number, number], image: "/images/landing/map/tag-3.png" },
-    { name: "Germany", coordinates: [50, -18] as [number, number], image: "/images/landing/map/tag-1.png" },
-    { name: "Australia", coordinates: [110, -30] as [number, number], image: "/images/landing/map/tag-2.png" },
+    { name: "Canada", coordinates: [-106, 56] as [number, number], image: "https://res.cloudinary.com/weburea/image/upload/v1783571821/tag.png" }, 
+    { name: "Brazil", coordinates: [-58, -62] as [number, number], image: "https://res.cloudinary.com/weburea/image/upload/v1783571820/tag-3.png" },
+    { name: "Germany", coordinates: [50, -18] as [number, number], image: "https://res.cloudinary.com/weburea/image/upload/v1783571818/tag-1.png" },
+    { name: "Australia", coordinates: [110, -30] as [number, number], image: "https://res.cloudinary.com/weburea/image/upload/v1783571819/tag-2.png" },
 ];
 
 export function Contact() {

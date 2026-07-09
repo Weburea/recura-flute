@@ -20,7 +20,7 @@ export const billingInvoices: Invoice[] = [
     date: "2024-01-12",
     dueDate: "2024-01-12",
     status: "Paid",
-    avatar: "/images/dashboard/24 1.png",
+    avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571691/24%201.png",
   },
   {
     id: "INV-1256",
@@ -31,7 +31,7 @@ export const billingInvoices: Invoice[] = [
     date: "2024-01-08",
     dueDate: "2024-01-08",
     status: "Paid",
-    avatar: "/images/dashboard/11 1.png",
+    avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571687/11%201.png",
   },
   {
     id: "INV-1245",
@@ -42,7 +42,7 @@ export const billingInvoices: Invoice[] = [
     date: "2024-01-05",
     dueDate: "2024-01-05",
     status: "Paid",
-    avatar: "/images/dashboard/61 1.png",
+    avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571696/61%201.png",
   },
   {
     id: "INV-1234",
@@ -53,7 +53,7 @@ export const billingInvoices: Invoice[] = [
     date: "2024-01-15",
     dueDate: "2024-01-15",
     status: "Unpaid",
-    avatar: "/images/dashboard/9 1.png",
+    avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571700/9%201.png",
   },
   {
     id: "INV-1223",
@@ -64,7 +64,7 @@ export const billingInvoices: Invoice[] = [
     date: "2023-12-12",
     dueDate: "2023-12-12",
     status: "Paid",
-    avatar: "/images/dashboard/24 1.png",
+    avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571691/24%201.png",
   },
   {
     id: "INV-1201",
@@ -75,7 +75,7 @@ export const billingInvoices: Invoice[] = [
     date: "2023-12-05",
     dueDate: "2023-12-05",
     status: "Refund",
-    avatar: "/images/dashboard/61 1.png",
+    avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571696/61%201.png",
   },
   {
     id: "INV-1189",
@@ -86,7 +86,7 @@ export const billingInvoices: Invoice[] = [
     date: "2024-01-15",
     dueDate: "2024-01-15",
     status: "Refund",
-    avatar: "/images/dashboard/9 1.png",
+    avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571700/9%201.png",
   },
   {
     id: "INV-1178",
@@ -97,7 +97,7 @@ export const billingInvoices: Invoice[] = [
     date: "2024-01-18",
     dueDate: "2024-01-18",
     status: "Unpaid",
-    avatar: "/images/dashboard/60 1.png",
+    avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571692/60%201.png",
   },
   {
     id: "INV-1165",
@@ -108,7 +108,7 @@ export const billingInvoices: Invoice[] = [
     date: "2024-01-20",
     dueDate: "2024-01-25",
     status: "Paid",
-    avatar: "/images/dashboard/11 1.png",
+    avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571687/11%201.png",
   },
   {
     id: "INV-1154",
@@ -119,7 +119,7 @@ export const billingInvoices: Invoice[] = [
     date: "2024-01-22",
     dueDate: "2024-01-22",
     status: "Refund",
-    avatar: "/images/dashboard/61 1.png",
+    avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571696/61%201.png",
   },
   {
     id: "INV-1143",
@@ -130,7 +130,7 @@ export const billingInvoices: Invoice[] = [
     date: "2024-01-24",
     dueDate: "2024-01-24",
     status: "Unpaid",
-    avatar: "/images/dashboard/60 1.png",
+    avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571692/60%201.png",
   },
 ]
 

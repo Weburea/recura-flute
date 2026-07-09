@@ -4,37 +4,37 @@ const businessTypes = [
   {
     title: "Small Businesses",
     description: "Manage customers, payments, and inventory without complexity",
-    image: "/images/landing/Small.png",
+    image: "https://res.cloudinary.com/weburea/image/upload/v1783571826/Small.png",
     gradient: "from-cyan-200 via-cyan-300 to-pink-300",
   },
   {
     title: "SaaS Startups",
     description: "Handle recurring billing, plans and growth metrics in one dashboard",
-    image: "/images/landing/Garage-1.png",
+    image: "https://res.cloudinary.com/weburea/image/upload/v1783571753/Garage-1.png",
     gradient: "from-blue-200 via-indigo-300 to-purple-300",
   },
   {
     title: "Gyms & Fitness Clubs",
     description: "Manage membership, recurring payments, and customer activity easily",
-    image: "/images/landing/Gas-station-1.png",
+    image: "https://res.cloudinary.com/weburea/image/upload/v1783571759/Gas-station-1.png",
     gradient: "from-teal-200 via-emerald-300 to-pink-300",
   },
   {
     title: "Agencies",
     description: "Bill clients on recurring plans and track revenue effortlessly",
-    image: "/images/landing/Garage-2.png",
+    image: "https://res.cloudinary.com/weburea/image/upload/v1783571756/Garage-2.png",
     gradient: "from-indigo-200 via-purple-300 to-pink-300",
   },
   {
     title: "Subscription Box Companies",
     description: "Track subscriptions, inventory levels, and deliveries in one place",
-    image: "/images/landing/Shoe-store-1.png",
+    image: "https://res.cloudinary.com/weburea/image/upload/v1783571825/Shoe-store-1.png",
     gradient: "from-blue-200 via-cyan-300 to-purple-300",
   },
   {
     title: "Digital Service Providers",
     description: "Automate billing for ongoing services and retain customers longer",
-    image: "/images/landing/Garage-3.png",
+    image: "https://res.cloudinary.com/weburea/image/upload/v1783571758/Garage-3.png",
     gradient: "from-cyan-200 via-blue-300 to-indigo-300",
   },
 ];

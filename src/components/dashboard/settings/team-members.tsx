@@ -32,10 +32,10 @@ interface TeamMember {
 }
 
 const members: TeamMember[] = [
-  { id: 1, name: "Admin User", email: "admin@business.com", role: "Owner", status: "Active", lastActive: "Online", avatar: "/images/dashboard/9 1.png" },
-  { id: 2, name: "Sarah Johnson", email: "sarah@business.com", role: "Admin", status: "Active", lastActive: "5 min ago", avatar: "/images/dashboard/11 1.png" },
-  { id: 3, name: "Michael Brown", email: "michael@business.com", role: "Manager", status: "Active", lastActive: "2 hours ago", avatar: "/images/dashboard/24 1.png" },
-  { id: 4, name: "Emma Wilson", email: "emma@business.com", role: "Support", status: "Pending Invite", lastActive: "Pending", avatar: "/images/dashboard/59 1.png" },
+  { id: 1, name: "Admin User", email: "admin@business.com", role: "Owner", status: "Active", lastActive: "Online", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571700/9%201.png" },
+  { id: 2, name: "Sarah Johnson", email: "sarah@business.com", role: "Admin", status: "Active", lastActive: "5 min ago", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571687/11%201.png" },
+  { id: 3, name: "Michael Brown", email: "michael@business.com", role: "Manager", status: "Active", lastActive: "2 hours ago", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571691/24%201.png" },
+  { id: 4, name: "Emma Wilson", email: "emma@business.com", role: "Support", status: "Pending Invite", lastActive: "Pending", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571691/59%201.png" },
 ]
 
 const CustomDropdown = ({ 
@@ -444,9 +444,9 @@ export function TeamMembers() {
                 <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Recent Activity</p>
                 <div className="space-y-6">
                   {[
-                    { user: 'Sarah Johnson', action: 'invited ben@example.com', time: '59 min ago', avatar: '/images/dashboard/11 1.png' },
-                    { user: 'Admin User', action: 'logged in', time: '132.103.1.8', time_label: '4 hours ago', avatar: '/images/dashboard/9 1.png' },
-                    { user: 'Michael Brown', action: 'reset account password', time: '172.24.144.143', time_label: '1223.4.48.143', avatar: '/images/dashboard/24 1.png' }
+                    { user: 'Sarah Johnson', action: 'invited ben@example.com', time: '59 min ago', avatar: 'https://res.cloudinary.com/weburea/image/upload/v1783571687/11%201.png' },
+                    { user: 'Admin User', action: 'logged in', time: '132.103.1.8', time_label: '4 hours ago', avatar: 'https://res.cloudinary.com/weburea/image/upload/v1783571700/9%201.png' },
+                    { user: 'Michael Brown', action: 'reset account password', time: '172.24.144.143', time_label: '1223.4.48.143', avatar: 'https://res.cloudinary.com/weburea/image/upload/v1783571691/24%201.png' }
                   ].map((activity, i) => (
                     <div key={i} className="flex items-start gap-3">
                       <NextImage src={activity.avatar} width={24} height={24} className="w-6 h-6 rounded-full object-cover" alt={activity.user} />

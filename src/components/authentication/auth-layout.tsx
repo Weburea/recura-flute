@@ -95,8 +95,8 @@ export function AuthLayout({
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12 bg-white dark:bg-[#0D0518] relative overflow-y-auto">
            {/* Logo Top Right */}
             <div className="absolute top-6 right-6 flex items-center">
-                 <Image src="/images/landing/logo.png" alt="Recura" width={100} height={32} className="w-auto h-5 dark:hidden object-contain" priority />
-                 <Image src="/logo.svg" alt="Recura" width={100} height={32} className="w-auto h-5 hidden dark:block object-contain" priority />
+                 <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571838/logo_dark.svg" alt="Recura" width={100} height={32} className="w-auto h-5 dark:hidden object-contain" priority />
+                 <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571835/logo.svg" alt="Recura" width={100} height={32} className="w-auto h-5 hidden dark:block object-contain" priority />
             </div>
 
           <div className="w-full max-w-md space-y-8 py-12 lg:py-0">

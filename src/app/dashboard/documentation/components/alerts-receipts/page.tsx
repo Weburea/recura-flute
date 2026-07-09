@@ -45,7 +45,7 @@ const mockReceipt = {
   id: "TXN-7829",
   customer: "James Davis",
   email: "james.d@email.com",
-  avatar: "/images/dashboard/9 1.png",
+  avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571700/9%201.png",
   amount: "$49.99",
   date: "Jan 12, 2024",
   method: {

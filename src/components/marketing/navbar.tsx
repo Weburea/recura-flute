@@ -63,7 +63,7 @@ export function Navbar() {
         <Link href="/" className="flex items-center gap-2">
            {/* Light Mode Logo */}
            <Image
-             src="/images/landing/logo.png"
+             src="https://res.cloudinary.com/weburea/image/upload/v1783571838/logo_dark.svg"
              alt="Recura Logo"
              width={120}
              height={32}
@@ -71,7 +71,7 @@ export function Navbar() {
            />
            {/* Dark Mode Logo */}
            <Image
-             src="/logo.svg"
+             src="https://res.cloudinary.com/weburea/image/upload/v1783571835/logo.svg"
              alt="Recura Logo"
              width={120}
              height={32}

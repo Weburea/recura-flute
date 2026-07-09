@@ -28,16 +28,16 @@ export function PaymentCard({
         return {
           background: "linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%)",
           textColor: "text-white",
-          logo: "/images/payment/visa.svg",
-          chip: "/images/payment/sim.svg",
+          logo: "https://res.cloudinary.com/weburea/image/upload/v1783571834/visa.svg",
+          chip: "https://res.cloudinary.com/weburea/image/upload/v1783571832/sim.svg",
           className: "bg-gradient-to-br from-indigo-950 to-indigo-700"
         }
       case "bank-transfer":
         return {
           background: "linear-gradient(135deg, #f97316 0%, #3b82f6 33%, #10b981 66%, #db2777 100%)",
           textColor: "text-white",
-          logo: "/images/payment/bank_logo.svg",
-          chip: "/images/payment/sim.svg",
+          logo: "https://res.cloudinary.com/weburea/image/upload/v1783571830/bank_logo.svg",
+          chip: "https://res.cloudinary.com/weburea/image/upload/v1783571832/sim.svg",
           className: "bg-gradient-to-br from-orange-500 via-blue-500 to-pink-500"
         }
       case "apple-pay":
@@ -45,7 +45,7 @@ export function PaymentCard({
           background: "#ffffff",
           textColor: "text-slate-900 dark:text-white",
           logo: null,
-          chip: "/images/payment/sim.svg",
+          chip: "https://res.cloudinary.com/weburea/image/upload/v1783571832/sim.svg",
           className: "bg-white dark:bg-slate-800 border border-slate-100 dark:border-white/10 shadow-sm"
         }
     }

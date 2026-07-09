@@ -30,7 +30,7 @@ export function DashboardFooter() {
             <Link href="/" className="flex items-center">
               <div className="relative w-12 h-8">
                 <Image 
-                  src="/logo_plan.svg" 
+                  src="https://res.cloudinary.com/weburea/image/upload/v1783571840/logo_plan.svg" 
                   alt="Recura Logo" 
                   fill
                   className="object-contain dark:brightness-110"

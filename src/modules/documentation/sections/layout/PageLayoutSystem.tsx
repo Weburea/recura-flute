@@ -97,7 +97,7 @@ export default function DashboardLayout({ children }) {
             icon: Monitor,
             color: "purple",
             href: "/dashboard",
-            images: { light: "/images/documentation/dashboard.png", dark: "/images/documentation/dashboard_dark.png" }
+            images: { light: "https://res.cloudinary.com/weburea/image/upload/v1783571650/dashboard.png", dark: "https://res.cloudinary.com/weburea/image/upload/v1783571660/dashboard_dark.png" }
           },
           {
             title: "Settings layout",
@@ -106,7 +106,7 @@ export default function DashboardLayout({ children }) {
             icon: Settings,
             color: "blue",
             href: "/dashboard/settings",
-            images: { light: "/images/documentation/settings.png", dark: "/images/documentation/settings_dark.png" }
+            images: { light: "https://res.cloudinary.com/weburea/image/upload/v1783571738/settings.png", dark: "https://res.cloudinary.com/weburea/image/upload/v1783571743/settings_dark.png" }
           },
           {
             title: "Auth layout",
@@ -115,7 +115,7 @@ export default function DashboardLayout({ children }) {
             icon: Shield,
             color: "rose",
             href: "/sign-in",
-            images: { light: "/images/documentation/Auth.png", dark: "/images/documentation/Auth_dark.png" }
+            images: { light: "https://res.cloudinary.com/weburea/image/upload/v1783571702/Auth.png", dark: "https://res.cloudinary.com/weburea/image/upload/v1783571706/Auth_dark.png" }
           },
           {
             title: "Guide layout",
@@ -124,7 +124,7 @@ export default function DashboardLayout({ children }) {
             icon: BookOpen,
             color: "emerald",
             href: "/dashboard/documentation",
-            images: { light: "/images/documentation/documetation.png", dark: "/images/documentation/documetation_dark.png" }
+            images: { light: "https://res.cloudinary.com/weburea/image/upload/v1783571722/documetation.png", dark: "https://res.cloudinary.com/weburea/image/upload/v1783571725/documetation_dark.png" }
           }
         ].map((layout, i) => (
           <div key={i} className="group relative bg-white dark:bg-[#150a2e] rounded-[2.5rem] border border-slate-100 dark:border-white/10 shadow-sm transition-all hover:shadow-2xl hover:translate-y-[-4px] overflow-hidden duration-500">

@@ -12,7 +12,7 @@ export function Booking() {
           <div className="w-full md:w-3/12 relative min-h-[100px] md:min-h-[200px]">
              <div className="relative w-full h-full">
                 <Image
-                src="/images/landing/Cash-machines.png"
+                src="https://res.cloudinary.com/weburea/image/upload/v1783571745/Cash-machines.png"
                 alt="Recura Billing Cash Machines"
                 width={300}
                 height={300}

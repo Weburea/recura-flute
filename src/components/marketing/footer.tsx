@@ -47,14 +47,14 @@ export function Footer() {
           <div className="lg:col-span-2 flex flex-col gap-6">
             <Link href="/" className="flex items-center gap-2">
               <Image
-                src="/images/landing/logo.png"
+                src="https://res.cloudinary.com/weburea/image/upload/v1783571838/logo_dark.svg"
                 alt="Recura Logo"
                 width={120}
                 height={32}
                 className="h-8 w-auto object-contain dark:hidden"
               />
               <Image
-                src="/logo.svg"
+                src="https://res.cloudinary.com/weburea/image/upload/v1783571835/logo.svg"
                 alt="Recura Logo"
                 width={120}
                 height={32}

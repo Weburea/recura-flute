@@ -53,7 +53,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center">
             {mounted ? (
               <Image 
-                src={resolvedTheme === 'dark' ? "/logo.svg" : "/images/landing/logo.png"} 
+                src={resolvedTheme === 'dark' ? "https://res.cloudinary.com/weburea/image/upload/v1783571835/logo.svg" : "https://res.cloudinary.com/weburea/image/upload/v1783571838/logo_dark.svg"} 
                 alt="Recura Logo" 
                 fill
                 className="object-contain"

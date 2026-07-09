@@ -30,8 +30,8 @@ export function LayoutNavigationOverview() {
   };
 
   const dashboardImg = (theme === 'dark' || theme === 'system') 
-    ? "/images/documentation/dashboard_dark.png" 
-    : "/images/documentation/dashboard.png"
+    ? "https://res.cloudinary.com/weburea/image/upload/v1783571660/dashboard_dark.png" 
+    : "https://res.cloudinary.com/weburea/image/upload/v1783571650/dashboard.png"
 
   if (!mounted) return null
 

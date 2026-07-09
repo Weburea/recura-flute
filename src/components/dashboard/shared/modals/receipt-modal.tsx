@@ -156,7 +156,7 @@ export function ReceiptModal({ isOpen, onClose, transaction, onDownload, isDownl
               
               <div className="relative z-10 text-center mb-4 print:mb-4">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto bg-white/10 backdrop-blur-md rounded-xl sm:rounded-2xl flex items-center justify-center p-2.5 sm:p-3 shadow-xl transform rotate-3 print:rotate-0 print:shadow-none mb-3 sm:mb-4 border border-white/20">
-                  <Image src="/logo_dark.svg" alt="Recura" width={40} height={40} className="object-contain brightness-0 invert" />
+                  <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571838/logo_dark.svg" alt="Recura" width={40} height={40} className="object-contain brightness-0 invert" />
                 </div>
                 <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-1 leading-tight">Payment Receipt</h2>
                 
@@ -241,7 +241,7 @@ export function ReceiptModal({ isOpen, onClose, transaction, onDownload, isDownl
                 </p>
                 
                 <div className="relative w-20 h-20 mx-auto opacity-20 grayscale">
-                    <Image src="/logo_dark.svg" alt="Recura" fill className="object-contain" />
+                    <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571838/logo_dark.svg" alt="Recura" fill className="object-contain" />
                 </div>
               </div>
 

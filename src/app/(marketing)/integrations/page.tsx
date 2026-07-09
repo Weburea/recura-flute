@@ -5,7 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { 
   Compass, Shuffle, Wind, Zap, HeartPulse,
-  Search, ArrowRight, Puzzle, Check, Sparkles, HelpCircle
+  Search, ArrowRight, Puzzle, Check, Sparkles, HelpCircle,
+  Copy, Shield, KeyRound, Terminal
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -13,12 +14,12 @@ import { Navbar } from '@/components/marketing/navbar';
 import { Footer } from '@/components/marketing/footer';
 
 const HERO_COMPANIES = [
-  { name: 'Xero', role: 'Accounting', iconPath: '/images/landing/integration/xero_box.svg', bg: 'bg-[#13B5EA]' },
-  { name: 'Stripe', role: 'Payments', iconPath: '/images/landing/integration/stripe_box.svg', bg: 'bg-[#635BFF]' },
-  { name: 'HubSpot', role: 'CRM', iconPath: '/images/landing/integration/hubspot_box.svg', bg: 'bg-[#FF7A59]' },
-  { name: 'Salesforce', role: 'CRM', iconPath: '/images/landing/integration/salesforce_box.svg', bg: 'bg-[#00A1E0]' },
-  { name: 'Slack', role: 'Notifications', iconPath: '/images/landing/integration/slack_box.svg', bg: 'bg-[#4A154B]' },
-  { name: 'QuickBooks', role: 'Accounting', iconPath: '/images/landing/integration/quickbooks_box.svg', bg: 'bg-[#2CA01C]' },
+  { name: 'Xero', role: 'Accounting', iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571963/xero_box.svg', bg: 'bg-[#13B5EA]' },
+  { name: 'Stripe', role: 'Payments', iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571953/stripe_box.svg', bg: 'bg-[#635BFF]' },
+  { name: 'HubSpot', role: 'CRM', iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571779/hubspot_box.svg', bg: 'bg-[#FF7A59]' },
+  { name: 'Salesforce', role: 'CRM', iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571934/salesforce_box.svg', bg: 'bg-[#00A1E0]' },
+  { name: 'Slack', role: 'Notifications', iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571943/slack_box.svg', bg: 'bg-[#4A154B]' },
+  { name: 'QuickBooks', role: 'Accounting', iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571798/quickbooks_box.svg', bg: 'bg-[#2CA01C]' },
 ];
 
 const INTEGRATIONS_DIRECTORY = [
@@ -26,7 +27,7 @@ const INTEGRATIONS_DIRECTORY = [
     name: 'Stripe',
     desc: 'Sync Recura subscriptions bidirectionally with Stripe — plan upgrades, coupon codes, trial management, payment method vaults, and real-time webhook delivery. Handle SCA, 3DS2, and card decline logic automatically with Recura\'s smart dunning on top.',
     category: 'Payments',
-    iconPath: '/images/landing/integration/stripe_box.svg',
+    iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571953/stripe_box.svg',
     status: 'live',
     featured: true,
     tags: ['Webhook sync', 'Dunning automation', '3DS2 ready', 'Multi-currency', 'Proration']
@@ -35,7 +36,7 @@ const INTEGRATIONS_DIRECTORY = [
     name: 'Salesforce',
     desc: 'Push subscription data into Salesforce Opportunities and Accounts. Trigger workflows when plans change, trials expire, or invoices go unpaid. Keep your sales team in the loop without manual data entry.',
     category: 'CRM',
-    iconPath: '/images/landing/integration/salesforce_box.svg',
+    iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571934/salesforce_box.svg',
     status: 'live',
     featured: true,
     tags: ['Bi-directional sync', 'Opportunity mapping', 'Custom objects']
@@ -44,7 +45,7 @@ const INTEGRATIONS_DIRECTORY = [
     name: 'QuickBooks Online',
     desc: 'Auto-generate QuickBooks invoices from Recura billing events. Reconcile payments, map chart of accounts, sync customer records, and produce tax-ready reports without leaving your accounting workflow.',
     category: 'ERP',
-    iconPath: '/images/landing/integration/quickbooks_box.svg',
+    iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571798/quickbooks_box.svg',
     status: 'popular',
     tags: ['Invoice sync', 'Tax mapping', 'Auto-reconcile']
   },
@@ -52,7 +53,7 @@ const INTEGRATIONS_DIRECTORY = [
     name: 'HubSpot',
     desc: 'Sync subscription lifecycle events to HubSpot Deals and Contacts. Build automated nurture sequences that trigger on trial starts, renewals, and churn risk — keeping marketing and billing perfectly aligned.',
     category: 'CRM',
-    iconPath: '/images/landing/integration/hubspot_box.svg',
+    iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571779/hubspot_box.svg',
     status: 'live',
     tags: ['Deal sync', 'Lifecycle triggers', 'MRR properties']
   },
@@ -60,7 +61,7 @@ const INTEGRATIONS_DIRECTORY = [
     name: 'Xero',
     desc: 'Connect Recura to Xero for automated invoice creation, payment matching, and bank reconciliation. GST/VAT calculations are handled automatically based on customer location and tax rules.',
     category: 'ERP',
-    iconPath: '/images/landing/integration/xero_box.svg',
+    iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571963/xero_box.svg',
     status: 'live',
     tags: ['VAT/GST auto', 'Bank rec', 'Multi-entity']
   },
@@ -68,7 +69,7 @@ const INTEGRATIONS_DIRECTORY = [
     name: 'Slack',
     desc: 'Deliver real-time billing alerts to your team\'s Slack channels. New subscriptions, failed payments, churn events, and MRR milestones — your team always knows what\'s happening.',
     category: 'CRM',
-    iconPath: '/images/landing/integration/slack_box.svg',
+    iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571943/slack_box.svg',
     status: 'live',
     tags: ['Custom alerts', 'Channel routing', 'MRR digest']
   },
@@ -76,7 +77,7 @@ const INTEGRATIONS_DIRECTORY = [
     name: 'Chargebee',
     desc: 'Migrating from Chargebee? Recura\'s one-click importer moves all your subscriptions, plans, customers, and billing history with zero downtime and full data fidelity.',
     category: 'ERP',
-    iconPath: '/images/landing/integration/Chargebee.svg',
+    iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571771/Chargebee.svg',
     status: 'live',
     tags: ['Zero downtime', 'History import', 'Plan mapping']
   },
@@ -84,7 +85,7 @@ const INTEGRATIONS_DIRECTORY = [
     name: 'AWS Marketplace',
     desc: 'List your SaaS on AWS Marketplace and let Recura handle metered billing, entitlement checks, and AWS usage-based pricing — without a single line of marketplace-specific billing code.',
     category: 'ERP',
-    iconPath: '/images/landing/integration/AWS Marketplace.svg',
+    iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571769/AWS%20Marketplace.svg',
     status: 'live',
     tags: ['Metered billing', 'Entitlements', 'CPPO support']
   },
@@ -92,7 +93,7 @@ const INTEGRATIONS_DIRECTORY = [
     name: 'PayPal Braintree',
     desc: 'Accept PayPal, Venmo, Google Pay, and Apple Pay alongside card payments. Braintree\'s vault syncs subscription details automatically for secure, recurring processing.',
     category: 'Payments',
-    iconPath: '/images/landing/integration/PayPal Braintree.svg',
+    iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571786/PayPal%20Braintree.svg',
     status: 'live',
     tags: ['Wallet payments', 'Vault sync', 'Retry logic']
   },
@@ -100,7 +101,7 @@ const INTEGRATIONS_DIRECTORY = [
     name: 'Zapier',
     desc: 'Connect Recura to 5,000+ apps via Zapier. Build automated workflows — create CRM leads, trigger onboarding emails, update spreadsheets, or log invoices to custom databases.',
     category: 'ERP',
-    iconPath: '/images/landing/integration/Zapier_int.svg',
+    iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571969/Zapier_int.svg',
     status: 'popular',
     tags: ['5,000+ apps', 'No-code', 'Multi-step Zaps']
   },
@@ -108,7 +109,7 @@ const INTEGRATIONS_DIRECTORY = [
     name: 'Google Analytics 4',
     desc: 'Push Recura revenue events to GA4 as e-commerce conversions. Track subscription signups, upgrades, and cancellations to measure acquisition funnel health.',
     category: 'Analytics',
-    iconPath: '/images/landing/integration/Google Analytics 4.svg',
+    iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571775/Google%20Analytics%204.svg',
     status: 'live',
     tags: ['Revenue events', 'LTV attribution', 'GA4 native']
   }
@@ -121,39 +122,255 @@ const PAYMENT_GATEWAYS = [
   {
     name: 'Stripe',
     desc: 'Cards, wallets, SEPA, and 135+ currencies with smart retry logic. Favorable for global scaling.',
-    iconPath: '/images/landing/integration/Stripe.svg',
+    iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571946/Stripe.svg',
     status: 'Connected',
     featured: false
   },
   {
     name: 'PayPal',
     desc: 'PayPal, Venmo, Google Pay, and Apple Pay via vault-based billing. Favorable for international checkouts.',
-    iconPath: '/images/landing/integration/PayPal.svg',
+    iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571788/PayPal.svg',
     status: 'Connected',
     featured: false
   },
   {
     name: 'Flutterwave',
     desc: 'Enterprise-grade acquiring with local payment methods. Favorable for merchants in Nigeria and African countries.',
-    iconPath: '/images/landing/integration/Flutterwave.svg',
+    iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571773/Flutterwave.svg',
     status: 'Featured',
     featured: true
   },
   {
     name: 'Paystack',
     desc: 'Direct debit across UK, EU, and Australia. Favorable for modern businesses in Nigeria and West Africa.',
-    iconPath: '/images/landing/integration/Paystack.svg',
+    iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571790/Paystack.svg',
     status: 'Connected',
     featured: false
   },
   {
     name: 'Razorpay',
     desc: 'India\'s leading gateway with UPI, Netbanking, and EMI support. Favorable for merchants in India and Asia.',
-    iconPath: '/images/landing/integration/razorpay.svg',
+    iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571800/razorpay.svg',
     status: 'Available',
     featured: false
   }
 ];
+
+const CODE_TABS = [
+  {
+    id: 'js',
+    name: 'recura-webhook.js',
+    lang: 'js',
+    code: `// Recura Webhook - Node.js/Express
+const express = require('express');
+const app = express();
+
+app.post('/webhooks/recura', async (req, res) => {
+  const event = recura.webhooks.verify(
+    req.body, 
+    process.env.RECURA_WEBHOOK_SECRET
+  );
+
+  switch (event.type) {
+    case 'subscription.created':
+      await crm.createDeal(event.data);
+      break;
+    case 'payment.failed':
+      await dunning.startSequence(event.data);
+      break;
+  }
+  res.json({ received: true });
+});`
+  },
+  {
+    id: 'py',
+    name: 'slack-notifier.py',
+    lang: 'py',
+    code: `# Recura Slack Alerts - Python/Flask
+from flask import Flask, request, jsonify
+import recura
+
+app = Flask(__name__)
+
+@app.route('/webhooks/alerts', methods=['POST'])
+def handle_alert():
+    event = recura.Webhook.construct_event(
+        request.data,
+        request.headers.get('Recura-Signature')
+    )
+    
+    if event.type == "mrr.milestone_reached":
+        slack.send_message(
+            channel="#revenue",
+            text=f"🚀 New MRR: \${event.data.mrr}"
+        )
+    return jsonify(success=True)`
+  },
+  {
+    id: 'go',
+    name: 'salesforce-sync.go',
+    lang: 'go',
+    code: `// Recura Salesforce Sync - Go/http
+package main
+
+import (
+	"encoding/json"
+	"net/http"
+	"github.com/recura/recura-go"
+)
+
+func handleSync(w http.ResponseWriter, r *http.Request) {
+	event, err := recura.VerifyWebhook(r)
+	if err != nil {
+		http.Error(w, "Invalid signature", 400)
+		return
+	}
+
+	if event.Type == "customer.created" {
+		var customer recura.Customer
+		json.Unmarshal(event.Data, &customer)
+		salesforce.SyncAccount(customer)
+	}
+	w.WriteHeader(http.StatusOK)
+}`
+  }
+];
+
+function highlightCode(code: string, lang: string) {
+  if (!code) return null;
+  
+  const tokens = code.split(/(\/\/.*|#.*|"[^"]*"|'[^']*'|\b(?:const|let|var|async|await|switch|case|break|return|import|package|func|default|type|struct|from|def|if|elif|else|in|class|and|or|not)\b|\b(?:post|verify|createDeal|startSequence|grant|create_ticket|send_message|construct_event|VerifyWebhook|SyncAccount|Error|WriteHeader|Write|route|handle_alert|jsonify|get|Unmarshal)\b|[a-zA-Z_]\w*|[^\s\w]+|\s+)/g);
+  
+  return tokens.map((part, index) => {
+    if (!part) return null;
+    
+    if (part.startsWith('//') || part.startsWith('#')) {
+      return <span key={index} className="text-slate-500 font-normal italic">{part}</span>;
+    }
+    if ((part.startsWith('"') && part.endsWith('"')) || (part.startsWith("'") && part.endsWith("'"))) {
+      return <span key={index} className="text-[#c3e88d]">{part}</span>;
+    }
+    if (/^(const|let|var|async|await|switch|case|break|return|import|package|func|default|type|struct|from|def|if|elif|else|in|class|and|or|not)$/.test(part)) {
+      return <span key={index} className="text-[#c792ea] font-bold">{part}</span>;
+    }
+    if (/^(post|verify|createDeal|startSequence|grant|create_ticket|send_message|construct_event|VerifyWebhook|SyncAccount|Error|WriteHeader|Write|route|handle_alert|jsonify|get|Unmarshal)$/.test(part)) {
+      return <span key={index} className="text-[#82aaff] font-semibold">{part}</span>;
+    }
+    return <span key={index} className="text-slate-400">{part}</span>;
+  });
+}
+
+export function CodingPreview() {
+  const [activeTabIdx, setActiveTabIdx] = useState(0);
+  const [displayText, setDisplayText] = useState('');
+  const [charIndex, setCharIndex] = useState(0);
+  const [state, setState] = useState<'typing' | 'waiting' | 'deleting'>('typing');
+  const [copied, setCopied] = useState(false);
+
+  const currentTab = CODE_TABS[activeTabIdx];
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    
+    if (state === 'typing') {
+      if (charIndex < currentTab.code.length) {
+        timer = setTimeout(() => {
+          setDisplayText(currentTab.code.substring(0, charIndex + 1));
+          setCharIndex(prev => prev + 1);
+        }, 15);
+      } else {
+        timer = setTimeout(() => {
+          setState('waiting');
+        }, 0);
+      }
+    } else if (state === 'waiting') {
+      timer = setTimeout(() => {
+        setState('deleting');
+      }, 4000);
+    } else if (state === 'deleting') {
+      if (charIndex > 0) {
+        timer = setTimeout(() => {
+          const nextIndex = Math.max(0, charIndex - 4);
+          setDisplayText(currentTab.code.substring(0, nextIndex));
+          setCharIndex(nextIndex);
+          if (nextIndex === 0) {
+            setActiveTabIdx(prev => (prev + 1) % CODE_TABS.length);
+            setState('typing');
+          }
+        }, 10);
+      }
+    }
+
+    return () => clearTimeout(timer);
+  }, [charIndex, state, activeTabIdx, currentTab.code]);
+
+  const handleTabClick = (idx: number) => {
+    if (idx === activeTabIdx) return;
+    setCharIndex(0);
+    setDisplayText('');
+    setActiveTabIdx(idx);
+    setState('typing');
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(currentTab.code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="w-full rounded-[24px] bg-[#0A0D14] border border-white/5 shadow-2xl overflow-hidden relative group text-left">
+      <div className="px-4 py-3 md:px-6 md:py-4 bg-white/[0.02] border-b border-white/5 flex items-center justify-between gap-4">
+        <div className="flex gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F56]" />
+          <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]" />
+          <div className="w-2.5 h-2.5 rounded-full bg-[#27C93F]" />
+        </div>
+        
+        <div className="flex gap-2">
+          {CODE_TABS.map((tab, idx) => (
+            <button
+              key={tab.id}
+              onClick={() => handleTabClick(idx)}
+              className={cn(
+                "text-[10px] font-bold px-3 py-1 rounded-md transition-colors cursor-pointer select-none",
+                idx === activeTabIdx 
+                  ? "bg-white/10 text-white border border-white/5" 
+                  : "text-slate-500 hover:text-slate-300"
+              )}
+            >
+              {tab.name}
+            </button>
+          ))}
+        </div>
+
+        <button 
+          onClick={handleCopy}
+          className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors text-[10px] font-bold"
+        >
+          {copied ? (
+            <>
+              <Check className="w-3 h-3 text-emerald-500" />
+              <span className="text-emerald-500">Copied</span>
+            </>
+          ) : (
+            <>
+              <Copy className="w-3 h-3" />
+              <span>Copy</span>
+            </>
+          )}
+        </button>
+      </div>
+
+      <div className="p-6 md:p-8 overflow-hidden h-[340px] flex flex-col justify-start">
+        <pre className="text-[12px] font-medium leading-relaxed custom-scrollbar overflow-y-auto overflow-x-hidden pr-4 flex-1 text-slate-300">
+          {highlightCode(displayText, currentTab.lang)}
+          <span className="inline-block w-1.5 h-4 bg-primary ml-0.5 animate-pulse" />
+        </pre>
+      </div>
+    </div>
+  );
+}
 
 export default function IntegrationsPage() {
   const [search, setSearch] = useState('');
@@ -205,7 +422,7 @@ export default function IntegrationsPage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1200px] h-[550px] z-0 overflow-hidden pointer-events-none select-none">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(162,140,255,0.06),transparent_60%)] dark:bg-[radial-gradient(circle_at_center,rgba(162,140,255,0.12),transparent_65%)]" />
           <Image
-            src="/images/landing/Grid_hero_lines.svg"
+            src="https://res.cloudinary.com/weburea/image/upload/v1783571760/Grid_hero_lines.svg"
             alt="Background Pattern"
             fill
             className="object-contain opacity-75 dark:opacity-50 pointer-events-none"
@@ -344,7 +561,7 @@ export default function IntegrationsPage() {
                   onMouseLeave={() => setHoveredNode(null)}
                   className="absolute left-[40px] top-[40px] z-10 flex items-center gap-3.5 px-4.5 py-3 rounded-2xl bg-white dark:bg-[#150a2e] border border-slate-200/80 dark:border-white/10 hover:border-primary/40 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group"
                 >
-                  <Image src="/images/landing/integration/xero_box.svg" alt="Xero" width={28} height={28} className="w-7 h-7 object-contain shrink-0" />
+                  <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571963/xero_box.svg" alt="Xero" width={28} height={28} className="w-7 h-7 object-contain shrink-0" />
                   <div className="text-left">
                     <span className="text-sm font-bold text-slate-800 dark:text-slate-100 block">Xero</span>
                     <span className="text-[10px] font-bold text-slate-400 tracking-wide uppercase block">Accounting</span>
@@ -357,7 +574,7 @@ export default function IntegrationsPage() {
                   onMouseLeave={() => setHoveredNode(null)}
                   className="absolute right-[40px] top-[40px] z-10 flex items-center gap-3.5 px-4.5 py-3 rounded-2xl bg-white dark:bg-[#150a2e] border border-slate-200/80 dark:border-white/10 hover:border-primary/40 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group"
                 >
-                  <Image src="/images/landing/integration/stripe_box.svg" alt="Stripe" width={28} height={28} className="w-7 h-7 object-contain shrink-0" />
+                  <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571953/stripe_box.svg" alt="Stripe" width={28} height={28} className="w-7 h-7 object-contain shrink-0" />
                   <div className="text-left">
                     <span className="text-sm font-bold text-slate-800 dark:text-slate-100 block">Stripe</span>
                     <span className="text-[10px] font-bold text-slate-400 tracking-wide uppercase block">Payments</span>
@@ -370,7 +587,7 @@ export default function IntegrationsPage() {
                   onMouseLeave={() => setHoveredNode(null)}
                   className="absolute left-[20px] top-[200px] z-10 flex items-center gap-3.5 px-4.5 py-3 rounded-2xl bg-white dark:bg-[#150a2e] border border-slate-200/80 dark:border-white/10 hover:border-primary/40 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group"
                 >
-                  <Image src="/images/landing/integration/hubspot_box.svg" alt="HubSpot" width={28} height={28} className="w-7 h-7 object-contain shrink-0" />
+                  <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571779/hubspot_box.svg" alt="HubSpot" width={28} height={28} className="w-7 h-7 object-contain shrink-0" />
                   <div className="text-left">
                     <span className="text-sm font-bold text-slate-800 dark:text-slate-100 block">HubSpot</span>
                     <span className="text-[10px] font-bold text-slate-400 tracking-wide uppercase block">CRM</span>
@@ -383,7 +600,7 @@ export default function IntegrationsPage() {
                   onMouseLeave={() => setHoveredNode(null)}
                   className="absolute right-[20px] top-[200px] z-10 flex items-center gap-3.5 px-4.5 py-3 rounded-2xl bg-white dark:bg-[#150a2e] border border-slate-200/80 dark:border-white/10 hover:border-primary/40 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group"
                 >
-                  <Image src="/images/landing/integration/salesforce_box.svg" alt="Salesforce" width={28} height={28} className="w-7 h-7 object-contain shrink-0" />
+                  <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571934/salesforce_box.svg" alt="Salesforce" width={28} height={28} className="w-7 h-7 object-contain shrink-0" />
                   <div className="text-left">
                     <span className="text-sm font-bold text-slate-800 dark:text-slate-100 block">Salesforce</span>
                     <span className="text-[10px] font-bold text-slate-400 tracking-wide uppercase block">CRM</span>
@@ -396,7 +613,7 @@ export default function IntegrationsPage() {
                   onMouseLeave={() => setHoveredNode(null)}
                   className="absolute left-[40px] bottom-[40px] z-10 flex items-center gap-3.5 px-4.5 py-3 rounded-2xl bg-white dark:bg-[#150a2e] border border-slate-200/80 dark:border-white/10 hover:border-primary/40 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group"
                 >
-                  <Image src="/images/landing/integration/slack_box.svg" alt="Slack" width={28} height={28} className="w-7 h-7 object-contain shrink-0" />
+                  <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571943/slack_box.svg" alt="Slack" width={28} height={28} className="w-7 h-7 object-contain shrink-0" />
                   <div className="text-left">
                     <span className="text-sm font-bold text-slate-800 dark:text-slate-100 block">Slack</span>
                     <span className="text-[10px] font-bold text-slate-400 tracking-wide uppercase block">Notifications</span>
@@ -409,7 +626,7 @@ export default function IntegrationsPage() {
                   onMouseLeave={() => setHoveredNode(null)}
                   className="absolute right-[40px] bottom-[40px] z-10 flex items-center gap-3.5 px-4.5 py-3 rounded-2xl bg-white dark:bg-[#150a2e] border border-slate-200/80 dark:border-white/10 hover:border-primary/40 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group"
                 >
-                  <Image src="/images/landing/integration/quickbooks_box.svg" alt="QuickBooks" width={28} height={28} className="w-7 h-7 object-contain shrink-0" />
+                  <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571798/quickbooks_box.svg" alt="QuickBooks" width={28} height={28} className="w-7 h-7 object-contain shrink-0" />
                   <div className="text-left">
                     <span className="text-sm font-bold text-slate-800 dark:text-slate-100 block">QuickBooks</span>
                     <span className="text-[10px] font-bold text-slate-400 tracking-wide uppercase block">Accounting</span>
@@ -607,7 +824,7 @@ export default function IntegrationsPage() {
 
                     {/* Icon Block */}
                     <div className="hidden md:flex items-center justify-center shrink-0 w-32 h-32 rounded-3xl bg-white dark:bg-white/5 border border-slate-200/20 dark:border-white/5 self-center">
-                      <Image src="/images/landing/integration/stripe_box.svg" alt="Stripe" width={64} height={64} className="w-16 h-16 object-contain" />
+                      <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571953/stripe_box.svg" alt="Stripe" width={64} height={64} className="w-16 h-16 object-contain" />
                     </div>
                   </div>
 
@@ -615,7 +832,7 @@ export default function IntegrationsPage() {
                   <div className="bg-[#F8F9FC] dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/10 rounded-3xl p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-all duration-300 group">
                     <div>
                       <div className="flex items-center justify-between gap-4 mb-5">
-                        <Image src="/images/landing/integration/salesforce_box.svg" alt="Salesforce" width={32} height={32} className="w-8 h-8 object-contain" />
+                        <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571934/salesforce_box.svg" alt="Salesforce" width={32} height={32} className="w-8 h-8 object-contain" />
                         <span className="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-[9px] font-black uppercase text-emerald-600 dark:text-emerald-400 tracking-wider">
                           LIVE
                         </span>
@@ -773,7 +990,7 @@ export default function IntegrationsPage() {
                 <div className="lg:col-span-7 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center gap-3 mb-6">
-                      <Image src="/images/landing/integration/stripe_box.svg" alt="Stripe" width={36} height={36} className="w-9 h-9 object-contain" />
+                      <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571953/stripe_box.svg" alt="Stripe" width={36} height={36} className="w-9 h-9 object-contain" />
                       <span className="px-2.5 py-1 rounded-lg bg-primary/10 text-[9px] font-black uppercase text-primary tracking-wider">
                         DEEP INTEGRATION
                       </span>
@@ -844,7 +1061,7 @@ export default function IntegrationsPage() {
                       <div className="relative w-full flex-1 bg-[#F8F9FC] dark:bg-slate-950 p-1.5">
                         <div className="relative w-full h-full rounded-lg overflow-hidden">
                           <Image 
-                            src="/images/landing/stripe_payment.png" 
+                            src="https://res.cloudinary.com/weburea/image/upload/v1783571827/stripe_payment.png" 
                             alt="Stripe Recura Sync Dashboard Mockup" 
                             fill 
                             className="object-contain" 
@@ -1141,12 +1358,12 @@ export default function IntegrationsPage() {
 
             {/* Right Column: Rotated Tablet Mockup Frame displaying Video */}
             <div className="lg:col-span-6 w-full flex items-center justify-center overflow-visible">
-              <div className="relative w-full max-w-[600px] aspect-[1.5/1] rounded-[32px] bg-slate-950 p-2.5 border-4 border-slate-900 dark:border-white/10 shadow-2xl shadow-primary/20 select-none overflow-hidden">
+              <div className="relative w-full max-w-[600px] aspect-[1.6/1] rounded-[32px] bg-slate-950 p-2.5 border-4 border-slate-900 dark:border-white/10 shadow-2xl shadow-primary/20 select-none overflow-hidden">
                 {/* Front camera notch - positioned vertically on the left side to represent a rotated landscape tablet */}
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-16 bg-slate-950 rounded-full z-20 border border-slate-900" />
                 
                 {/* Browser/Dashboard Screen */}
-                <div className="w-full h-full rounded-[20px] overflow-hidden bg-white dark:bg-[#0D0518] relative border border-slate-200/50 dark:border-white/5 flex flex-col pl-6">
+                <div className="w-full h-full rounded-[20px] overflow-hidden bg-white dark:bg-[#0D0518] relative border border-slate-200/50 dark:border-white/5 flex flex-col">
                   {/* Header Bar */}
                   <div className="h-6 bg-slate-100 dark:bg-slate-800/80 border-b border-slate-200/60 dark:border-white/5 flex items-center px-3 gap-1 select-none shrink-0 relative pl-4">
                     {/* Loading light pulse bar */}
@@ -1170,13 +1387,149 @@ export default function IntegrationsPage() {
                       loop 
                       muted 
                       playsInline 
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-fill"
                     />
                   </div>
                 </div>
               </div>
             </div>
 
+          </div>
+        </div>
+      </section>
+
+      {/* For Developers Section */}
+      <section className="py-24 bg-[#F8F9FC] dark:bg-transparent overflow-hidden border-b-2 border-dotted border-primary/30 relative text-left">
+        <div className="container mx-auto px-6 max-w-7xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center max-w-7xl mx-auto">
+            
+            {/* Left Column: Code Preview */}
+            <div className="lg:col-span-6 w-full flex items-center justify-center overflow-visible">
+              <CodingPreview />
+            </div>
+
+            {/* Right Column: Title and 3 Feature Cards */}
+            <div className="lg:col-span-6">
+              <span className="text-[10px] font-bold text-primary uppercase tracking-widest block mb-3">
+                For Developers
+              </span>
+              <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight mb-6">
+                Build exactly the integration you need
+              </h2>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed mb-10 max-w-xl">
+                Recura&apos;s REST API and webhook system give developers full control. Subscribe to any billing lifecycle event and build custom integrations into any tool in your stack — with typed SDKs for Node.js, Python, Ruby, Go, and PHP.
+              </p>
+
+              {/* List of 3 Feature Cards */}
+              <div className="space-y-4">
+                {/* Webhook signatures */}
+                <div className="flex gap-4 p-5 rounded-2xl border border-slate-200/60 dark:border-white/5 bg-white dark:bg-white/[0.02] shadow-sm hover:shadow-md transition-all duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+                    <Shield className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-1">Webhook signatures</h4>
+                    <p className="text-[11px] font-semibold leading-relaxed text-slate-500 dark:text-slate-400">
+                      Every webhook is signed with HMAC-SHA256. Verify authenticity in one line with any of our SDKs.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Idempotency keys */}
+                <div className="flex gap-4 p-5 rounded-2xl border border-slate-200/60 dark:border-white/5 bg-white dark:bg-white/[0.02] shadow-sm hover:shadow-md transition-all duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                    <KeyRound className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-1">Idempotency keys</h4>
+                    <p className="text-[11px] font-semibold leading-relaxed text-slate-500 dark:text-slate-400">
+                      Pass an idempotency key to safely retry any write request without risk of duplicate operations.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Typed SDKs */}
+                <div className="flex gap-4 p-5 rounded-2xl border border-slate-200/60 dark:border-white/5 bg-white dark:bg-white/[0.02] shadow-sm hover:shadow-md transition-all duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                    <Terminal className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-1">Typed SDKs in 5 languages</h4>
+                    <p className="text-[11px] font-semibold leading-relaxed text-slate-500 dark:text-slate-400">
+                      Node.js, Python, Ruby, Go, and PHP SDKs — auto-generated from our OpenAPI spec, always in sync with the API.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* Integrations CTA Section */}
+      <section className="py-24 bg-[#0A0D14] text-white overflow-hidden relative text-center">
+        {/* Background Pattern using same lines SVG as Hero */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1200px] h-[550px] z-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.1),transparent_65%)]" />
+          <Image
+            src="https://res.cloudinary.com/weburea/image/upload/v1783571760/Grid_hero_lines.svg"
+            alt="Background Pattern"
+            fill
+            className="object-contain opacity-40 pointer-events-none"
+          />
+        </div>
+
+        <div className="container mx-auto px-6 relative z-10 max-w-4xl">
+          {/* Label */}
+          <span className="text-primary font-bold text-xs tracking-widest uppercase mb-4 block">
+            Start Integrating Today
+          </span>
+
+          {/* Heading */}
+          <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight mb-6 leading-tight max-w-2xl mx-auto">
+            Connect your entire revenue stack in minutes
+          </h2>
+
+          {/* Subtitle */}
+          <p className="text-slate-400 text-sm md:text-base max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+            120+ native integrations, a full REST API, and no-code workflows — Recura connects to everything your business already runs on.
+          </p>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-lg mx-auto mb-12">
+            <div className="w-full sm:w-auto">
+              <Button 
+                className="w-full px-6 py-4.5 rounded-xl font-bold bg-primary hover:bg-primary/95 text-white text-xs shadow-md shadow-primary/10 transition-all hover:scale-105 hover:-translate-y-0.5"
+              >
+                Browse all integrations
+              </Button>
+            </div>
+            <div className="w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                className="w-full px-6 py-4.5 rounded-xl font-bold border-white/10 hover:bg-white/5 text-slate-300 text-xs transition-all hover:scale-105 hover:-translate-y-0.5"
+              >
+                Read the docs
+              </Button>
+            </div>
+            <div className="w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                className="w-full px-6 py-4.5 rounded-xl font-bold border-white/10 hover:bg-white/5 text-slate-300 text-xs transition-all hover:scale-105 hover:-translate-y-0.5"
+              >
+                Talk to an engineer
+              </Button>
+            </div>
+          </div>
+
+          {/* Checklist Row */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-slate-500 text-xs font-bold uppercase tracking-wider">
+            <span>120+ native connectors</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+            <span>REST API & webhooks</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+            <span>SOC 2 Type II certified</span>
           </div>
         </div>
       </section>

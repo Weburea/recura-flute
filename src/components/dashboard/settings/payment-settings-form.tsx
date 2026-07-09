@@ -199,20 +199,20 @@ export function PaymentSettingsForm() {
   }
 
   const mockTransactions: Transaction[] = [
-    { id: "A1X9-B223", customer: "Alex Johnson", email: "alex.j@email.com", plan: "Premium", amount: "$124.00", method: { type: "Credit Card", details: "•••• 4242", icon: CreditCard }, date: "Mar 02, 2024", status: "Approved", avatar: "/images/dashboard/24 1.png" },
-    { id: "C4M7-K991", customer: "Sarah Miller", email: "sarah.m@company.com", plan: "Basic", amount: "$50.00", method: { type: "Apple Pay", details: "Device •••• 1122", icon: Smartphone }, date: "Mar 01, 2024", status: "Failed", avatar: "/images/dashboard/61 1.png" },
-    { id: "D8N2-P334", customer: "Mike Ross", email: "mike.ross@legal.co", plan: "Enterprise", amount: "$89.99", method: { type: "Bank Transfer", details: "ACH •••• 9876", icon: Building2 }, date: "Feb 28, 2024", status: "Pending", avatar: "/images/dashboard/11 1.png" },
-    { id: "X9Q1-L445", customer: "John Doe", email: "john.doe@gmail.com", plan: "Premium", amount: "$210.00", method: { type: "Credit Card", details: "•••• 5544", icon: CreditCard }, date: "Feb 27, 2024", status: "Approved", avatar: "/images/dashboard/9 1.png" },
-    { id: "B2W5-Z889", customer: "Emma Wilson", email: "emma.w@design.io", plan: "Basic", amount: "$49.00", method: { type: "Apple Pay", details: "Device •••• 3322", icon: Smartphone }, date: "Feb 26, 2024", status: "Approved", avatar: "/images/dashboard/60 1.png" },
-    { id: "M5V8-R112", customer: "James Bond", email: "007@mi6.gov.uk", plan: "Enterprise", amount: "$999.00", method: { type: "Bank Transfer", details: "Wire Transfer", icon: Building2 }, date: "Feb 25, 2024", status: "Approved", avatar: "/images/dashboard/59 1.png" },
-    { id: "J7K4-T667", customer: "Olivia Brown", email: "olivia.b@web.com", plan: "Premium", amount: "$150.00", method: { type: "Credit Card", details: "•••• 1234", icon: CreditCard }, date: "Feb 24, 2024", status: "Failed", avatar: "/images/dashboard/24 1.png" },
-    { id: "P3H6-Y221", customer: "William Smith", email: "will.s@actor.me", plan: "Basic", amount: "$25.00", method: { type: "Apple Pay", details: "Device •••• 9988", icon: Smartphone }, date: "Feb 23, 2024", status: "Approved", avatar: "/images/dashboard/61 1.png" },
-    { id: "Z9Q1-L445", customer: "Thomas Shelby", email: "thomas@shelby.co", plan: "Enterprise", amount: "$1500.00", method: { type: "Bank Transfer", details: "ACH •••• 1122", icon: Building2 }, date: "Feb 22, 2024", status: "Approved", avatar: "/images/dashboard/11 1.png" },
-    { id: "X8M2-P334", customer: "Arthur Shelby", email: "arthur@shelby.co", plan: "Premium", amount: "$250.00", method: { type: "Credit Card", details: "•••• 9988", icon: CreditCard }, date: "Feb 21, 2024", status: "Approved", avatar: "/images/dashboard/9 1.png" },
-    { id: "Y7N5-K445", customer: "Polly Gray", email: "polly@shelby.co", plan: "Basic", amount: "$100.00", method: { type: "Apple Pay", details: "Device •••• 4455", icon: Smartphone }, date: "Feb 20, 2024", status: "Approved", avatar: "/images/dashboard/60 1.png" },
-    { id: "W6P3-M112", customer: "John Shelby", email: "johns@shelby.co", plan: "Enterprise", amount: "$500.00", method: { type: "Bank Transfer", details: "ACH •••• 6677", icon: Building2 }, date: "Feb 19, 2024", status: "Pending", avatar: "/images/dashboard/59 1.png" },
-    { id: "V5Q2-L112", customer: "Michael Gray", email: "michael@shelby.co", plan: "Premium", amount: "$175.00", method: { type: "Credit Card", details: "•••• 3344", icon: CreditCard }, date: "Feb 18, 2024", status: "Approved", avatar: "/images/dashboard/24 1.png" },
-    { id: "U4R1-K112", customer: "Ada Thorne", email: "ada@shelby.co", plan: "Basic", amount: "$75.00", method: { type: "Apple Pay", details: "Device •••• 2211", icon: Smartphone }, date: "Feb 17, 2024", status: "Failed", avatar: "/images/dashboard/61 1.png" },
+    { id: "A1X9-B223", customer: "Alex Johnson", email: "alex.j@email.com", plan: "Premium", amount: "$124.00", method: { type: "Credit Card", details: "•••• 4242", icon: CreditCard }, date: "Mar 02, 2024", status: "Approved", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571691/24%201.png" },
+    { id: "C4M7-K991", customer: "Sarah Miller", email: "sarah.m@company.com", plan: "Basic", amount: "$50.00", method: { type: "Apple Pay", details: "Device •••• 1122", icon: Smartphone }, date: "Mar 01, 2024", status: "Failed", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571696/61%201.png" },
+    { id: "D8N2-P334", customer: "Mike Ross", email: "mike.ross@legal.co", plan: "Enterprise", amount: "$89.99", method: { type: "Bank Transfer", details: "ACH •••• 9876", icon: Building2 }, date: "Feb 28, 2024", status: "Pending", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571687/11%201.png" },
+    { id: "X9Q1-L445", customer: "John Doe", email: "john.doe@gmail.com", plan: "Premium", amount: "$210.00", method: { type: "Credit Card", details: "•••• 5544", icon: CreditCard }, date: "Feb 27, 2024", status: "Approved", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571700/9%201.png" },
+    { id: "B2W5-Z889", customer: "Emma Wilson", email: "emma.w@design.io", plan: "Basic", amount: "$49.00", method: { type: "Apple Pay", details: "Device •••• 3322", icon: Smartphone }, date: "Feb 26, 2024", status: "Approved", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571692/60%201.png" },
+    { id: "M5V8-R112", customer: "James Bond", email: "007@mi6.gov.uk", plan: "Enterprise", amount: "$999.00", method: { type: "Bank Transfer", details: "Wire Transfer", icon: Building2 }, date: "Feb 25, 2024", status: "Approved", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571691/59%201.png" },
+    { id: "J7K4-T667", customer: "Olivia Brown", email: "olivia.b@web.com", plan: "Premium", amount: "$150.00", method: { type: "Credit Card", details: "•••• 1234", icon: CreditCard }, date: "Feb 24, 2024", status: "Failed", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571691/24%201.png" },
+    { id: "P3H6-Y221", customer: "William Smith", email: "will.s@actor.me", plan: "Basic", amount: "$25.00", method: { type: "Apple Pay", details: "Device •••• 9988", icon: Smartphone }, date: "Feb 23, 2024", status: "Approved", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571696/61%201.png" },
+    { id: "Z9Q1-L445", customer: "Thomas Shelby", email: "thomas@shelby.co", plan: "Enterprise", amount: "$1500.00", method: { type: "Bank Transfer", details: "ACH •••• 1122", icon: Building2 }, date: "Feb 22, 2024", status: "Approved", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571687/11%201.png" },
+    { id: "X8M2-P334", customer: "Arthur Shelby", email: "arthur@shelby.co", plan: "Premium", amount: "$250.00", method: { type: "Credit Card", details: "•••• 9988", icon: CreditCard }, date: "Feb 21, 2024", status: "Approved", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571700/9%201.png" },
+    { id: "Y7N5-K445", customer: "Polly Gray", email: "polly@shelby.co", plan: "Basic", amount: "$100.00", method: { type: "Apple Pay", details: "Device •••• 4455", icon: Smartphone }, date: "Feb 20, 2024", status: "Approved", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571692/60%201.png" },
+    { id: "W6P3-M112", customer: "John Shelby", email: "johns@shelby.co", plan: "Enterprise", amount: "$500.00", method: { type: "Bank Transfer", details: "ACH •••• 6677", icon: Building2 }, date: "Feb 19, 2024", status: "Pending", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571691/59%201.png" },
+    { id: "V5Q2-L112", customer: "Michael Gray", email: "michael@shelby.co", plan: "Premium", amount: "$175.00", method: { type: "Credit Card", details: "•••• 3344", icon: CreditCard }, date: "Feb 18, 2024", status: "Approved", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571691/24%201.png" },
+    { id: "U4R1-K112", customer: "Ada Thorne", email: "ada@shelby.co", plan: "Basic", amount: "$75.00", method: { type: "Apple Pay", details: "Device •••• 2211", icon: Smartphone }, date: "Feb 17, 2024", status: "Failed", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571696/61%201.png" },
   ]
 
   const handleExportCSV = () => {
@@ -260,7 +260,7 @@ export function PaymentSettingsForm() {
           type="Credit Card"
           count="4 Active Customers"
           gradient="linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%)"
-          icon="/images/payment/visa.svg"
+          icon="https://res.cloudinary.com/weburea/image/upload/v1783571834/visa.svg"
           number="**** **** **** 2345"
           holder="Noman Manzoor"
           expiry="02/30"
@@ -281,7 +281,7 @@ export function PaymentSettingsForm() {
           type="Bank Transfer"
           count="2 Active Customers"
           gradient="linear-gradient(135deg, #f97316 0%, #3b82f6 33%, #10b981 66%, #db2777 100%)"
-          icon="/images/payment/bank_logo.svg"
+          icon="https://res.cloudinary.com/weburea/image/upload/v1783571830/bank_logo.svg"
           number="**** **** **** 5544"
           holder="Recura Business"
           expiry="--/--"
@@ -462,7 +462,7 @@ export function PaymentSettingsForm() {
                          <div className="w-24 h-10 relative -mt-1 flex justify-end items-center">
                            {cardDetails.brand === "Visa" ? (
                              <div className="w-24 h-10 relative">
-                               <Image src="/images/payment/visa.svg" alt="Visa" fill className={cn("object-contain", cardDesign.style === "Minimalist Glass" ? "brightness-0" : "brightness-0 invert")} />
+                               <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571834/visa.svg" alt="Visa" fill className={cn("object-contain", cardDesign.style === "Minimalist Glass" ? "brightness-0" : "brightness-0 invert")} />
                              </div>
                            ) : cardDetails.brand === "Mastercard" ? (
                              <span className="text-lg font-black italic tracking-tight drop-shadow-md uppercase">Mastercard</span>
@@ -621,7 +621,7 @@ export function PaymentSettingsForm() {
                   >
                     <div className="flex items-center gap-3">
                        {cardDetails.brand === "Visa" ? (
-                         <Image src="/images/payment/visa.svg" alt="Visa" width={32} height={12} className="object-contain dark:brightness-0 dark:invert" />
+                         <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571834/visa.svg" alt="Visa" width={32} height={12} className="object-contain dark:brightness-0 dark:invert" />
                        ) : (
                          <div className="w-8 h-4 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
                        )}
@@ -648,7 +648,7 @@ export function PaymentSettingsForm() {
                             )} />
                             <span className={cn(b === "Mastercard" ? "font-black" : "")}>{b}</span>
                           </div>
-                          {b === "Visa" && <Image src="/images/payment/visa.svg" alt="" width={24} height={8} className="opacity-40 dark:brightness-0 dark:invert" />}
+                          {b === "Visa" && <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571834/visa.svg" alt="" width={24} height={8} className="opacity-40 dark:brightness-0 dark:invert" />}
                         </button>
                       ))}
                     </div>
@@ -1142,7 +1142,7 @@ function OverviewCard({
       >
         <div className="flex justify-between items-start relative z-10">
           <div className="w-10 h-8 relative">
-            <Image src="/images/payment/sim.svg" alt="Chip" fill className="object-contain" />
+            <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571832/sim.svg" alt="Chip" fill className="object-contain" />
           </div>
           {typeof icon === "string" ? (
              <div className="w-14 h-8 relative">

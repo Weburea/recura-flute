@@ -50,7 +50,7 @@ export function Faq() {
         `}</style>
         <div className="w-full h-full relative animate-beehive">
           <Image
-            src="/images/landing/circle_Pattern.svg"
+            src="https://res.cloudinary.com/weburea/image/upload/v1783571749/circle_Pattern.svg"
             alt="Circle Pattern"
             fill
             className="object-contain opacity-95 dark:opacity-90 filter saturate-[2] brightness-[1.05] drop-shadow-[0_0_15px_rgba(147,51,234,0.25)] dark:saturate-[2.5] dark:brightness-[1.5] dark:drop-shadow-[0_0_30px_rgba(168,85,247,0.65)]"

@@ -78,7 +78,7 @@ export function BillingSummaryModal({
             <div>
               <div className="mb-4 sm:mb-4">
                 <NextImage 
-                  src="/logo_dark.svg" 
+                  src="https://res.cloudinary.com/weburea/image/upload/v1783571838/logo_dark.svg" 
                   alt="Recura Logo" 
                   width={120} 
                   height={24} 

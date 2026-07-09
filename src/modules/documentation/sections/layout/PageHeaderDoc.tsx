@@ -56,7 +56,7 @@ export function PageHeaderDoc() {
             <div className="w-full h-full p-4 md:p-10 flex items-center justify-center bg-slate-50">
                <div className="relative w-full h-full rounded-2xl overflow-hidden border border-slate-200 shadow-2xl">
                   <Image 
-                    src="/images/documentation/homepage_white.png" 
+                    src="https://res.cloudinary.com/weburea/image/upload/v1783571734/homepage_white.png" 
                     alt="Hero Light" 
                     fill 
                     className="object-cover"
@@ -68,7 +68,7 @@ export function PageHeaderDoc() {
             <div className="w-full h-full p-4 md:p-10 flex items-center justify-center bg-[#080312]">
                <div className="relative w-full h-full rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
                   <Image 
-                    src="/images/documentation/homepage_dark.png" 
+                    src="https://res.cloudinary.com/weburea/image/upload/v1783571730/homepage_dark.png" 
                     alt="Hero Dark" 
                     fill 
                     className="object-cover"
@@ -102,7 +102,7 @@ export function PageHeaderDoc() {
         <Button variant="brand">Start free trial</Button>
         <Button variant="outline-brand">Request Demo</Button>
       </div>
-      <Image src="/images/landing/hero-dashboard.png" width={1300} height={800} />
+      <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571764/hero-dashboard.png" width={1300} height={800} />
     </section>
   )
 }`)}
@@ -119,7 +119,7 @@ export function PageHeaderDoc() {
     <section className="relative bg-white dark:bg-transparent pt-32 pb-20 overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 z-0">
-        <Image src="/images/landing/line_bg.png" fill className="object-cover opacity-80 dark:opacity-30" />
+        <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571817/line_bg.png" fill className="object-cover opacity-80 dark:opacity-30" />
       </div>
       
       <div className="container relative z-10 mx-auto px-6 text-center">
@@ -134,7 +134,7 @@ export function PageHeaderDoc() {
         </div>
 
         <div className="relative mx-auto mt-16 w-full max-w-[1400px]">
-          <Image src="/images/landing/hero-dashboard.png" width={1300} height={800} priority />
+          <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571764/hero-dashboard.png" width={1300} height={800} priority />
         </div>
       </div>
     </section>
@@ -173,7 +173,7 @@ export function PageHeaderDoc() {
             <div className="w-full h-full p-4 md:p-10 flex items-center justify-center bg-slate-50">
                <div className="relative w-full h-full rounded-2xl overflow-hidden border border-slate-200 shadow-2xl">
                   <Image 
-                    src="/images/documentation/help_white.png" 
+                    src="https://res.cloudinary.com/weburea/image/upload/v1783571728/help_white.png" 
                     alt="Help Light" 
                     fill 
                     className="object-cover"
@@ -185,7 +185,7 @@ export function PageHeaderDoc() {
             <div className="w-full h-full p-4 md:p-10 flex items-center justify-center bg-[#080312]">
                <div className="relative w-full h-full rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
                   <Image 
-                    src="/images/documentation/help_dark.png" 
+                    src="https://res.cloudinary.com/weburea/image/upload/v1783571727/help_dark.png" 
                     alt="Help Dark" 
                     fill 
                     className="object-cover"

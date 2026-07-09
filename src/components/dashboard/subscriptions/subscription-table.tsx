@@ -18,21 +18,21 @@ import {
 import { cn } from "@/lib/utils"
 
 const subscriptions = [
-  { id: 1, name: "Mark Luck", avatar: "/images/dashboard/11 1.png", plan: "Enterprise Corp", status: "Active", billingCycle: "$299.00/ month", lastPayment: "Jan 17, 2023", nextBillingDate: "Jan 28, 2023" },
-  { id: 2, name: "Sarah Johnson", avatar: "/images/dashboard/24 1.png", plan: "Trial", status: "Trial", billingCycle: "$299.00/ month", lastPayment: "Jan 17, 2023", nextBillingDate: "Jan 28, 2023" },
-  { id: 3, name: "Michael Brown", avatar: "/images/dashboard/59 1.png", plan: "Enterprise Corp", status: "Paused", billingCycle: "$299.00/ month", lastPayment: "Jan 17, 2023", nextBillingDate: "Jan 28, 2023" },
-  { id: 4, name: "Tech Trump", avatar: "/images/dashboard/60 1.png", plan: "Enterprise Pla", status: "Canceled", billingCycle: "$299.00/ month", lastPayment: "Jan 17, 2023", nextBillingDate: "Jan 28, 2023" },
-  { id: 5, name: "Lisa Goodwill", avatar: "/images/dashboard/61 1.png", plan: "MTN Plan", status: "Canceled", billingCycle: "$299.00/ month", lastPayment: "Jan 17, 2023", nextBillingDate: "Jan 28, 2023" },
-  { id: 6, name: "Carla Marlin", avatar: "/images/dashboard/9 1.png", plan: "USSD Bundle", status: "Paused", billingCycle: "$299.00/ month", lastPayment: "Jan 17, 2023", nextBillingDate: "Jan 28, 2023" },
-  { id: 7, name: "David Wilson", avatar: "/images/dashboard/11 1.png", plan: "Basic Plan", status: "Active", billingCycle: "$99.00/ month", lastPayment: "Feb 10, 2023", nextBillingDate: "Mar 10, 2023" },
-  { id: 8, name: "Emma Davis", avatar: "/images/dashboard/24 1.png", plan: "Premium Plan", status: "Active", billingCycle: "$199.00/ month", lastPayment: "Feb 12, 2023", nextBillingDate: "Mar 12, 2023" },
-  { id: 9, name: "James Smith", avatar: "/images/dashboard/59 1.png", plan: "Basic Plan", status: "Paused", billingCycle: "$99.00/ month", lastPayment: "Jan 05, 2023", nextBillingDate: "Feb 05, 2023" },
-  { id: 10, name: "Olivia Taylor", avatar: "/images/dashboard/60 1.png", plan: "Trial", status: "Trial", billingCycle: "$0.00/ month", lastPayment: "Feb 20, 2023", nextBillingDate: "Mar 06, 2023" },
-  { id: 11, name: "Robert Jones", avatar: "/images/dashboard/61 1.png", plan: "Premium Plan", status: "Active", billingCycle: "$199.00/ month", lastPayment: "Feb 15, 2023", nextBillingDate: "Mar 15, 2023" },
-  { id: 12, name: "Sophia White", avatar: "/images/dashboard/9 1.png", plan: "Basic Plan", status: "Canceled", billingCycle: "$99.00/ month", lastPayment: "Jan 20, 2023", nextBillingDate: "N/A" },
-  { id: 13, name: "William Clark", avatar: "/images/dashboard/11 1.png", plan: "Enterprise Plan", status: "Active", billingCycle: "$499.00/ month", lastPayment: "Feb 18, 2023", nextBillingDate: "Mar 18, 2023" },
-  { id: 14, name: "Isabella Lewis", avatar: "/images/dashboard/24 1.png", plan: "Trial", status: "Trial", billingCycle: "$0.00/ month", lastPayment: "Feb 22, 2023", nextBillingDate: "Mar 08, 2023" },
-  { id: 15, name: "Joseph Allen", avatar: "/images/dashboard/59 1.png", plan: "Basic Plan", status: "Paused", billingCycle: "$99.00/ month", lastPayment: "Jan 10, 2023", nextBillingDate: "Feb 10, 2023" },
+  { id: 1, name: "Mark Luck", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571687/11%201.png", plan: "Enterprise Corp", status: "Active", billingCycle: "$299.00/ month", lastPayment: "Jan 17, 2023", nextBillingDate: "Jan 28, 2023" },
+  { id: 2, name: "Sarah Johnson", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571691/24%201.png", plan: "Trial", status: "Trial", billingCycle: "$299.00/ month", lastPayment: "Jan 17, 2023", nextBillingDate: "Jan 28, 2023" },
+  { id: 3, name: "Michael Brown", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571691/59%201.png", plan: "Enterprise Corp", status: "Paused", billingCycle: "$299.00/ month", lastPayment: "Jan 17, 2023", nextBillingDate: "Jan 28, 2023" },
+  { id: 4, name: "Tech Trump", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571692/60%201.png", plan: "Enterprise Pla", status: "Canceled", billingCycle: "$299.00/ month", lastPayment: "Jan 17, 2023", nextBillingDate: "Jan 28, 2023" },
+  { id: 5, name: "Lisa Goodwill", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571696/61%201.png", plan: "MTN Plan", status: "Canceled", billingCycle: "$299.00/ month", lastPayment: "Jan 17, 2023", nextBillingDate: "Jan 28, 2023" },
+  { id: 6, name: "Carla Marlin", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571700/9%201.png", plan: "USSD Bundle", status: "Paused", billingCycle: "$299.00/ month", lastPayment: "Jan 17, 2023", nextBillingDate: "Jan 28, 2023" },
+  { id: 7, name: "David Wilson", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571687/11%201.png", plan: "Basic Plan", status: "Active", billingCycle: "$99.00/ month", lastPayment: "Feb 10, 2023", nextBillingDate: "Mar 10, 2023" },
+  { id: 8, name: "Emma Davis", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571691/24%201.png", plan: "Premium Plan", status: "Active", billingCycle: "$199.00/ month", lastPayment: "Feb 12, 2023", nextBillingDate: "Mar 12, 2023" },
+  { id: 9, name: "James Smith", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571691/59%201.png", plan: "Basic Plan", status: "Paused", billingCycle: "$99.00/ month", lastPayment: "Jan 05, 2023", nextBillingDate: "Feb 05, 2023" },
+  { id: 10, name: "Olivia Taylor", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571692/60%201.png", plan: "Trial", status: "Trial", billingCycle: "$0.00/ month", lastPayment: "Feb 20, 2023", nextBillingDate: "Mar 06, 2023" },
+  { id: 11, name: "Robert Jones", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571696/61%201.png", plan: "Premium Plan", status: "Active", billingCycle: "$199.00/ month", lastPayment: "Feb 15, 2023", nextBillingDate: "Mar 15, 2023" },
+  { id: 12, name: "Sophia White", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571700/9%201.png", plan: "Basic Plan", status: "Canceled", billingCycle: "$99.00/ month", lastPayment: "Jan 20, 2023", nextBillingDate: "N/A" },
+  { id: 13, name: "William Clark", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571687/11%201.png", plan: "Enterprise Plan", status: "Active", billingCycle: "$499.00/ month", lastPayment: "Feb 18, 2023", nextBillingDate: "Mar 18, 2023" },
+  { id: 14, name: "Isabella Lewis", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571691/24%201.png", plan: "Trial", status: "Trial", billingCycle: "$0.00/ month", lastPayment: "Feb 22, 2023", nextBillingDate: "Mar 08, 2023" },
+  { id: 15, name: "Joseph Allen", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571691/59%201.png", plan: "Basic Plan", status: "Paused", billingCycle: "$99.00/ month", lastPayment: "Jan 10, 2023", nextBillingDate: "Feb 10, 2023" },
 ]
 
 const statusStyles: Record<string, string> = {

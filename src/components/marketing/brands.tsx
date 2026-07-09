@@ -1,11 +1,11 @@
 import Image from 'next/image';
 
 const brands = [
-  { name: 'Xiaomi', src: '/images/landing/xiaomi 1.png', width: 240, height: 100 },
-  { name: 'Redragon', src: '/images/landing/redragon 1.png', width: 240, height: 100 },
-  { name: 'OnePlus', src: '/images/landing/oneplus-2 1.png', width: 240, height: 100 },
-  { name: 'Lenovo', src: '/images/landing/lenovo 1.png', width: 240, height: 100 },
-  { name: 'Yamaha', src: '/images/landing/yamaha 1.png', width: 240, height: 100 },
+  { name: 'Xiaomi', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571828/xiaomi%201.png', width: 240, height: 100 },
+  { name: 'Redragon', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571824/redragon%201.png', width: 240, height: 100 },
+  { name: 'OnePlus', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571822/oneplus-2%201.png', width: 240, height: 100 },
+  { name: 'Lenovo', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571814/lenovo%201.png', width: 240, height: 100 },
+  { name: 'Yamaha', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571829/yamaha%201.png', width: 240, height: 100 },
 ];
 
 export function Brands() {

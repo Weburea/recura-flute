@@ -128,7 +128,7 @@ export function SidebarNavigationDoc() {
           lightLayer={
             <div className="w-64 h-full bg-white border-r border-slate-100 flex flex-col p-6 gap-2">
                <div className="p-8 pb-4">
-                  <Image src="/images/landing/logo.png" alt="Logo" width={100} height={32} className="object-contain" />
+                  <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571838/logo_dark.svg" alt="Logo" width={100} height={32} className="object-contain" />
                </div>
                <div className="flex-1 px-4 space-y-1 mt-4">
                   {navItems.map((item, i) => (
@@ -140,7 +140,7 @@ export function SidebarNavigationDoc() {
           darkLayer={
             <div className="w-64 h-full bg-[#0D0518] border-r border-white/10 flex flex-col p-6 gap-2">
                <div className="p-8 pb-4">
-                  <Image src="/logo.svg" alt="Logo" width={100} height={32} className="object-contain" />
+                  <Image src="https://res.cloudinary.com/weburea/image/upload/v1783571835/logo.svg" alt="Logo" width={100} height={32} className="object-contain" />
                </div>
                <div className="flex-1 px-4 space-y-1 mt-4">
                   {navItems.map((item, i) => (

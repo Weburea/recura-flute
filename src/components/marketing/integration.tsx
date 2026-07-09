@@ -2,18 +2,18 @@ import React from 'react';
 import Image from 'next/image';
 
 const integrations = [
-  { name: 'Stripe', src: '/images/landing/integration/Stripe.svg' },
-  { name: 'Zapier', src: '/images/landing/integration/Zapier.svg' },
-  { name: 'QuickBooks', src: '/images/landing/integration/QuickBooks.svg' },
-  { name: 'Slack', src: '/images/landing/integration/Slack.svg' },
+  { name: 'Stripe', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571946/Stripe.svg' },
+  { name: 'Zapier', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571966/Zapier.svg' },
+  { name: 'QuickBooks', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571793/QuickBooks.svg' },
+  { name: 'Slack', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571937/Slack.svg' },
   { name: 'HubSpot', src: '/images/landing/integration/Group 1000001643.png' },
-  { name: 'Salesforce', src: '/images/landing/integration/Salesforce.svg' },
-  { name: 'Xero', src: '/images/landing/integration/Xero.svg' },
-  { name: 'Intercom', src: '/images/landing/integration/Intercom.svg' },
-  { name: 'PayPal', src: '/images/landing/integration/PayPal.svg' },
-  { name: 'Analytics', src: '/images/landing/integration/Analytics.svg' },
-  { name: 'Mailchimp', src: '/images/landing/integration/Mailchimp.svg' },
-  { name: 'Webhooks', src: '/images/landing/integration/Webhooks.svg' },
+  { name: 'Salesforce', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571922/Salesforce.svg' },
+  { name: 'Xero', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571959/Xero.svg' },
+  { name: 'Intercom', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571782/Intercom.svg' },
+  { name: 'PayPal', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571788/PayPal.svg' },
+  { name: 'Analytics', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571765/Analytics.svg' },
+  { name: 'Mailchimp', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571783/Mailchimp.svg' },
+  { name: 'Webhooks', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571956/Webhooks.svg' },
 ];
 
 export function Integration() {

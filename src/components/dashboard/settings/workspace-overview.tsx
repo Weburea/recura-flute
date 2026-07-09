@@ -63,12 +63,12 @@ export function WorkspaceOverview() {
 
   // User Management State
   const [users, setUsers] = useState<User[]>([
-    { id: 1, name: 'Admin User', role: 'Owner', img: '/images/dashboard/9 1.png', active: true },
-    { id: 2, name: 'Sarah Wilson', role: 'Admin', img: '/images/dashboard/11 1.png', active: true },
-    { id: 3, name: 'John Doe', role: 'Editor', img: '/images/dashboard/24 1.png', active: true },
-    { id: 4, name: 'Emily Chen', role: 'Manager', img: '/images/dashboard/59 1.png', active: false },
-    { id: 5, name: 'Alex Rivera', role: 'Developer', img: '/images/dashboard/60 1.png', active: false },
-    { id: 6, name: 'Mark Zuckerberg', role: 'CEO', img: '/images/dashboard/61 1.png', active: true },
+    { id: 1, name: 'Admin User', role: 'Owner', img: 'https://res.cloudinary.com/weburea/image/upload/v1783571700/9%201.png', active: true },
+    { id: 2, name: 'Sarah Wilson', role: 'Admin', img: 'https://res.cloudinary.com/weburea/image/upload/v1783571687/11%201.png', active: true },
+    { id: 3, name: 'John Doe', role: 'Editor', img: 'https://res.cloudinary.com/weburea/image/upload/v1783571691/24%201.png', active: true },
+    { id: 4, name: 'Emily Chen', role: 'Manager', img: 'https://res.cloudinary.com/weburea/image/upload/v1783571691/59%201.png', active: false },
+    { id: 5, name: 'Alex Rivera', role: 'Developer', img: 'https://res.cloudinary.com/weburea/image/upload/v1783571692/60%201.png', active: false },
+    { id: 6, name: 'Mark Zuckerberg', role: 'CEO', img: 'https://res.cloudinary.com/weburea/image/upload/v1783571696/61%201.png', active: true },
   ]);
   const [userFilter, setUserFilter] = useState<'active' | 'inactive'>('active');
   const [isAddingMember, setIsAddingMember] = useState(false);
