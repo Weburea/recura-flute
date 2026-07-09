@@ -10,7 +10,7 @@ const navigation = {
     { name: 'Invoicing', href: '/dashboard/billing' },
     { name: 'Analytics', href: '/dashboard/analytics' },
     { name: 'Customer Portal', href: '#' },
-    { name: 'Integrations', href: '#integrations' },
+    { name: 'Integrations', href: '/integrations' },
     { name: 'Changelog', href: '#' },
   ],
   solutions: [

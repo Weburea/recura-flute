@@ -303,7 +303,7 @@ export function Navbar() {
             
             <Link href="/pricing" onClick={() => setIsMobileMenuOpen(false)} className={cn("text-lg font-bold py-3 border-b border-slate-100 dark:border-white/10 transition-colors", pathname === '/pricing' ? "text-purple-600 dark:text-purple-400" : "text-slate-900 dark:text-white")}>Pricing</Link>
             <Link href="/customers" onClick={() => setIsMobileMenuOpen(false)} className={cn("text-lg font-bold py-3 border-b border-slate-100 dark:border-white/10 transition-colors", pathname === '/customers' ? "text-purple-600 dark:text-purple-400" : "text-slate-900 dark:text-white")}>Customers</Link>
-            <Link href="#integrations" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-slate-900 dark:text-white py-3 border-b border-slate-100 dark:border-white/10">Integrations</Link>
+            <Link href="/integrations" onClick={() => setIsMobileMenuOpen(false)} className={cn("text-lg font-bold py-3 border-b border-slate-100 dark:border-white/10 transition-colors", pathname === '/integrations' ? "text-purple-600 dark:text-purple-400" : "text-slate-900 dark:text-white")}>Integrations</Link>
             <Link href="#resources" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-slate-900 dark:text-white py-3 border-b border-slate-100 dark:border-white/10">Resources</Link>
             <Link href="#blog" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-slate-900 dark:text-white py-3 border-b border-slate-100 dark:border-white/10">Blog</Link>
             
