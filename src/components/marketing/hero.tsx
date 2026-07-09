@@ -20,7 +20,7 @@ export function Hero() {
       <div className="container relative z-10 mx-auto px-6 text-center">
         {/* Pill Badge */}
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200/80 bg-slate-50/50 dark:bg-white/5 dark:border-white/10 text-xs font-bold mb-8">
-          <span className="px-2.5 py-0.5 rounded-full bg-purple-600 text-white text-[10px] font-extrabold uppercase tracking-wide">
+          <span className="px-2.5 py-0.5 rounded-full bg-primary text-white text-[10px] font-extrabold uppercase tracking-wide">
             New
           </span>
           <span className="text-slate-600 dark:text-slate-300 pr-1">
@@ -42,7 +42,7 @@ export function Hero() {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 px-4">
           <div className="w-full sm:w-auto">
-            <Button variant="primary" className="w-full px-8 py-6 text-lg rounded-xl font-bold shadow-lg shadow-purple-500/20 transition-all hover:scale-105 hover:-translate-y-0.5">
+            <Button variant="primary" className="w-full px-8 py-6 text-lg rounded-xl font-bold shadow-lg shadow-primary/20 transition-all hover:scale-105 hover:-translate-y-0.5">
               Start for free
             </Button>
           </div>
@@ -77,13 +77,13 @@ export function Hero() {
               100% { transform: rotate(360deg); }
             }
             .mockup-glow-light {
-              background: conic-gradient(from 0deg, transparent 46%, #a855f7 48%, #ffffff 50%, #a855f7 52%, transparent 54%);
+              background: conic-gradient(from 0deg, transparent 46%, #A28CFF 48%, #ffffff 50%, #A28CFF 52%, transparent 54%);
             }
             .mockup-glow-dark {
               background: conic-gradient(from 0deg, transparent 47%, #ffffff 49%, #ffffff 50%, #ffffff 51%, transparent 53%);
             }
           `}</style>
-          <div className="relative overflow-hidden p-[5.5px] border-[2.5px] border-slate-900 dark:border-purple-600 bg-slate-900 dark:bg-purple-600 rounded-2xl shadow-2xl">
+          <div className="relative overflow-hidden p-[5.5px] border-[2.5px] border-slate-900 dark:border-primary bg-slate-900 dark:bg-primary rounded-2xl shadow-2xl">
             {/* Background rotating conic gradient (laser glow trace sandwiched in-between) */}
             <div 
               className="absolute inset-[-150%] pointer-events-none z-0 block dark:hidden mockup-glow-light"
@@ -98,7 +98,7 @@ export function Hero() {
               }}
             />
             {/* Inner bezel mask overlay */}
-            <div className="absolute inset-[2px] bg-slate-900 dark:bg-purple-600 rounded-[12px] z-10 pointer-events-none" />
+            <div className="absolute inset-[2px] bg-slate-900 dark:bg-primary rounded-[12px] z-10 pointer-events-none" />
 
             {/* Screen Content Wrapper */}
             <div className="relative z-20 rounded-xl overflow-hidden bg-slate-950">

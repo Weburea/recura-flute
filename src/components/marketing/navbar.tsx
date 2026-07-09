@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { 
   Search, ChevronDown, Menu, X, 
@@ -38,6 +39,7 @@ const supportLinks = [
 ];
 
 export function Navbar() {
+  const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -189,11 +191,11 @@ export function Navbar() {
             </div>
           </div>
 
-          <Link href="#pricing" className="hover:text-primary dark:hover:text-primary transition-colors">Pricing</Link>
-          <Link href="#customers" className="hover:text-primary dark:hover:text-primary transition-colors">Customers</Link>
-          <Link href="#integrations" className="hover:text-primary dark:hover:text-primary transition-colors">Integrations</Link>
-          <Link href="#resources" className="hover:text-primary dark:hover:text-primary transition-colors">Resources</Link>
-          <Link href="#blog" className="hover:text-primary dark:hover:text-primary transition-colors">Blog</Link>
+          <Link href="/pricing" className={cn("hover:text-primary dark:hover:text-primary transition-all duration-200 px-4 py-1.5 rounded-xl text-sm font-semibold", pathname === '/pricing' ? "bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 font-bold shadow-sm" : "text-slate-600 dark:text-slate-300")}>Pricing</Link>
+          <Link href="/customers" className={cn("hover:text-primary dark:hover:text-primary transition-all duration-200 px-4 py-1.5 rounded-xl text-sm font-semibold", pathname === '/customers' ? "bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 font-bold shadow-sm" : "text-slate-600 dark:text-slate-300")}>Customers</Link>
+          <Link href="/integrations" className={cn("hover:text-primary dark:hover:text-primary transition-all duration-200 px-4 py-1.5 rounded-xl text-sm font-semibold", pathname === '/integrations' ? "bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 font-bold shadow-sm" : "text-slate-600 dark:text-slate-300")}>Integrations</Link>
+          <Link href="#resources" className="hover:text-primary dark:hover:text-primary transition-all duration-200 px-4 py-1.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300">Resources</Link>
+          <Link href="#blog" className="hover:text-primary dark:hover:text-primary transition-all duration-200 px-4 py-1.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300">Blog</Link>
         </div>
 
         {/* 3. Action Buttons & Mobile Toggle */}
@@ -299,8 +301,8 @@ export function Navbar() {
                 )}
             </div>
             
-            <Link href="#pricing" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-slate-900 dark:text-white py-3 border-b border-slate-100 dark:border-white/10">Pricing</Link>
-            <Link href="#customers" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-slate-900 dark:text-white py-3 border-b border-slate-100 dark:border-white/10">Customers</Link>
+            <Link href="/pricing" onClick={() => setIsMobileMenuOpen(false)} className={cn("text-lg font-bold py-3 border-b border-slate-100 dark:border-white/10 transition-colors", pathname === '/pricing' ? "text-purple-600 dark:text-purple-400" : "text-slate-900 dark:text-white")}>Pricing</Link>
+            <Link href="/customers" onClick={() => setIsMobileMenuOpen(false)} className={cn("text-lg font-bold py-3 border-b border-slate-100 dark:border-white/10 transition-colors", pathname === '/customers' ? "text-purple-600 dark:text-purple-400" : "text-slate-900 dark:text-white")}>Customers</Link>
             <Link href="#integrations" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-slate-900 dark:text-white py-3 border-b border-slate-100 dark:border-white/10">Integrations</Link>
             <Link href="#resources" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-slate-900 dark:text-white py-3 border-b border-slate-100 dark:border-white/10">Resources</Link>
             <Link href="#blog" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-bold text-slate-900 dark:text-white py-3 border-b border-slate-100 dark:border-white/10">Blog</Link>

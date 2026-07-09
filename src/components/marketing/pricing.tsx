@@ -159,20 +159,39 @@ export function Pricing() {
 
                   {/* Description */}
                   <p className={cn(
-                    'text-sm leading-relaxed mb-8',
+                    'text-sm leading-relaxed mb-6',
                     plan.highlight ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'
                   )}>
                     {plan.description}
                   </p>
 
+                  {/* Button CTA */}
+                  <div className="mb-6">
+                    {plan.highlight ? (
+                      <Button 
+                        className="w-full py-6 rounded-full font-bold bg-white/15 hover:bg-white/25 text-white border border-white/20 flex items-center justify-center gap-1.5 transition-all duration-300"
+                      >
+                        <span>{plan.buttonText}</span>
+                        <span className="text-sm">→</span>
+                      </Button>
+                    ) : (
+                      <Button 
+                        className="w-full py-6 rounded-full font-bold bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-950/40 border border-transparent flex items-center justify-center gap-1.5 transition-all duration-300"
+                      >
+                        <span>{plan.buttonText}</span>
+                        {plan.name === 'Business' && <span className="text-sm">→</span>}
+                      </Button>
+                    )}
+                  </div>
+
                   {/* Divider */}
                   <div className={cn(
-                    'h-px w-full mb-8',
+                    'h-px w-full mb-6',
                     plan.highlight ? 'bg-white/20' : 'bg-slate-200/60 dark:bg-white/10'
                   )} />
 
                   {/* Features List */}
-                  <ul className="space-y-4 mb-10">
+                  <ul className="space-y-4 mb-2">
                     {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-3">
                         <Check className={cn(
@@ -190,25 +209,6 @@ export function Pricing() {
                       </li>
                     ))}
                   </ul>
-                </div>
-
-                {/* Button CTA */}
-                <div className="mt-auto">
-                  {plan.highlight ? (
-                    <Button 
-                      className="w-full py-6 rounded-full font-bold bg-white/15 hover:bg-white/25 text-white border border-white/20 flex items-center justify-center gap-1.5 transition-all duration-300"
-                    >
-                      <span>{plan.buttonText}</span>
-                      <span className="text-sm">→</span>
-                    </Button>
-                  ) : (
-                    <Button 
-                      className="w-full py-6 rounded-full font-bold bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-950/40 border border-transparent flex items-center justify-center gap-1.5 transition-all duration-300"
-                    >
-                      <span>{plan.buttonText}</span>
-                      {plan.name === 'Business' && <span className="text-sm">→</span>}
-                    </Button>
-                  )}
                 </div>
               </div>
             );
