@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Quote, Compass, Shuffle, Wind, Zap, HeartPulse } from 'lucide-react';
@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/marketing/navbar';
 import { Footer } from '@/components/marketing/footer';
+import { HeroButtons } from '@/components/marketing/hero-buttons';
 
 const HERO_COMPANIES = [
   { name: 'Meridian Labs', icon: Compass, color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/20' },
@@ -113,6 +114,81 @@ const TESTIMONIALS = [
   }
 ];
 
+interface StatCountUpProps {
+  end: number;
+  decimals?: number;
+  duration?: number;
+  prefix?: string;
+  suffix?: string;
+  prefixClassName?: string;
+  valueClassName?: string;
+  suffixClassName?: string;
+}
+
+function StatCountUp({
+  end,
+  decimals = 0,
+  duration = 1500,
+  prefix = '',
+  suffix = '',
+  prefixClassName = 'text-slate-900 dark:text-white',
+  valueClassName = 'text-slate-900 dark:text-white',
+  suffixClassName = 'text-secondary',
+}: StatCountUpProps) {
+  const [count, setCount] = useState(0);
+  const elementRef = useRef<HTMLSpanElement>(null);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && !hasAnimated.current) {
+          hasAnimated.current = true;
+          let startTime: number | null = null;
+
+          const animate = (timestamp: number) => {
+            if (!startTime) startTime = timestamp;
+            const progress = timestamp - startTime;
+            const percentage = Math.min(progress / duration, 1);
+            const easedProgress = percentage * (2 - percentage);
+            const currentCount = easedProgress * end;
+            setCount(currentCount);
+
+            if (progress < duration) {
+              requestAnimationFrame(animate);
+            } else {
+              setCount(end);
+            }
+          };
+
+          requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (elementRef.current) {
+      observer.observe(elementRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [end, duration]);
+
+  const formattedValue = count.toLocaleString('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+
+  return (
+    <span ref={elementRef} className="font-extrabold text-3xl md:text-4xl tracking-tight">
+      {prefix && <span className={prefixClassName}>{prefix}</span>}
+      <span className={valueClassName}>{formattedValue}</span>
+      {suffix && <span className={suffixClassName}>{suffix}</span>}
+    </span>
+  );
+}
+
 export default function CustomersPage() {
   const [activeIdx, setActiveIdx] = useState(0);
 
@@ -172,33 +248,68 @@ export default function CustomersPage() {
               </p>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-center gap-4 mb-8">
-                <Button className="w-full sm:w-auto px-8 py-6 rounded-full font-bold bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:hover:bg-slate-100 dark:text-slate-950 transition-all duration-300">
-                  Read the stories
-                </Button>
-                <Button className="w-full sm:w-auto px-8 py-6 rounded-full font-bold border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 bg-transparent hover:bg-slate-900 dark:hover:bg-white hover:text-white dark:hover:text-slate-950 flex items-center justify-center gap-1.5 transition-all duration-300">
-                  <span>Book a demo</span>
-                  <span className="text-sm">→</span>
-                </Button>
+              <div className="mb-8">
+                <HeroButtons 
+                  primaryText="Read the stories"
+                  primaryHref="#stories"
+                  secondaryText="Book a demo"
+                  secondaryHref="#"
+                />
               </div>
             </div>
 
             {/* Right side stats grid */}
-            <div className="lg:col-span-5 grid grid-cols-2 gap-4">
-              <div className="bg-slate-50/50 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/10 rounded-2xl p-6 shadow-sm">
-                <span className="text-3xl font-extrabold text-purple-600 dark:text-purple-400 block mb-1">$2.4B</span>
+            <div className="lg:col-span-5 grid grid-cols-2 border border-slate-200/60 dark:border-white/10 rounded-2xl overflow-hidden bg-slate-50/50 dark:bg-white/[0.02] shadow-sm select-none">
+              <div className="p-6 border-r border-b border-slate-200/60 dark:border-white/10 flex flex-col justify-center">
+                <span className="mb-1 block">
+                  <StatCountUp 
+                    end={2.4} 
+                    decimals={1} 
+                    prefix="$" 
+                    suffix="B" 
+                    prefixClassName="text-slate-900 dark:text-white"
+                    valueClassName="text-slate-900 dark:text-white"
+                    suffixClassName="text-secondary"
+                  />
+                </span>
                 <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 leading-snug block">Revenue processed annually</span>
               </div>
-              <div className="bg-slate-50/50 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/10 rounded-2xl p-6 shadow-sm">
-                <span className="text-3xl font-extrabold text-purple-600 dark:text-purple-400 block mb-1">98%</span>
+              <div className="p-6 border-b border-slate-200/60 dark:border-white/10 flex flex-col justify-center">
+                <span className="mb-1 block">
+                  <StatCountUp 
+                    end={98} 
+                    decimals={0} 
+                    suffix="%" 
+                    valueClassName="text-secondary"
+                    suffixClassName="text-slate-900 dark:text-white"
+                  />
+                </span>
                 <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 leading-snug block">Billing accuracy rate</span>
               </div>
-              <div className="bg-slate-50/50 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/10 rounded-2xl p-6 shadow-sm">
-                <span className="text-3xl font-extrabold text-purple-600 dark:text-purple-400 block mb-1">4.2K</span>
+              <div className="p-6 border-r border-slate-200/60 dark:border-white/10 flex flex-col justify-center">
+                <span className="mb-1 block">
+                  <StatCountUp 
+                    end={4.2} 
+                    decimals={1} 
+                    suffix="K" 
+                    valueClassName="text-slate-900 dark:text-white"
+                    suffixClassName="text-secondary"
+                  />
+                </span>
                 <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 leading-snug block">Active businesses</span>
               </div>
-              <div className="bg-slate-50/50 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/10 rounded-2xl p-6 shadow-sm">
-                <span className="text-3xl font-extrabold text-purple-600 dark:text-purple-400 block mb-1">+32%</span>
+              <div className="p-6 flex flex-col justify-center">
+                <span className="mb-1 block">
+                  <StatCountUp 
+                    end={32} 
+                    decimals={0} 
+                    prefix="+" 
+                    suffix="%" 
+                    prefixClassName="text-slate-900 dark:text-white"
+                    valueClassName="text-slate-900 dark:text-white"
+                    suffixClassName="text-secondary"
+                  />
+                </span>
                 <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 leading-snug block">Average revenue growth</span>
               </div>
             </div>
@@ -224,7 +335,7 @@ export default function CustomersPage() {
       </section>
 
       {/* Case Studies Section */}
-      <section className="py-24 bg-slate-50/50 dark:bg-transparent border-t border-slate-200/60 dark:border-white/10 overflow-hidden">
+      <section id="stories" className="py-24 bg-slate-50/50 dark:bg-transparent border-t border-slate-200/60 dark:border-white/10 overflow-hidden">
         <div className="container mx-auto px-6">
           {/* All Stories Divider Line */}
           <div className="relative mb-20 max-w-7xl mx-auto flex items-center justify-start text-left pt-12">

@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/marketing/navbar';
 import { Footer } from '@/components/marketing/footer';
+import { HeroButtons } from '@/components/marketing/hero-buttons';
 
 const HERO_COMPANIES = [
   { name: 'Xero', role: 'Accounting', iconPath: 'https://res.cloudinary.com/weburea/image/upload/v1783571963/xero_box.svg', bg: 'bg-[#13B5EA]' },
@@ -320,20 +321,20 @@ export function CodingPreview() {
 
   return (
     <div className="w-full rounded-[24px] bg-[#0A0D14] border border-white/5 shadow-2xl overflow-hidden relative group text-left">
-      <div className="px-4 py-3 md:px-6 md:py-4 bg-white/[0.02] border-b border-white/5 flex items-center justify-between gap-4">
-        <div className="flex gap-1.5">
+      <div className="px-4 py-3 md:px-6 md:py-4 bg-white/[0.02] border-b border-white/5 flex items-center justify-between gap-3 md:gap-4">
+        <div className="flex gap-1.5 shrink-0">
           <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F56]" />
           <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]" />
           <div className="w-2.5 h-2.5 rounded-full bg-[#27C93F]" />
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex-1 flex gap-1.5 overflow-x-auto no-scrollbar py-1 -my-1 justify-start md:justify-center">
           {CODE_TABS.map((tab, idx) => (
             <button
               key={tab.id}
               onClick={() => handleTabClick(idx)}
               className={cn(
-                "text-[10px] font-bold px-3 py-1 rounded-md transition-colors cursor-pointer select-none",
+                "text-[9px] md:text-[10px] font-bold px-2.5 py-1 rounded-md transition-colors cursor-pointer select-none shrink-0",
                 idx === activeTabIdx 
                   ? "bg-white/10 text-white border border-white/5" 
                   : "text-slate-500 hover:text-slate-300"
@@ -346,7 +347,7 @@ export function CodingPreview() {
 
         <button 
           onClick={handleCopy}
-          className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors text-[10px] font-bold"
+          className="shrink-0 flex items-center gap-1 px-2 py-1 md:px-2.5 md:py-1 rounded-md bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors text-[9px] md:text-[10px] font-bold"
         >
           {copied ? (
             <>
@@ -454,20 +455,16 @@ export default function IntegrationsPage() {
               </p>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-center gap-4 mb-12">
-                <Button 
-                  onClick={() => {
+              <div className="mb-12">
+                <HeroButtons 
+                  primaryText="Browse integrations"
+                  primaryOnClick={() => {
                     const el = document.getElementById('directory');
                     el?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="w-full sm:w-auto px-8 py-6 rounded-full font-bold bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:hover:bg-slate-100 dark:text-slate-950 transition-all duration-300 cursor-pointer"
-                >
-                  Browse integrations
-                </Button>
-                <Button className="w-full sm:w-auto px-8 py-6 rounded-full font-bold border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 bg-transparent hover:bg-slate-900 dark:hover:bg-white hover:text-white dark:hover:text-slate-950 flex items-center justify-center gap-1.5 transition-all duration-300">
-                  <span>Read the docs</span>
-                  <span className="text-sm">→</span>
-                </Button>
+                  secondaryText="Read the docs"
+                  secondaryHref="#"
+                />
               </div>
 
               {/* Stats column block */}
