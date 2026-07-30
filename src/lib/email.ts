@@ -1,16 +1,24 @@
 import nodemailer from 'nodemailer';
 
-// Gmail SMTP transporter — uses your Gmail account to send emails.
-// No domain purchase needed. Works on localhost + Vercel.
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.GMAIL_USER,   // your Gmail address
-    pass: process.env.GMAIL_APP_PASSWORD, // Gmail App Password (not your normal password)
-  },
-});
+function getTransporter() {
+  const user = process.env.GMAIL_USER || 'webureaagency@gmail.com';
+  const pass = process.env.GMAIL_APP_PASSWORD;
 
-const FROM_ADDRESS = `"Recura" <${process.env.GMAIL_USER}>`;
+  if (!pass) {
+    console.warn('[EMAIL SERVICE WARNING] GMAIL_APP_PASSWORD is missing from Vercel Environment Variables!');
+  }
+
+  return {
+    transporter: nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user,
+        pass,
+      },
+    }),
+    fromAddress: `"Recura" <${user}>`,
+  };
+}
 
 /**
  * Send the email-verification OTP to a newly-registered user.
@@ -20,8 +28,10 @@ export async function sendVerificationEmail(
   fullName: string,
   otpCode: string
 ) {
+  const { transporter, fromAddress } = getTransporter();
+
   await transporter.sendMail({
-    from: FROM_ADDRESS,
+    from: fromAddress,
     to: toEmail,
     subject: 'Your Recura verification code',
     html: buildEmailHtml({
@@ -43,8 +53,10 @@ export async function sendPasswordResetEmail(
   fullName: string,
   otpCode: string
 ) {
+  const { transporter, fromAddress } = getTransporter();
+
   await transporter.sendMail({
-    from: FROM_ADDRESS,
+    from: fromAddress,
     to: toEmail,
     subject: 'Reset your Recura password',
     html: buildEmailHtml({
