@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     const rawOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const hashedOtpCode = await bcrypt.hash(rawOtpCode, 10);
     const tokenId = `vt_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const expiresAt = new Date(Date.now() + 60 * 1000); // 60 seconds
 
     // Delete old password_reset tokens
     await db

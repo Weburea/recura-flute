@@ -42,7 +42,7 @@ export async function sendVerificationEmail(
       badge: 'ACCOUNT VERIFICATION',
       title: 'Verify your email address',
       greeting: `Hi ${fullName}, welcome to Recura!`,
-      body: `Enter the 6-digit verification code below to activate your account and start setting up your business billing workspace. The code expires in <strong style="color:#e2e8f0 !important;">10 minutes</strong>.`,
+      body: `Enter the 6-digit verification code below to activate your account. The code expires in <strong style="color:#e2e8f0 !important;">60 seconds</strong>.`,
       otpCode,
       otpLabel: 'YOUR VERIFICATION CODE',
       footerText: "If you didn't create a Recura account, you can safely ignore this message.",
@@ -68,7 +68,7 @@ export async function sendPasswordResetEmail(
       badge: 'PASSWORD RESET',
       title: 'Reset your password',
       greeting: `Hi ${fullName},`,
-      body: `We received a request to reset your Recura password. Enter the 6-digit security code below to set a new password. The code expires in <strong style="color:#e2e8f0 !important;">10 minutes</strong>.`,
+      body: `We received a request to reset your Recura password. Enter the 6-digit code below to set a new password. The code expires in <strong style="color:#e2e8f0 !important;">60 seconds</strong>.`,
       otpCode,
       otpLabel: 'YOUR RESET CODE',
       footerText: "If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.",
@@ -76,7 +76,7 @@ export async function sendPasswordResetEmail(
   });
 }
 
-/* ─── Shared HTML Email Template (Robust Dark Mode + High Contrast Support) ─── */
+/* ─── Shared HTML Email Template (Compact Desktop View & Single-Line Mobile OTP) ─── */
 function buildEmailHtml({
   badge,
   title,
@@ -94,8 +94,8 @@ function buildEmailHtml({
   otpLabel: string;
   footerText: string;
 }) {
-  // Format 6-digit OTP code with spaces for maximum legibility (e.g., 8 4 9 2 0 4)
-  const formattedCode = String(otpCode).split('').join(' ');
+  // Format code with tight non-breaking spaces for 1-line guarantee on narrow screens
+  const formattedCode = String(otpCode).split('').join('&nbsp;');
 
   return `
 <!DOCTYPE html>
@@ -130,85 +130,86 @@ function buildEmailHtml({
   </style>
 </head>
 <body style="margin:0;padding:0;background-color:#08040e;font-family:'Segoe UI',Arial,sans-serif;-webkit-font-smoothing:antialiased;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="padding:28px 12px;background-color:#08040e;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:16px 8px;background-color:#08040e;">
     <tr>
       <td align="center">
-        <table width="520" cellpadding="0" cellspacing="0" class="dark-card-bg"
-          style="max-width:520px;width:100%;background-color:#130a27;
+        <!-- Compact Table Container (Fits Desktop Viewport Without Scrolling) -->
+        <table width="460" cellpadding="0" cellspacing="0" class="dark-card-bg"
+          style="max-width:460px;width:100%;background-color:#130a27;
                  border:1px solid rgba(167,139,250,0.22);
-                 border-radius:20px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.5);">
+                 border-radius:18px;overflow:hidden;box-shadow:0 16px 36px rgba(0,0,0,0.5);">
 
-          <!-- HEADER BANNER: Recura Purple Logo Image -->
+          <!-- HEADER BANNER: Recura Purple Logo Image (Compact Height) -->
           <tr>
             <td style="padding:0;background-color:#6c5ce7;text-align:center;">
               <img src="${BANNER_IMAGE_URL}" 
                    alt="Recura" 
-                   width="520" 
-                   style="display:block;width:100%;max-width:100%;height:auto;border:none;" />
+                   width="460" 
+                   style="display:block;width:100%;max-width:100%;height:auto;max-height:90px;object-fit:cover;border:none;" />
             </td>
           </tr>
 
           <!-- BODY CONTENT -->
           <tr>
-            <td class="dark-body-bg" style="padding:32px 32px 28px;background-color:#0f0720;">
+            <td class="dark-body-bg" style="padding:24px 24px 20px;background-color:#0f0720;">
               
               <!-- Badge Pill -->
-              <table cellpadding="0" cellspacing="0" style="margin-bottom:14px;">
+              <table cellpadding="0" cellspacing="0" style="margin-bottom:12px;">
                 <tr>
                   <td style="background-color:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.3);
-                             border-radius:20px;padding:4px 14px;">
-                    <p style="margin:0;font-size:11px;font-weight:800;letter-spacing:0.12em;color:#c084fc !important;-webkit-text-fill-color:#c084fc !important;text-transform:uppercase;">
+                             border-radius:16px;padding:3px 12px;">
+                    <p style="margin:0;font-size:10px;font-weight:800;letter-spacing:0.12em;color:#c084fc !important;-webkit-text-fill-color:#c084fc !important;text-transform:uppercase;">
                       ${badge}
                     </p>
                   </td>
                 </tr>
               </table>
 
-              <!-- Heading (Always White, Fits 1 Line on iPhone 12 Pro) -->
-              <h1 class="dark-text-white" style="margin:0 0 12px;font-size:22px;font-weight:800;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;line-height:1.3;">
+              <!-- Heading (Fits 1 Line on iPhone 12 Pro) -->
+              <h1 class="dark-text-white" style="margin:0 0 10px;font-size:20px;font-weight:800;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;line-height:1.25;">
                 ${title}
               </h1>
 
               <!-- Greeting & Body Text -->
-              <p class="dark-text-muted" style="margin:0 0 24px;font-size:14px;color:#94a3b8 !important;-webkit-text-fill-color:#94a3b8 !important;line-height:1.6;font-weight:400;">
+              <p class="dark-text-muted" style="margin:0 0 18px;font-size:13px;color:#94a3b8 !important;-webkit-text-fill-color:#94a3b8 !important;line-height:1.55;font-weight:400;">
                 <strong style="color:#e2e8f0 !important;-webkit-text-fill-color:#e2e8f0 !important;font-weight:600;">${greeting}</strong> ${body}
               </p>
 
-              <!-- OTP CODE CONTAINER (Enforces High-Contrast Pure White Text on iOS & Android Dark Mode) -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+              <!-- OTP CODE CONTAINER (Strict 1-Line Guarantee + Pure White Text) -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:18px;">
                 <tr>
                   <td align="center" class="dark-code-box"
                       style="background-color:#211242;
                              border:1px solid rgba(167,139,250,0.4);
-                             border-radius:16px;padding:26px 16px;text-align:center;">
-                    <p style="margin:0 0 10px;font-size:11px;font-weight:800;letter-spacing:0.18em;
+                             border-radius:14px;padding:16px 12px;text-align:center;">
+                    <p style="margin:0 0 6px;font-size:10px;font-weight:800;letter-spacing:0.15em;
                                text-transform:uppercase;color:#c084fc !important;-webkit-text-fill-color:#c084fc !important;">
                       ${otpLabel}
                     </p>
-                    <p style="margin:0;font-size:36px;font-weight:800;letter-spacing:0.18em;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;font-family:'Courier New',Courier,monospace;text-shadow:0 0 12px rgba(167,139,250,0.6);">
-                      <span style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">${formattedCode}</span>
+                    <p style="margin:0;font-size:28px;font-weight:800;letter-spacing:0.12em;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;font-family:'Courier New',Courier,monospace;text-shadow:0 0 10px rgba(167,139,250,0.6);white-space:nowrap !important;">
+                      <span style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;white-space:nowrap !important;display:inline-block !important;">${formattedCode}</span>
                     </p>
                   </td>
                 </tr>
               </table>
 
               <!-- Footer Security Disclaimer -->
-              <p class="dark-text-muted" style="margin:0;font-size:12px;color:#64748b !important;-webkit-text-fill-color:#64748b !important;line-height:1.6;">
+              <p class="dark-text-muted" style="margin:0;font-size:11px;color:#64748b !important;-webkit-text-fill-color:#64748b !important;line-height:1.5;">
                 ${footerText}
               </p>
             </td>
           </tr>
 
-          <!-- FOOTER PATTERN: Clean Recura Brand Pattern (Uploaded to Cloudinary images/Public/) -->
+          <!-- FOOTER PATTERN: Compact Clean Recura Brand Pattern -->
           <tr>
             <td style="padding:0;background-color:#08040e;border-top:1px solid rgba(255,255,255,0.08);">
-              <div style="height:70px;overflow:hidden;width:100%;">
+              <div style="height:50px;overflow:hidden;width:100%;">
                 <img src="${FOOTER_PATTERN_URL}" 
                      alt="Recura Pattern" 
-                     width="520" 
-                     style="display:block;width:100%;max-width:100%;height:70px;object-fit:cover;border:none;" />
+                     width="460" 
+                     style="display:block;width:100%;max-width:100%;height:50px;object-fit:cover;border:none;" />
               </div>
-              <p style="margin:0;padding:12px 16px 14px;font-size:11px;color:#64748b !important;-webkit-text-fill-color:#64748b !important;text-align:center;background-color:#08040e;">
+              <p style="margin:0;padding:10px 14px;font-size:10px;color:#64748b !important;-webkit-text-fill-color:#64748b !important;text-align:center;background-color:#08040e;">
                 © 2026 Recura · Automated Retainers & Subscription Management
               </p>
             </td>
