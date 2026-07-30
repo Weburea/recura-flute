@@ -6,8 +6,16 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
 });
 
+import type { Viewport } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SimulatorDetector } from "@/components/SimulatorDetector";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

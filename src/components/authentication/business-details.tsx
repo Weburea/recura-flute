@@ -482,12 +482,12 @@ function BusinessDetailsContent() {
                         />
                       )}
 
-                      {/* FIELD TYPE: SELECT PILLS (Responsive Grid on Mobile: No Overflow!) */}
+                      {/* FIELD TYPE: SELECT PILLS (Full Text Visible: No Truncate/Dot-Dot!) */}
                       {field.type === 'select' && field.options && (
                         <div className="space-y-1">
                           <div className={cn(
                             "grid gap-2.5 pt-0.5",
-                            field.options.length <= 3 ? "grid-cols-3" : "grid-cols-2 sm:grid-cols-4"
+                            field.options.length <= 3 ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-2 sm:grid-cols-4"
                           )}>
                             {field.options.map((opt) => {
                               const isSelected = formData[field.id] === opt.value || (!formData[field.id] && opt === field.options![0]);
@@ -500,14 +500,14 @@ function BusinessDetailsContent() {
                                   type="button"
                                   onClick={() => handleInputChange(field.id, opt.value)}
                                   className={cn(
-                                    "py-3 px-3 sm:px-4 rounded-xl text-xs font-bold transition-all border text-center cursor-pointer flex items-center justify-center gap-1.5 truncate",
+                                    "py-3 px-2.5 sm:px-4 rounded-xl text-xs font-bold transition-all border text-center cursor-pointer flex items-center justify-center gap-1.5 leading-tight",
                                     isSelected
                                       ? "bg-purple-50 dark:bg-purple-950/50 border-purple-500 text-purple-700 dark:text-purple-300 shadow-xs ring-2 ring-purple-500/20"
                                       : "bg-white dark:bg-white/5 border-gray-200/80 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:border-purple-200"
                                   )}
                                 >
                                   {isSelected && <Check className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />}
-                                  <span className="truncate">{opt.label}</span>
+                                  <span>{opt.label}</span>
                                 </button>
                               );
                             })}

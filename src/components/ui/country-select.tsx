@@ -76,9 +76,9 @@ export function CountrySelect({ value, onChange, placeholder = 'Search or select
 
       {/* Searchable Combobox Dropdown */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-white dark:bg-[#150A2E] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl shadow-purple-950/20 overflow-hidden max-h-72 flex flex-col">
+        <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-white dark:bg-[#150A2E] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl shadow-purple-950/20 overflow-hidden max-h-72 flex flex-col touch-pan-y">
           {/* Search Input */}
-          <div className="p-3 border-b border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 relative flex items-center">
+          <div className="p-3 border-b border-gray-100 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 relative flex items-center shrink-0">
             <Search className="w-4 h-4 text-gray-400 absolute left-5" />
             <input
               type="text"
@@ -91,7 +91,7 @@ export function CountrySelect({ value, onChange, placeholder = 'Search or select
           </div>
 
           {/* Country Options List */}
-          <div className="overflow-y-auto max-h-56 p-1.5 custom-scrollbar">
+          <div className="overflow-y-auto max-h-48 sm:max-h-56 p-1.5 custom-scrollbar touch-pan-y overscroll-contain shrink-1">
             {filtered.length > 0 ? (
               filtered.map((c) => {
                 const isSelected = selected?.code === c.code;

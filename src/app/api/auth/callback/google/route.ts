@@ -156,9 +156,9 @@ export async function GET(request: Request) {
       activeWorkspaceId: activeWorkspace?.id,
     });
 
-    // 6. Redirect to onboarding or dashboard
-    if (!activeWorkspace || !activeWorkspace.onboardingCompleted) {
-      return NextResponse.redirect(`${baseUrl}/choose-business`);
+    // 6. Redirect to dashboard if onboarding is completed, otherwise to choose-business
+    if (activeWorkspace && activeWorkspace.onboardingCompleted) {
+      return NextResponse.redirect(`${baseUrl}/dashboard`);
     }
 
     return NextResponse.redirect(`${baseUrl}/choose-business`);

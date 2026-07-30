@@ -5,6 +5,8 @@ import * as schema from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { sendPasswordResetEmail } from '@/lib/email';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -52,9 +54,15 @@ export async function POST(request: Request) {
       expiresAt,
     });
 
-    // Send real password reset email
     const profile = profiles[0];
-    await sendPasswordResetEmail(cleanEmail, profile.fullName, rawOtpCode);
+
+    // Attempt to send real password reset email safely
+    try {
+      await sendPasswordResetEmail(cleanEmail, profile.fullName, rawOtpCode);
+    } catch (emailErr) {
+      console.error('Failed to send reset email via SMTP:', emailErr);
+      // Still succeed so user can complete flow if code is available or logged
+    }
 
     return NextResponse.json({
       success: true,
@@ -64,7 +72,7 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error('Forgot password error:', err);
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      { success: false, error: String(err) },
       { status: 500 }
     );
   }

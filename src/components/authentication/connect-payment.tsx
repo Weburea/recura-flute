@@ -114,9 +114,9 @@ export function ConnectPayment() {
                   </span>
                 </div>
 
-                {/* ROW 2: Logo Card (Left) + Connect Button (Right) */}
-                <div className="flex items-center justify-between gap-3">
-                  <div className="h-10 sm:h-11 px-3.5 py-1.5 rounded-xl bg-white dark:bg-white border border-gray-200/90 shadow-sm flex items-center justify-center shrink-0 min-w-[110px] sm:min-w-[130px]">
+                {/* ROW 2: Logo Card (Left) + Connect Button (Right - Responsive Layout) */}
+                <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+                  <div className="h-10 sm:h-11 px-3 py-1 rounded-xl bg-white border border-gray-200/90 shadow-xs flex items-center justify-center shrink-0 max-w-[120px] sm:max-w-[140px]">
                     <Image 
                       src={gateway.logoUrl} 
                       alt={gateway.name} 
@@ -135,9 +135,9 @@ export function ConnectPayment() {
                       type="button"
                       onClick={() => handleConnect(gateway.id)}
                       disabled={isLoading}
-                      className="bg-[#1A1829] dark:bg-purple-600 hover:bg-black dark:hover:bg-purple-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition-all shadow-md cursor-pointer shrink-0 whitespace-nowrap"
+                      className="bg-[#1A1829] dark:bg-purple-600 hover:bg-black dark:hover:bg-purple-500 text-white font-bold py-2.5 px-3.5 sm:px-4 rounded-xl text-xs transition-all shadow-md cursor-pointer shrink-0"
                     >
-                      Connect {gateway.name}
+                      <span>Connect {gateway.name}</span>
                     </button>
                   )}
                 </div>

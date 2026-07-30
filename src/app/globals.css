@@ -412,4 +412,11 @@ body {
     from { transform: translateY(0); }
     to { transform: translateY(-50%); }
   }
+
+  /* Prevent iOS Safari input focus auto-zoom by ensuring minimum 16px font-size */
+  @media screen and (max-width: 768px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+  }
 }
