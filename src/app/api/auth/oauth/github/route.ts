@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 function getBaseUrl(request: Request) {
   const host = request.headers.get('host');
   const proto = request.headers.get('x-forwarded-proto') || 'http';

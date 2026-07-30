@@ -4,6 +4,8 @@ import * as schema from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { createSession } from '@/lib/session';
 
+export const dynamic = 'force-dynamic';
+
 function getBaseUrl(request: Request) {
   const host = request.headers.get('host');
   const proto = request.headers.get('x-forwarded-proto') || 'http';
