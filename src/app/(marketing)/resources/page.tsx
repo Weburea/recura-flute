@@ -20,14 +20,14 @@ const SEARCH_TAGS = ["Dunning automation", "Proration", "Tax compliance", "Webho
 
 // Categories tabs
 const CATEGORIES = [
-  { id: 'all', name: 'All resources', icon: BookOpen },
-  { id: 'basics', name: 'Billing basics', icon: LayoutDashboard },
-  { id: 'ops', name: 'Invoicing operations', icon: Receipt },
-  { id: 'payments', name: 'Payment collection', icon: Wallet },
-  { id: 'enterprise', name: 'Enterprise', icon: Database },
-  { id: 'devs', name: 'API & Developers', icon: Terminal },
-  { id: 'videos', name: 'Video tutorials', icon: Video },
-  { id: 'community', name: 'Community', icon: MessageSquare }
+  { id: 'all', name: 'All resources', icon: BookOpen, path: '/resources' },
+  { id: 'basics', name: 'Billing basics', icon: LayoutDashboard, path: '/resources/billing-basics' },
+  { id: 'ops', name: 'Invoicing operations', icon: Receipt, path: '/resources/invoicing-operations' },
+  { id: 'payments', name: 'Payment collection', icon: Wallet, path: '/resources/payment-collection' },
+  { id: 'enterprise', name: 'Enterprise', icon: Database, path: '/resources/enterprise' },
+  { id: 'devs', name: 'API & Developers', icon: Terminal, path: '/resources/api-developers' },
+  { id: 'videos', name: 'Video tutorials', icon: Video, path: '/resources/video-tutorials' },
+  { id: 'community', name: 'Community', icon: MessageSquare, path: '/resources/community' }
 ];
 
 // ----------------------------------------------------
@@ -1281,6 +1281,245 @@ function TaxSim() {
 // ----------------------------------------------------
 // Pulse Skeleton Loaders for wireframe mode
 // ----------------------------------------------------
+// ----------------------------------------------------
+// Card 6: API & Developers (Console Terminal Webhook Simulator)
+// ----------------------------------------------------
+function ApiDevsSim() {
+  const [activeTab, setActiveTab] = useState<'logs' | 'webhook' | 'keys'>('logs');
+  const [logs, setLogs] = useState<string[]>([
+    "Initializing webhooks...",
+    "Listening on port 8080..."
+  ]);
+
+  useEffect(() => {
+    const tabs: ('logs' | 'webhook' | 'keys')[] = ['logs', 'webhook', 'keys'];
+    let tabIdx = 0;
+    const interval = setInterval(() => {
+      tabIdx = (tabIdx + 1) % tabs.length;
+      setActiveTab(tabs[tabIdx]);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (activeTab !== 'logs') return;
+    
+    const logsList = [
+      "[INFO] Webhook received: invoice.payment_succeeded",
+      "[INFO] Processing event payload for customer cus_8f3a...",
+      "[SUCCESS] Webhook event handler returned 200 OK",
+      "[INFO] Webhook received: customer.subscription.updated",
+      "[INFO] MRR impact: +$299.00 calculated",
+      "[SUCCESS] Webhook event handler returned 200 OK"
+    ];
+
+    let logIdx = 0;
+    const logInterval = setInterval(() => {
+      setLogs(prev => {
+        const next = [...prev, logsList[logIdx]];
+        if (next.length > 5) next.shift();
+        return next;
+      });
+      logIdx = (logIdx + 1) % logsList.length;
+    }, 1500);
+
+    return () => clearInterval(logInterval);
+  }, [activeTab]);
+
+  return (
+    <div className="w-full bg-slate-50 dark:bg-black/40 rounded-t-2xl border-b border-slate-100 dark:border-white/5 p-4 select-none h-[280px] flex flex-col justify-between">
+      <div className="flex items-center justify-between mb-3 shrink-0">
+        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+          Live Webhook Terminal
+        </span>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
+          <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-wider">Active Logs</span>
+        </div>
+      </div>
+
+      <div className="bg-[#0A0D14] rounded-xl border border-white/10 p-3 flex-1 flex flex-col justify-between shadow-sm overflow-hidden text-left font-mono text-[9px] text-slate-300">
+        <div className="flex items-center justify-between border-b border-white/5 pb-1.5 mb-2 shrink-0">
+          <div className="flex gap-1">
+            {(['logs', 'webhook', 'keys'] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  "px-1.5 py-0.5 rounded text-[8px] font-bold tracking-tight cursor-pointer",
+                  activeTab === tab 
+                    ? "bg-white/10 text-white" 
+                    : "text-slate-500 hover:text-slate-400"
+                )}
+              >
+                {tab === 'logs' ? 'console' : tab === 'webhook' ? 'payload' : 'api_keys'}
+              </button>
+            ))}
+          </div>
+          <span className="text-[7px] text-slate-600">bash</span>
+        </div>
+
+        <div className="flex-1 flex flex-col justify-between overflow-y-auto no-scrollbar">
+          {activeTab === 'logs' && (
+            <div className="space-y-1 animate-in fade-in duration-200">
+              {logs.map((log, idx) => (
+                <div key={idx} className={cn(
+                  "leading-tight",
+                  log.startsWith("[SUCCESS]") ? "text-emerald-400" : log.startsWith("[INFO]") ? "text-slate-300" : "text-slate-500"
+                )}>
+                  {log}
+                </div>
+              ))}
+              <div className="inline-block w-1 h-3 bg-primary ml-0.5 animate-pulse" />
+            </div>
+          )}
+
+          {activeTab === 'webhook' && (
+            <div className="space-y-1 text-[#82aaff] animate-in fade-in duration-200 leading-tight">
+              <div>{"{"}</div>
+              <div className="pl-3">{"\"id\": \"evt_9a2b1c8f\","}</div>
+              <div className="pl-3">{"\"type\": \"invoice.payment_succeeded\","}</div>
+              <div className="pl-3">{"\"created\": 1783982919,"}</div>
+              <div className="pl-3">{"\"data\": { \"amount_paid\": 24980 }"}</div>
+              <div>{"}"}</div>
+            </div>
+          )}
+
+          {activeTab === 'keys' && (
+            <div className="space-y-1.5 animate-in fade-in duration-200 py-1 text-slate-400">
+              <div className="flex justify-between items-center bg-white/5 p-1 rounded border border-white/5">
+                <div>
+                  <span className="text-[7px] text-slate-500 block">Live Publishable Key</span>
+                  <span className="text-[8px] font-bold text-slate-300">pk_live_51M...3a9f</span>
+                </div>
+                <span className="text-[7px] text-emerald-400 font-bold uppercase tracking-wider">Active</span>
+              </div>
+              <div className="flex justify-between items-center bg-white/5 p-1 rounded border border-white/5">
+                <div>
+                  <span className="text-[7px] text-slate-500 block">Live Secret Key</span>
+                  <span className="text-[8px] font-bold text-slate-300">sk_live_51M...9d8e</span>
+                </div>
+                <span className="text-[7px] text-slate-500 font-bold uppercase tracking-wider">Hidden</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ----------------------------------------------------
+// Card 7: Community (Forum Q&A Thread Feed Simulator)
+// ----------------------------------------------------
+function CommunitySim() {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const posts = [
+    {
+      author: "alex_billing",
+      role: "Founder",
+      topic: "Configuring multi-currency proration",
+      replyCount: 3,
+      latestReply: "recura_team: Make sure proration_behavior is set to create_prorations.",
+      date: "2m ago"
+    },
+    {
+      author: "sarah_revops",
+      role: "RevOps VP",
+      topic: "Uptime and response times during Q1 migration",
+      replyCount: 5,
+      latestReply: "stark_ind: Migration sync completed in under 4 minutes, highly stable.",
+      date: "15m ago"
+    },
+    {
+      author: "dev_tim",
+      role: "Billing Eng",
+      topic: "Handling webhook retry backoff delays",
+      replyCount: 2,
+      latestReply: "recura_team: Webhook retries follow an exponential backoff schedule.",
+      date: "1h ago"
+    }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex(prev => (prev + 1) % posts.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [posts.length]);
+
+  const activePost = posts[activeIndex];
+
+  return (
+    <div className="w-full bg-slate-50 dark:bg-black/40 rounded-t-2xl border-b border-slate-100 dark:border-white/5 p-4 select-none h-[280px] flex flex-col justify-between">
+      <div className="flex items-center justify-between mb-3 shrink-0">
+        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+          Recura Community Forum
+        </span>
+        <div className="flex items-center gap-1 text-[8px] font-extrabold text-slate-400 uppercase tracking-wider">
+          <span>12.4K Members</span>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-[#0D0518] rounded-xl border border-slate-200/60 dark:border-white/10 p-3 flex-1 my-3 flex flex-col justify-between shadow-sm relative text-left">
+        <div className="flex justify-between items-start border-b border-slate-50 dark:border-white/5 pb-1.5">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <span className="w-4 h-4 bg-primary/10 rounded-full flex items-center justify-center text-[7px] font-extrabold text-primary uppercase shrink-0">
+                {activePost.author[0]}
+              </span>
+              <span className="text-[8px] font-bold text-slate-700 dark:text-slate-300 truncate">
+                {activePost.author}
+              </span>
+              <span className="text-[6.5px] px-1 py-0.2 rounded bg-slate-100 dark:bg-white/5 text-slate-400 font-bold uppercase tracking-wider shrink-0">
+                {activePost.role}
+              </span>
+            </div>
+            <h4 className="text-[10px] font-bold text-slate-800 dark:text-white mt-1 leading-snug truncate">
+              {activePost.topic}
+            </h4>
+          </div>
+          <span className="text-[7px] text-slate-400 dark:text-slate-500 italic shrink-0 ml-2">
+            {activePost.date}
+          </span>
+        </div>
+
+        <div className="bg-slate-50 dark:bg-white/5 p-2 rounded-lg border border-slate-100 dark:border-white/5 my-2 flex-1 flex flex-col justify-center">
+          <span className="text-[6.5px] font-black text-primary uppercase tracking-wide block mb-0.5">
+            Latest Response
+          </span>
+          <p className="text-[8.5px] font-semibold text-slate-600 dark:text-slate-400 leading-normal">
+            {activePost.latestReply}
+          </p>
+        </div>
+
+        <div className="flex justify-between items-center text-[7.5px] font-bold text-slate-400 dark:text-slate-500 pt-1.5 border-t border-slate-50 dark:border-white/5 shrink-0">
+          <span>Thread replies: <strong className="text-slate-600 dark:text-slate-300">{activePost.replyCount}</strong></span>
+          <span className="text-primary hover:underline cursor-pointer flex items-center gap-0.5">
+            View Thread <ChevronRight className="w-2.5 h-2.5" />
+          </span>
+        </div>
+      </div>
+
+      <div className="flex justify-center gap-1.5 mt-2">
+        {posts.map((_, idx) => (
+          <div
+            key={idx}
+            className={cn(
+              "w-1.5 h-1.5 rounded-full transition-all duration-300",
+              idx === activeIndex ? "bg-primary scale-110" : "bg-slate-200 dark:bg-white/5"
+            )}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ----------------------------------------------------
+// Pulse Skeleton Loaders for wireframe mode
+// ----------------------------------------------------
 function SkeletonPulseCard({ type }: { type: number }) {
   return (
     <div className="w-full bg-slate-50 dark:bg-black/40 rounded-t-2xl border-b border-slate-100 dark:border-white/5 p-4 animate-pulse select-none h-[280px] flex flex-col justify-between">
@@ -1381,6 +1620,39 @@ function SkeletonPulseCard({ type }: { type: number }) {
             </div>
           </div>
         )}
+
+        {type === 6 && (
+          // API & Developers Console Skeleton
+          <div className="w-full flex flex-col justify-between">
+            <div className="flex justify-between">
+              <div className="w-16 h-2 bg-slate-200 dark:bg-white/5 rounded" />
+              <div className="w-8 h-2 bg-slate-200 dark:bg-white/5 rounded" />
+            </div>
+            <div className="w-full h-20 bg-slate-900 rounded-lg p-2.5 space-y-1.5 mt-2">
+              <div className="w-2/3 h-2 bg-slate-800 rounded" />
+              <div className="w-1/2 h-2 bg-slate-800 rounded" />
+              <div className="w-3/4 h-2 bg-slate-800 rounded" />
+            </div>
+          </div>
+        )}
+
+        {type === 7 && (
+          // Community forum Q&A Skeleton
+          <div className="w-full flex flex-col justify-between">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-4 rounded-full bg-slate-200 dark:bg-white/5" />
+                <div className="w-12 h-2 bg-slate-200 dark:bg-white/5 rounded" />
+              </div>
+              <div className="w-8 h-2 bg-slate-200 dark:bg-white/5 rounded" />
+            </div>
+            <div className="w-full h-10 bg-slate-100 dark:bg-white/5 rounded-lg my-2" />
+            <div className="flex justify-between mt-1">
+              <div className="w-16 h-2 bg-slate-200 dark:bg-white/5 rounded" />
+              <div className="w-10 h-2 bg-slate-200 dark:bg-white/5 rounded" />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1389,9 +1661,159 @@ function SkeletonPulseCard({ type }: { type: number }) {
 export default function ResourcesPage() {
   const [search, setSearch] = useState('');
   const [selectedCat, setSelectedCat] = useState('all');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Responsive Carousel Settings & Custom Dragging Handlers
+  const [visibleCards, setVisibleCards] = useState(5);
+  const [activeDot, setActiveDot] = useState(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeftStart = useRef(0);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const w = window.innerWidth;
+      if (w < 640) {
+        setVisibleCards(1);
+      } else if (w < 1024) {
+        setVisibleCards(2);
+      } else if (w < 1280) {
+        setVisibleCards(3);
+      } else {
+        setVisibleCards(5);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const totalCards = 7;
+  const maxIndex = Math.max(0, totalCards - visibleCards);
+
+  // Autoplay Effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (isDragging.current) return;
+      const container = carouselRef.current;
+      if (!container) return;
+      
+      const cardWidth = container.clientWidth / visibleCards;
+      let nextIndex = activeDot + 1;
+      if (nextIndex > totalCards - visibleCards) {
+        nextIndex = 0;
+      }
+      container.scrollTo({
+        left: nextIndex * cardWidth,
+        behavior: 'smooth'
+      });
+      setActiveDot(nextIndex);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [activeDot, visibleCards]);
+
+  // Update active dot on scroll (to sync drag/swipe scroll positions)
+  const handleScroll = () => {
+    const container = carouselRef.current;
+    if (!container) return;
+    const cardWidth = container.clientWidth / visibleCards;
+    const index = Math.round(container.scrollLeft / cardWidth);
+    if (index !== activeDot && index >= 0 && index <= maxIndex) {
+      setActiveDot(index);
+    }
+  };
+
+  // Mouse Drag Handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const container = carouselRef.current;
+    if (!container) return;
+    isDragging.current = true;
+    startX.current = e.pageX - container.offsetLeft;
+    scrollLeftStart.current = container.scrollLeft;
+    container.style.cursor = 'grabbing';
+    container.style.scrollBehavior = 'auto'; // Disable smooth scroll while dragging
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current) return;
+    e.preventDefault();
+    const container = carouselRef.current;
+    if (!container) return;
+    const x = e.pageX - container.offsetLeft;
+    const walk = (x - startX.current) * 1.5;
+    container.scrollLeft = scrollLeftStart.current - walk;
+  };
+
+  const handleMouseUpOrLeave = () => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    const container = carouselRef.current;
+    if (!container) return;
+    container.style.cursor = 'grab';
+    container.style.scrollBehavior = 'smooth';
+    
+    // Snap to nearest card
+    const cardWidth = container.clientWidth / visibleCards;
+    const nearestIdx = Math.round(container.scrollLeft / cardWidth);
+    container.scrollTo({
+      left: nearestIdx * cardWidth,
+      behavior: 'smooth'
+    });
+    setActiveDot(nearestIdx);
+  };
+
+  // Touch Swipe Handlers (for mobile/tablet smooth dragging)
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const container = carouselRef.current;
+    if (!container) return;
+    isDragging.current = true;
+    startX.current = e.touches[0].pageX - container.offsetLeft;
+    scrollLeftStart.current = container.scrollLeft;
+    container.style.scrollBehavior = 'auto';
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging.current) return;
+    const container = carouselRef.current;
+    if (!container) return;
+    const x = e.touches[0].pageX - container.offsetLeft;
+    const walk = (x - startX.current) * 1.5;
+    container.scrollLeft = scrollLeftStart.current - walk;
+  };
+
+  const handleTouchEnd = () => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    const container = carouselRef.current;
+    if (!container) return;
+    container.style.scrollBehavior = 'smooth';
+    
+    const cardWidth = container.clientWidth / visibleCards;
+    const nearestIdx = Math.round(container.scrollLeft / cardWidth);
+    container.scrollTo({
+      left: nearestIdx * cardWidth,
+      behavior: 'smooth'
+    });
+    setActiveDot(nearestIdx);
+  };
+
+  // Dot Click handler
+  const handleDotClick = (idx: number) => {
+    const container = carouselRef.current;
+    if (!container) return;
+    const cardWidth = container.clientWidth / visibleCards;
+    container.scrollTo({
+      left: idx * cardWidth,
+      behavior: 'smooth'
+    });
+    setActiveDot(idx);
+  };
+
+
 
   // Popular Guides Filter State
   const [selectedGuideCategory, setSelectedGuideCategory] = useState<string>('All topics');
@@ -1552,34 +1974,75 @@ export default function ResourcesPage() {
       </section>
 
       {/* Main Categories Navigation tabs bar */}
-      <section className="border-b border-slate-200/60 dark:border-white/10 bg-slate-50/50 dark:bg-black/10 select-none">
+      <section className="border-b border-slate-200/60 dark:border-white/10 bg-slate-50/50 dark:bg-black/10 select-none py-3 md:py-0">
         <div className="container mx-auto px-6 max-w-7xl">
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-4 -my-px">
+          {/* Desktop tabs view */}
+          <div className="hidden md:flex items-center gap-6 pt-4">
             {CATEGORIES.map((cat) => {
               const isActive = selectedCat === cat.id;
               return (
-                <button
+                <Link
                   key={cat.id}
-                  onClick={() => setSelectedCat(cat.id)}
+                  href={cat.path}
                   className={cn(
-                    "px-4.5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer border shrink-0",
+                    "pb-3.5 -mb-px flex items-center gap-2 text-xs font-bold transition-all border-b-2 shrink-0 cursor-pointer",
                     isActive
-                      ? "bg-white dark:bg-[#150a2e] text-primary border-slate-200 dark:border-primary/20 shadow-sm"
-                      : "bg-transparent text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-800 dark:hover:text-slate-200"
+                      ? "text-primary border-primary"
+                      : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 border-transparent"
                   )}
                 >
                   <cat.icon className="w-3.5 h-3.5" />
                   <span>{cat.name}</span>
-                </button>
+                </Link>
               );
             })}
+          </div>
+
+          {/* Mobile custom dropdown view */}
+          <div className="md:hidden relative">
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#150a2e] font-bold text-xs text-slate-850 dark:text-white cursor-pointer transition-all"
+            >
+              <div className="flex items-center gap-2">
+                {CATEGORIES.find(c => c.id === selectedCat) && (
+                  React.createElement((CATEGORIES.find(c => c.id === selectedCat) as any).icon, { className: "w-4 h-4 text-primary" })
+                )}
+                <span>{CATEGORIES.find(c => c.id === selectedCat)?.name || 'Select category'}</span>
+              </div>
+              <ChevronRight className={cn("w-4 h-4 transition-transform text-slate-405", dropdownOpen && "rotate-90")} />
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute left-0 right-0 mt-2 z-30 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#150a2e] shadow-xl py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                {CATEGORIES.map((cat) => {
+                  const isActive = selectedCat === cat.id;
+                  return (
+                    <Link
+                      key={cat.id}
+                      href={cat.path}
+                      onClick={() => setDropdownOpen(false)}
+                      className={cn(
+                        "w-full px-4 py-3 flex items-center gap-3 text-xs font-bold transition-colors cursor-pointer",
+                        isActive
+                          ? "bg-slate-50 dark:bg-white/5 text-primary"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5"
+                      )}
+                    >
+                      <cat.icon className="w-4 h-4" />
+                      <span>{cat.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* Editor's Picks section */}
-      <section className="py-24">
-        <div className="container mx-auto px-6 max-w-[1600px]">
+      <section className="py-24 overflow-hidden">
+        <div className="container mx-auto px-6 max-w-[1600px] relative">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 text-left max-w-[1600px] mx-auto">
             <div>
               <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-none">
@@ -1587,98 +2050,183 @@ export default function ResourcesPage() {
               </h2>
             </div>
             <p className="text-sm font-semibold text-slate-400 dark:text-slate-500 max-w-sm leading-relaxed md:text-right">
-              The five guides every billing team reads first, hand-picked by the Recura team.
+              The seven guides every billing team reads first, hand-picked by the Recura team.
             </p>
           </div>
 
-          {/* Skeletons vs Interactive Cards Grid */}
-          <div className="max-w-[1600px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          {/* Skeletons vs Interactive Cards Carousel */}
+          <div className="relative max-w-[1600px] mx-auto px-4">
             
-            {/* Card 1: Billing Basics */}
-            <div className="bg-white dark:bg-[#150a2e] rounded-2xl border border-slate-200/50 dark:border-white/10 shadow-sm hover:shadow-lg dark:hover:border-white/20 transition-all duration-300 flex flex-col justify-between overflow-hidden">
-              {isLoaded ? <BillingBasicsSim /> : <SkeletonPulseCard type={1} />}
-              <div className="p-5 text-left flex flex-col justify-between flex-1">
-                <div>
-                  <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest block mb-2">Billing basics</span>
-                  <h3 className="text-base font-extrabold text-slate-900 dark:text-white leading-snug hover:text-primary transition-colors cursor-pointer">
-                    Proration explained: a complete guide
-                  </h3>
+            {/* Scrollable Viewport with Touch/Mouse Drag */}
+            <div 
+              ref={carouselRef}
+              onScroll={handleScroll}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUpOrLeave}
+              onMouseLeave={handleMouseUpOrLeave}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              className="overflow-x-auto no-scrollbar scroll-smooth cursor-grab select-none"
+            >
+              <div className="flex -mx-2">
+                
+                {/* Card 1: Billing Basics */}
+                <div className="w-[100%] sm:w-[50%] lg:w-[33.333333%] xl:w-[20%] shrink-0 px-2 flex">
+                  <div className="w-full bg-white dark:bg-[#150a2e] rounded-2xl border border-slate-200/50 dark:border-white/10 shadow-sm hover:shadow-lg dark:hover:border-white/20 transition-all duration-300 flex flex-col justify-between overflow-hidden">
+                    {isLoaded ? <BillingBasicsSim /> : <SkeletonPulseCard type={1} />}
+                    <div className="p-5 text-left flex flex-col justify-between flex-1">
+                      <div>
+                        <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest block mb-2">Billing basics</span>
+                        <Link href="/resources/billing-basics" className="text-base font-extrabold text-slate-900 dark:text-white leading-snug hover:text-primary transition-colors cursor-pointer block">
+                          Proration explained: a complete guide
+                        </Link>
+                      </div>
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-4">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>9 min read</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-4">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>9 min read</span>
+
+                {/* Card 2: Invoicing Operations */}
+                <div className="w-[100%] sm:w-[50%] lg:w-[33.333333%] xl:w-[20%] shrink-0 px-2 flex">
+                  <div className="w-full bg-white dark:bg-[#150a2e] rounded-2xl border border-slate-200/50 dark:border-white/10 shadow-sm hover:shadow-lg dark:hover:border-white/20 transition-all duration-300 flex flex-col justify-between overflow-hidden">
+                    {isLoaded ? <TaxSim /> : <SkeletonPulseCard type={5} />}
+                    <div className="p-5 text-left flex flex-col justify-between flex-1">
+                      <div>
+                        <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest block mb-2">Invoicing operations</span>
+                        <Link href="/resources/invoicing-operations" className="text-base font-extrabold text-slate-900 dark:text-white leading-snug hover:text-primary transition-colors cursor-pointer block">
+                          VAT, GST and sales tax: a global compliance guide
+                        </Link>
+                      </div>
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-4">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>11 min read</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Card 3: Payment Collection */}
+                <div className="w-[100%] sm:w-[50%] lg:w-[33.333333%] xl:w-[20%] shrink-0 px-2 flex">
+                  <div className="w-full bg-white dark:bg-[#150a2e] rounded-2xl border border-slate-200/50 dark:border-white/10 shadow-sm hover:shadow-lg dark:hover:border-white/20 transition-all duration-300 flex flex-col justify-between overflow-hidden">
+                    {isLoaded ? <DunningSim /> : <SkeletonPulseCard type={2} />}
+                    <div className="p-5 text-left flex flex-col justify-between flex-1">
+                      <div>
+                        <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest block mb-2">Payment collection</span>
+                        <Link href="/resources/payment-collection" className="text-base font-extrabold text-slate-900 dark:text-white leading-snug hover:text-primary transition-colors cursor-pointer block">
+                          Building a dunning sequence that recovers revenue
+                        </Link>
+                      </div>
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-4">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>12 min read</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card 4: Enterprise */}
+                <div className="w-[100%] sm:w-[50%] lg:w-[33.333333%] xl:w-[20%] shrink-0 px-2 flex">
+                  <div className="w-full bg-white dark:bg-[#150a2e] rounded-2xl border border-slate-200/50 dark:border-white/10 shadow-sm hover:shadow-lg dark:hover:border-white/20 transition-all duration-300 flex flex-col justify-between overflow-hidden">
+                    {isLoaded ? <MigrationSim /> : <SkeletonPulseCard type={4} />}
+                    <div className="p-5 text-left flex flex-col justify-between flex-1">
+                      <div>
+                        <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest block mb-2">Enterprise</span>
+                        <Link href="/resources/enterprise" className="text-base font-extrabold text-slate-900 dark:text-white leading-snug hover:text-primary transition-colors cursor-pointer block">
+                          Migrating from Chargebee to Recura: a checklist
+                        </Link>
+                      </div>
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-4">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>7 min read</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card 5: API & Developers */}
+                <div className="w-[100%] sm:w-[50%] lg:w-[33.333333%] xl:w-[20%] shrink-0 px-2 flex">
+                  <div className="w-full bg-white dark:bg-[#150a2e] rounded-2xl border border-slate-200/50 dark:border-white/10 shadow-sm hover:shadow-lg dark:hover:border-white/20 transition-all duration-300 flex flex-col justify-between overflow-hidden">
+                    {isLoaded ? <ApiDevsSim /> : <SkeletonPulseCard type={6} />}
+                    <div className="p-5 text-left flex flex-col justify-between flex-1">
+                      <div>
+                        <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest block mb-2">API &amp; Developers</span>
+                        <Link href="/resources/api-developers" className="text-base font-extrabold text-slate-900 dark:text-white leading-snug hover:text-primary transition-colors cursor-pointer block">
+                          Integrating Recura webhooks and APIs
+                        </Link>
+                      </div>
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-4">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>10 min read</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card 6: Video Tutorials */}
+                <div className="w-[100%] sm:w-[50%] lg:w-[33.333333%] xl:w-[20%] shrink-0 px-2 flex">
+                  <div className="w-full bg-white dark:bg-[#150a2e] rounded-2xl border-2 border-primary/40 dark:border-primary/55 shadow-[0_0_20px_rgba(162,140,255,0.06)] hover:shadow-[0_0_25px_rgba(162,140,255,0.12)] transition-all duration-300 flex flex-col justify-between overflow-hidden">
+                    {isLoaded ? <MetricsSim /> : <SkeletonPulseCard type={3} />}
+                    <div className="p-5 text-left bg-gradient-to-b from-primary/[0.01] to-primary/[0.04] flex flex-col justify-between flex-1">
+                      <div>
+                        <span className="text-[9px] font-black text-primary uppercase tracking-widest block mb-2 flex items-center gap-1">
+                          <Sparkles className="w-2.5 h-2.5" /> Video tutorial
+                        </span>
+                        <Link href="/resources/video-tutorials" className="text-base font-extrabold text-slate-900 dark:text-white leading-snug hover:text-primary transition-colors cursor-pointer block">
+                          The complete guide to recurring revenue metrics
+                        </Link>
+                      </div>
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-4">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>15 min read</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card 7: Community */}
+                <div className="w-[100%] sm:w-[50%] lg:w-[33.333333%] xl:w-[20%] shrink-0 px-2 flex">
+                  <div className="w-full bg-white dark:bg-[#150a2e] rounded-2xl border border-slate-200/50 dark:border-white/10 shadow-sm hover:shadow-lg dark:hover:border-white/20 transition-all duration-300 flex flex-col justify-between overflow-hidden">
+                    {isLoaded ? <CommunitySim /> : <SkeletonPulseCard type={7} />}
+                    <div className="p-5 text-left flex flex-col justify-between flex-1">
+                      <div>
+                        <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest block mb-2">Community</span>
+                        <Link href="/resources/community" className="text-base font-extrabold text-slate-900 dark:text-white leading-snug hover:text-primary transition-colors cursor-pointer block">
+                          Recura Community: scaling recurring revenue
+                        </Link>
+                      </div>
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-4">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>8 min read</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
 
-            {/* Card 2: Payment Collection */}
-            <div className="bg-white dark:bg-[#150a2e] rounded-2xl border border-slate-200/50 dark:border-white/10 shadow-sm hover:shadow-lg dark:hover:border-white/20 transition-all duration-300 flex flex-col justify-between overflow-hidden">
-              {isLoaded ? <DunningSim /> : <SkeletonPulseCard type={2} />}
-              <div className="p-5 text-left flex flex-col justify-between flex-1">
-                <div>
-                  <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest block mb-2">Payment collection</span>
-                  <h3 className="text-base font-extrabold text-slate-900 dark:text-white leading-snug hover:text-primary transition-colors cursor-pointer">
-                    Building a dunning sequence that recovers revenue
-                  </h3>
-                </div>
-                <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-4">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>12 min read</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 3: Featured Guide (Special glow style) */}
-            <div className="bg-white dark:bg-[#150a2e] rounded-2xl border-2 border-primary/40 dark:border-primary/55 shadow-[0_0_20px_rgba(162,140,255,0.06)] hover:shadow-[0_0_25px_rgba(162,140,255,0.12)] transition-all duration-300 flex flex-col justify-between overflow-hidden">
-              {isLoaded ? <MetricsSim /> : <SkeletonPulseCard type={3} />}
-              <div className="p-5 text-left bg-gradient-to-b from-primary/[0.01] to-primary/[0.04] flex flex-col justify-between flex-1">
-                <div>
-                  <span className="text-[9px] font-black text-primary uppercase tracking-widest block mb-2 flex items-center gap-1">
-                    <Sparkles className="w-2.5 h-2.5" /> Featured guide
-                  </span>
-                  <h3 className="text-base font-extrabold text-slate-900 dark:text-white leading-snug hover:text-primary transition-colors cursor-pointer">
-                    The complete guide to recurring revenue metrics
-                  </h3>
-                </div>
-                <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-4">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>15 min read</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 4: Enterprise */}
-            <div className="bg-white dark:bg-[#150a2e] rounded-2xl border border-slate-200/50 dark:border-white/10 shadow-sm hover:shadow-lg dark:hover:border-white/20 transition-all duration-300 flex flex-col justify-between overflow-hidden">
-              {isLoaded ? <MigrationSim /> : <SkeletonPulseCard type={4} />}
-              <div className="p-5 text-left flex flex-col justify-between flex-1">
-                <div>
-                  <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest block mb-2">Enterprise</span>
-                  <h3 className="text-base font-extrabold text-slate-900 dark:text-white leading-snug hover:text-primary transition-colors cursor-pointer">
-                    Migrating from Chargebee to Recura: a checklist
-                  </h3>
-                </div>
-                <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-4">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>7 min read</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 5: Tax & Compliance */}
-            <div className="bg-white dark:bg-[#150a2e] rounded-2xl border border-slate-200/50 dark:border-white/10 shadow-sm hover:shadow-lg dark:hover:border-white/20 transition-all duration-300 flex flex-col justify-between overflow-hidden">
-              {isLoaded ? <TaxSim /> : <SkeletonPulseCard type={5} />}
-              <div className="p-5 text-left flex flex-col justify-between flex-1">
-                <div>
-                  <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest block mb-2">Tax &amp; Compliance</span>
-                  <h3 className="text-base font-extrabold text-slate-900 dark:text-white leading-snug hover:text-primary transition-colors cursor-pointer">
-                    VAT, GST and sales tax: a global compliance guide
-                  </h3>
-                </div>
-                <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-4">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>11 min read</span>
-                </div>
-              </div>
+            {/* Pagination Lines and Dots Indicator */}
+            <div className="flex justify-center items-center gap-1.5 mt-8 select-none">
+              {Array.from({ length: maxIndex + 1 }).map((_, idx) => {
+                const isActive = activeDot === idx;
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => handleDotClick(idx)}
+                    className={cn(
+                      "h-1.5 rounded-full transition-all duration-300 cursor-pointer border-0",
+                      isActive 
+                        ? "w-8 bg-primary" 
+                        : "w-2 bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20"
+                    )}
+                  />
+                );
+              })}
             </div>
 
           </div>

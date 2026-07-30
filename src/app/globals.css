@@ -378,4 +378,38 @@ body {
   .simulator-mode ::-webkit-scrollbar-thumb:hover {
     background: rgba(162, 140, 255, 0.9);
   }
+
+  /* Monochrome Iconify icons for SDKs */
+  .monochrome-icon svg path,
+  .monochrome-icon svg circle,
+  .monochrome-icon svg rect,
+  .monochrome-icon svg g,
+  .monochrome-icon svg polygon,
+  .monochrome-icon svg polyline,
+  .monochrome-icon svg ellipse {
+    fill: currentColor !important;
+  }
+
+  /* Merchant List Viewport and Track */
+  .merchant-list-viewport {
+    height: 160px; /* ~2.5 rows visible */
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+  }
+
+  .merchant-list-track {
+    display: flex;
+    flex-direction: column;
+    animation: scroll-merchants 16s linear infinite;
+  }
+
+  .merchant-list-track:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes scroll-merchants {
+    from { transform: translateY(0); }
+    to { transform: translateY(-50%); }
+  }
 }

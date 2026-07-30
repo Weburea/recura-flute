@@ -1,19 +1,24 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, KeyRound, ArrowRight } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { ArrowRight, Mail, ArrowLeft } from 'lucide-react';
 import { cn } from "@/lib/utils";
-import { useRouter } from 'next/navigation';
 
-export function VerifyCode() {
+function VerifyCodeContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const emailParam = searchParams.get('email') || 'amaka@brightline-gym.com';
+  const devCodeParam = searchParams.get('devCode');
+
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [timer, setTimer] = useState(59);
+  const [timer, setTimer] = useState(47);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const router = useRouter();
+
+
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -23,12 +28,14 @@ export function VerifyCode() {
   }, []);
 
   const handleChange = (index: number, value: string) => {
-    if (value.length > 1) value = value.slice(-1); // Only allow 1 char
-    if (!/^\d*$/.test(value)) return; // Only allow numbers
+    if (value.length > 1) value = value.slice(-1);
+    if (!/^\d*$/.test(value)) return;
 
     const newCode = [...code];
     newCode[index] = value;
     setCode(newCode);
+
+    if (error) setError('');
 
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
@@ -41,92 +48,164 @@ export function VerifyCode() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').trim().slice(0, 6);
+    if (!/^\d+$/.test(pastedData)) return;
+
+    const newCode = [...code];
+    for (let i = 0; i < pastedData.length; i++) {
+      newCode[i] = pastedData[i];
+    }
+    setCode(newCode);
+    if (pastedData.length === 6) {
+      inputRefs.current[5]?.focus();
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const fullCode = code.join('');
     if (fullCode.length < 6) {
       setError('Please enter the complete 6-digit code');
       return;
     }
-    
+
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    setError('');
+
+    try {
+      const res = await fetch('/api/auth/verify-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: emailParam,
+          code: fullCode,
+        }),
+      });
+
+      const data = await res.json();
       setIsLoading(false);
-      router.push('/reset-password');
-    }, 1500);
+
+      if (!res.ok || !data.success) {
+        setError(data.error || 'Verification failed');
+        return;
+      }
+
+      router.push(data.redirectUrl || `/reset-password?email=${encodeURIComponent(emailParam)}`);
+    } catch {
+      setIsLoading(false);
+      setError('An unexpected error occurred during verification.');
+    }
+  };
+
+  const handleResend = () => {
+    setTimer(60);
+    setCode(['', '', '', '', '', '']);
+    inputRefs.current[0]?.focus();
   };
 
   return (
-    <div className="w-full">
-      <div className="mb-6 text-center sm:text-left">
-        <Link 
-            href="/forgot-password" 
-            className="inline-flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-purple-600 uppercase tracking-widest mb-4 transition-all"
-        >
-            <ArrowLeft className="w-3.5 h-3.5" /> Back
-        </Link>
-        <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-2xl bg-purple-600/10 flex items-center justify-center">
-                <KeyRound className="w-6 h-6 text-purple-600" />
-            </div>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-widest uppercase">Verification</h1>
-        </div>
-        <p className="text-sm text-slate-500 dark:text-slate-400 font-bold max-w-sm">Enter the 6-digit cryptographic code sent to your email.</p>
+    <div className="w-full bg-white dark:bg-[#150A2E] rounded-[2.5rem] p-8 sm:p-11 shadow-2xl shadow-purple-900/10 border border-purple-100/50 dark:border-white/10 space-y-6">
+      
+      {/* Top Purple Mail Icon Badge */}
+      <div className="w-13 h-13 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center mx-auto mb-2 border border-purple-100 dark:border-purple-800/40">
+        <Mail className="w-6 h-6" />
       </div>
 
+      {/* Title & Subtitle */}
+      <div className="text-center space-y-1.5">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+          Verify your email
+        </h1>
+        <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-400 font-medium leading-relaxed">
+          Enter the 6-digit code we sent to <br />
+          <span className="font-bold text-gray-900 dark:text-white">{emailParam}</span>
+        </p>
+      </div>
+
+      {/* 6-Digit Code Input Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-4">
-          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">One-Time Recovery Code</label>
-          <div className="flex justify-between gap-2 sm:gap-4">
-            {code.map((digit, i) => (
-              <input
-                key={i}
-                ref={(el) => { inputRefs.current[i] = el; }}
-                type="text"
-                maxLength={1}
-                value={digit}
-                onChange={(e) => handleChange(i, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(i, e)}
-                className={cn(
-                  "w-full aspect-square text-center text-xl font-black rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-white/10 dark:bg-white/5 text-slate-900 dark:text-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all shadow-sm",
-                  error && "border-red-500 dark:border-red-500/30"
-                )}
-              />
-            ))}
-          </div>
-          {error && <p className="text-red-500 text-[10px] font-black uppercase tracking-widest mt-2 ml-2">{error}</p>}
+        <div className="flex justify-center gap-2 sm:gap-3">
+          {code.map((digit, idx) => (
+            <input
+              key={idx}
+              ref={(el) => { inputRefs.current[idx] = el; }}
+              type="text"
+              inputMode="numeric"
+              maxLength={1}
+              value={digit}
+              onChange={(e) => handleChange(idx, e.target.value)}
+              onKeyDown={(e) => handleKeyDown(idx, e)}
+              onPaste={handlePaste}
+              className={cn(
+                "w-11 h-13 sm:w-13 sm:h-15 text-center text-xl font-extrabold rounded-2xl border bg-gray-50/50 dark:bg-white/5 text-gray-900 dark:text-white focus:outline-none focus:ring-4 transition-all",
+                error
+                  ? "border-red-500/60 text-red-500 focus:ring-red-500/10"
+                  : digit
+                  ? "border-purple-600 dark:border-purple-400 bg-purple-50/20 dark:bg-purple-950/30 focus:ring-purple-600/10"
+                  : "border-gray-200 dark:border-white/10 focus:border-purple-600 dark:focus:border-purple-400 focus:ring-purple-600/10"
+              )}
+            />
+          ))}
         </div>
 
-        <Button 
-            type="submit" 
-            variant="brand" 
-            disabled={isLoading}
-            className="w-full py-6 text-sm font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-purple-600/20 dark:shadow-purple-900/40 mt-4"
+        {error && (
+          <p className="text-red-500 text-xs font-bold text-center -mt-2">{error}</p>
+        )}
+
+        {/* Primary Submit Button */}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full bg-[#1A1829] dark:bg-purple-600 hover:bg-black dark:hover:bg-purple-500 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-xl shadow-gray-900/10 dark:shadow-purple-950/50 flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50 text-sm"
         >
-            <span className="relative z-10 flex items-center justify-center gap-3">
-                {isLoading ? 'Verifying...' : 'Authorize Recovery'}
-                {!isLoading && <ArrowRight className="w-4 h-4" />}
-            </span>
-        </Button>
-
-        <div className="flex flex-col items-center gap-4 pt-4">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                Didn&apos;t receive the code?{" "}
-                {timer > 0 ? (
-                    <span className="text-slate-400 font-medium">In {timer}s</span>
-                ) : (
-                    <button 
-                        type="button" 
-                        onClick={() => setTimer(59)}
-                        className="text-purple-600 hover:text-purple-500 transition-colors font-black underline decoration-purple-600/30 underline-offset-4"
-                    >
-                        Resend Code
-                    </button>
-                )}
-            </p>
-        </div>
+          <span>{isLoading ? "Verifying..." : "Verify code"}</span>
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        </button>
       </form>
+
+      {/* Resend Code & Back to Login Footer */}
+      <div className="space-y-3 pt-1 text-center">
+        <div className="text-xs font-semibold text-gray-400 dark:text-gray-400">
+          Didn&apos;t receive the code?{' '}
+          {timer > 0 ? (
+            <span className="text-gray-500 font-bold">Resend in 0:{timer.toString().padStart(2, '0')}</span>
+          ) : (
+            <button
+              type="button"
+              onClick={handleResend}
+              className="text-purple-600 dark:text-purple-400 font-bold hover:underline cursor-pointer"
+            >
+              Resend code
+            </button>
+          )}
+        </div>
+
+        <div>
+          <Link 
+            href="/forgot-password"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Use a different email</span>
+          </Link>
+        </div>
+      </div>
+
     </div>
+  );
+}
+
+export function VerifyCode() {
+  return (
+    <Suspense fallback={
+      <div className="w-full bg-white dark:bg-[#150A2E] rounded-[2.5rem] p-12 text-center text-gray-400">
+        <div className="w-8 h-8 rounded-full border-2 border-purple-600 border-t-transparent animate-spin mx-auto mb-2"></div>
+        <p className="text-xs font-bold">Loading Code Verification...</p>
+      </div>
+    }>
+      <VerifyCodeContent />
+    </Suspense>
   );
 }
