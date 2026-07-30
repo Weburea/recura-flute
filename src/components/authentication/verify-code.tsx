@@ -99,10 +99,30 @@ function VerifyCodeContent() {
     }
   };
 
-  const handleResend = () => {
-    setTimer(60);
-    setCode(['', '', '', '', '', '']);
-    inputRefs.current[0]?.focus();
+  const handleResend = async () => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailParam }),
+      });
+      const data = await res.json();
+      setIsLoading(false);
+
+      if (!res.ok || !data.success) {
+        setError(data.error || 'Failed to resend reset code');
+        return;
+      }
+
+      setTimer(60);
+      setCode(['', '', '', '', '', '']);
+      inputRefs.current[0]?.focus();
+    } catch {
+      setIsLoading(false);
+      setError('An error occurred while resending the verification code.');
+    }
   };
 
   return (
