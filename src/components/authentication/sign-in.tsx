@@ -444,7 +444,7 @@ function SignInContent() {
       {/* ========================================================== */}
       {/* RIGHT SIDE: Sign-In Form                                  */}
       {/* ========================================================== */}
-      <div className="w-full lg:w-1/2 p-6 sm:p-12 flex flex-col justify-between relative bg-white dark:bg-[#0D0518]">
+      <div className="w-full lg:w-1/2 bg-white dark:bg-[#0D0518] p-6 sm:p-12 lg:p-16 flex flex-col justify-between min-h-screen lg:min-h-0 relative">
         
         {/* Mobile Header with Recura Logo */}
         <div className="flex items-center justify-between mb-6 lg:hidden">
