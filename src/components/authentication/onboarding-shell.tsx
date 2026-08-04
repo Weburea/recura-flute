@@ -34,7 +34,7 @@ export function OnboardingShell({ step, maxWidth = '3xl', children }: Onboarding
   }[maxWidth];
 
   return (
-    <div className="min-h-screen lg:h-screen w-full bg-[#F4F1FA] dark:bg-[#0D0518] relative overflow-x-hidden flex flex-col selection:bg-purple-500 selection:text-white">
+    <div className="min-h-screen w-full bg-[#F4F1FA] dark:bg-[#0D0518] relative overflow-x-hidden flex flex-col selection:bg-purple-500 selection:text-white">
       
       {/* 1. Full-Viewport Bento Grid Background Overlay */}
       <div className="absolute inset-0 bg-[radial-gradient(#a28cff_1.2px,transparent_1.2px)] [background-size:28px_28px] opacity-20 pointer-events-none"></div>

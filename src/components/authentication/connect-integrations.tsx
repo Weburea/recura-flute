@@ -77,7 +77,7 @@ function ConnectIntegrationsContent() {
 
   return (
     <OnboardingShell step={5} maxWidth="3xl">
-      <div className="w-full bg-white dark:bg-[#150A2E] rounded-[2.5rem] p-6 sm:p-10 lg:p-12 shadow-2xl shadow-purple-900/10 border border-purple-100/50 dark:border-white/10 flex flex-col gap-6 sm:gap-8 lg:max-h-full lg:overflow-hidden">
+      <div className="w-full bg-white dark:bg-[#150A2E] rounded-[2.5rem] p-6 sm:p-10 lg:p-12 shadow-2xl shadow-purple-900/10 border border-purple-100/50 dark:border-white/10 flex flex-col gap-6 sm:gap-8">
         
         {/* Header & Subtext */}
         <div className="space-y-1.5 text-center sm:text-left shrink-0">
