@@ -180,12 +180,28 @@ export function TemplateSelector({ onPreviewTemplate }: TemplateSelectorProps) {
                         handleSelectTemplate(template.id)
                       }
                     }}
+                    style={{
+                      backgroundImage: "url('/images/dumb_images/invoices dumb/Background Gradient.svg')",
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center'
+                    }}
                     className={cn(
-                      "flip-card-front p-4 flex flex-col justify-between overflow-hidden rounded-3xl relative transition-transform duration-300 hover:scale-[1.02] border border-transparent shadow-lg bg-gradient-to-br",
-                      template.colorClass,
-                      isActive && "ring-3 ring-emerald-500 ring-offset-2 dark:ring-offset-slate-950 border-emerald-500 shadow-emerald-500/10"
+                      "flip-card-front p-4 flex flex-col justify-between overflow-hidden rounded-3xl relative transition-all duration-300 hover:scale-[1.02] border shadow-lg text-white",
+                      isActive 
+                        ? "ring-2 ring-emerald-500 ring-offset-2 dark:ring-offset-slate-950 border-emerald-500 shadow-emerald-500/10" 
+                        : "border-white/10"
                     )}
                   >
+                    {/* Blended overlay matching card color identity */}
+                    <div className={cn(
+                      "absolute inset-0 bg-gradient-to-br opacity-[0.92] dark:opacity-95 -z-10",
+                      template.id === 'classic' && "from-indigo-950 to-indigo-900",
+                      template.id === 'minimalist' && "from-emerald-950 to-emerald-900",
+                      template.id === 'detailed' && "from-cyan-950 to-cyan-900",
+                      template.id === 'modern' && "from-orange-950 to-rose-950",
+                      template.id === 'premium_dark' && "from-slate-950 via-[#130725] to-slate-950"
+                    )} />
+
                     {/* Top Row: Badge & Flip Icon */}
                     <div className="flex justify-between items-start relative z-10 w-full">
                       {isActive ? (
@@ -229,11 +245,26 @@ export function TemplateSelector({ onPreviewTemplate }: TemplateSelectorProps) {
                   {/* Back Side */}
                   <div 
                     onClick={() => setFlippedCardId(null)}
+                    style={{
+                      backgroundImage: "url('/images/dumb_images/invoices dumb/Background Gradient.svg')",
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center'
+                    }}
                     className={cn(
-                      "flip-card-back p-4 flex flex-col justify-between overflow-hidden rounded-3xl relative bg-gradient-to-br",
-                      template.colorClass
+                      "flip-card-back p-4 flex flex-col justify-between overflow-hidden rounded-3xl relative border text-white",
+                      isActive ? "border-emerald-500" : "border-white/10"
                     )}
                   >
+                    {/* Blended overlay matching card color identity */}
+                    <div className={cn(
+                      "absolute inset-0 bg-gradient-to-br opacity-[0.92] dark:opacity-95 -z-10",
+                      template.id === 'classic' && "from-indigo-950 to-indigo-900",
+                      template.id === 'minimalist' && "from-emerald-950 to-emerald-900",
+                      template.id === 'detailed' && "from-cyan-950 to-cyan-900",
+                      template.id === 'modern' && "from-orange-950 to-rose-950",
+                      template.id === 'premium_dark' && "from-slate-950 via-[#130725] to-slate-950"
+                    )} />
+
                     <div className="space-y-1">
                       <div className="flex justify-between items-center">
                         <span className="text-[8px] uppercase font-black tracking-widest opacity-60">Profile</span>
