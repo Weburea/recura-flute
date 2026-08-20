@@ -1,5 +1,7 @@
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout"
 
+export const dynamic = 'force-dynamic';
+
 export default function PrivacyPolicyPage() {
   return (
     <DashboardLayout>
