@@ -188,24 +188,17 @@ export function TemplateSelector({ onPreviewTemplate }: TemplateSelectorProps) {
                     className={cn(
                       "flip-card-front p-4 flex flex-col justify-between overflow-hidden rounded-3xl relative transition-all duration-300 hover:scale-[1.02] border shadow-lg text-white",
                       isActive 
-                        ? "ring-2 ring-emerald-500 ring-offset-2 dark:ring-offset-slate-950 border-emerald-500 shadow-emerald-500/10" 
+                        ? "ring-2 ring-purple-600 ring-offset-2 dark:ring-offset-slate-950 border-purple-600 shadow-purple-600/20" 
                         : "border-white/10"
                     )}
                   >
-                    {/* Blended overlay matching card color identity */}
-                    <div className={cn(
-                      "absolute inset-0 bg-gradient-to-br opacity-[0.92] dark:opacity-95 -z-10",
-                      template.id === 'classic' && "from-indigo-950 to-indigo-900",
-                      template.id === 'minimalist' && "from-emerald-950 to-emerald-900",
-                      template.id === 'detailed' && "from-cyan-950 to-cyan-900",
-                      template.id === 'modern' && "from-orange-950 to-rose-950",
-                      template.id === 'premium_dark' && "from-slate-950 via-[#130725] to-slate-950"
-                    )} />
+                    {/* Blended overlay matching project color identity */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#1c1236] to-[#0f0722] opacity-[0.94] dark:opacity-96 -z-10" />
 
                     {/* Top Row: Badge & Flip Icon */}
                     <div className="flex justify-between items-start relative z-10 w-full">
                       {isActive ? (
-                        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500 text-white font-black text-[9px] uppercase tracking-wider shadow-sm z-20">
+                        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-600 text-white font-black text-[9px] uppercase tracking-wider shadow-sm z-20">
                           <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                           Active
                         </span>
@@ -252,18 +245,11 @@ export function TemplateSelector({ onPreviewTemplate }: TemplateSelectorProps) {
                     }}
                     className={cn(
                       "flip-card-back p-4 flex flex-col justify-between overflow-hidden rounded-3xl relative border text-white",
-                      isActive ? "border-emerald-500" : "border-white/10"
+                      isActive ? "border-purple-600" : "border-white/10"
                     )}
                   >
-                    {/* Blended overlay matching card color identity */}
-                    <div className={cn(
-                      "absolute inset-0 bg-gradient-to-br opacity-[0.92] dark:opacity-95 -z-10",
-                      template.id === 'classic' && "from-indigo-950 to-indigo-900",
-                      template.id === 'minimalist' && "from-emerald-950 to-emerald-900",
-                      template.id === 'detailed' && "from-cyan-950 to-cyan-900",
-                      template.id === 'modern' && "from-orange-950 to-rose-950",
-                      template.id === 'premium_dark' && "from-slate-950 via-[#130725] to-slate-950"
-                    )} />
+                    {/* Blended overlay matching project color identity */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#1c1236] to-[#0f0722] opacity-[0.94] dark:opacity-96 -z-10" />
 
                     <div className="space-y-1">
                       <div className="flex justify-between items-center">
