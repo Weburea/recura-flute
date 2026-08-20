@@ -13,7 +13,8 @@ import {
   Code2,
   BellRing,
   SquareStack,
-  FileText
+  FileText,
+  Mail
 } from "lucide-react"
 
 export const documentationNav = [
@@ -51,6 +52,7 @@ export const documentationNav = [
       { label: "Page Headers", href: "/dashboard/documentation/layout/page-header", icon: FileText },
       { label: "Responsive Behavior", href: "/dashboard/documentation/layout/responsive", icon: Layout },
       { label: "Routing Structure", href: "/dashboard/documentation/layout/routing", icon: Compass },
+      { label: "Emails", href: "/dashboard/documentation/layout/emails", icon: Mail },
     ]
   },
   {

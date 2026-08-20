@@ -16,7 +16,9 @@ export const workspaces = pgTable('workspaces', {
   currency: text('currency').default('USD').notNull(),
   timezone: text('timezone').default('UTC').notNull(),
   onboardingCompleted: boolean('onboarding_completed').default(false).notNull(),
+  apiKey: text('api_key').unique(),
   settings: jsonb('settings').$type<Record<string, unknown>>().default({}),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });

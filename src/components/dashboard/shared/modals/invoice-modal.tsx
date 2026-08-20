@@ -2,22 +2,69 @@
 
 import * as React from "react"
 import { createPortal } from "react-dom"
-import Image from "next/image"
-import { X, Printer, Download, Loader2 } from "lucide-react"
+import { X, Download, Loader2, Palette, Paintbrush, Check, Sun, Moon, Sparkles } from "lucide-react"
 import { toPng } from "html-to-image"
 import type { Invoice } from "@/components/dashboard/billing/mock-data"
+import { InvoiceTemplateRenderer, normalizeInvoiceForTemplate } from "@/components/dashboard/billing/invoice-templates"
+import { StatusModal } from "./status-modal"
+import { useUser } from "@/context/user-context"
+import { cn } from "@/lib/utils"
+
+interface InvoiceWithMetadata extends Invoice {
+  metadata?: {
+    savedImageUrl?: string
+    invoiceNumber?: string
+    [key: string]: unknown
+  }
+}
 
 interface InvoiceModalProps {
   isOpen: boolean
   onClose: () => void
-  invoice: Invoice
+  invoice: InvoiceWithMetadata
   onDownload?: () => void
-  isDownloading?: boolean
+  readOnly?: boolean
 }
 
-export function InvoiceModal({ isOpen, onClose, invoice, onDownload, isDownloading }: InvoiceModalProps) {
+const PRESET_COLORS = [
+  { name: "Recura Purple", value: "#7C3AED" },
+  { name: "Ocean Blue", value: "#3B82F6" },
+  { name: "Emerald Green", value: "#10B981" },
+  { name: "Sunset Orange", value: "#F97316" },
+  { name: "Crimson Red", value: "#F43F5E" }
+]
+
+type TemplateType = 'classic' | 'minimalist' | 'detailed' | 'modern' | 'premium_dark'
+
+export function InvoiceModal({ isOpen, onClose, invoice, onDownload, readOnly = false }: InvoiceModalProps) {
   const [mounted, setMounted] = React.useState(false)
   const invoiceRef = React.useRef<HTMLDivElement>(null)
+
+  // Customizer States
+  const [activeTemplate, setActiveTemplate] = React.useState<TemplateType>('classic')
+  const [accentColor, setAccentColor] = React.useState<string>('#7C3AED')
+  const [previewTheme, setPreviewTheme] = React.useState<'light' | 'dark'>('light')
+  const [internalDownloading, setInternalDownloading] = React.useState(false)
+
+  const { user, workspace, refreshUser } = useUser()
+
+  // Status modal overlay state for saving/printing
+  const [statusOverlay, setStatusOverlay] = React.useState<{
+    isOpen: boolean
+    type: "success" | "error" | "pending" | "info"
+    title: string
+    message: string
+  }>({
+    isOpen: false,
+    type: "success",
+    title: "",
+    message: ""
+  })
+
+  // Normalize invoice for rendering
+  const normalizedInvoice = React.useMemo(() => {
+    return normalizeInvoiceForTemplate(invoice, workspace, user)
+  }, [invoice, workspace, user])
 
   React.useEffect(() => {
     setMounted(true)
@@ -31,42 +78,194 @@ export function InvoiceModal({ isOpen, onClose, invoice, onDownload, isDownloadi
     }
   }, [isOpen])
 
-  const handlePrint = () => {
-    window.print()
+  React.useEffect(() => {
+    if (isOpen) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const metadata = (invoice as any)?.metadata || {}
+      if (metadata.template) {
+        setActiveTemplate(metadata.template as TemplateType)
+      } else if (workspace?.settings?.invoiceTemplate) {
+        setActiveTemplate(workspace.settings.invoiceTemplate as TemplateType)
+      }
+
+      if (metadata.accentColor) {
+        setAccentColor(metadata.accentColor as string)
+      } else if (workspace?.settings?.primaryColor) {
+        setAccentColor(workspace.settings.primaryColor as string)
+      }
+
+      if (metadata.theme) {
+        setPreviewTheme(metadata.theme as 'light' | 'dark')
+      }
+    }
+  }, [isOpen, workspace, invoice])
+
+  const saveActiveTemplateToSettings = async (templateId: string, color: string) => {
+    try {
+      const currentSettings = workspace?.settings || {}
+      await fetch("/api/v1/workspaces/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          settings: {
+            ...currentSettings,
+            invoiceTemplate: templateId,
+            primaryColor: color
+          }
+        })
+      })
+      refreshUser?.()
+    } catch (err) {
+      console.error("Failed to update active workspace settings:", err)
+    }
+  }
+
+  const handleSaveHDImage = async () => {
+    if (invoiceRef.current === null || !invoice) return
+
+    setStatusOverlay({
+      isOpen: true,
+      type: "pending",
+      title: "Saving HD Image...",
+      message: "Rendering ultra-high-resolution 4x layout grids..."
+    })
+
+    await saveActiveTemplateToSettings(activeTemplate, accentColor)
+
+    try {
+      await fetch("/api/v1/billing", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: invoice.id,
+          metadata: {
+            template: activeTemplate,
+            accentColor: accentColor,
+            theme: previewTheme
+          }
+        })
+      })
+    } catch (e) {
+      console.error("Failed to save metadata to invoice:", e)
+    }
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 800))
+      const isDark = previewTheme === 'dark' || activeTemplate === 'premium_dark'
+      const dataUrl = await toPng(invoiceRef.current, {
+        quality: 1.0,
+        pixelRatio: 4, // 4x for Ultra-HD resolution
+        backgroundColor: isDark ? '#0b051a' : '#ffffff',
+      })
+      
+      const link = document.createElement("a")
+      link.download = `invoice-${invoice.id}-${activeTemplate}-hd.png`
+      link.href = dataUrl
+      link.click()
+
+      // Upload generated PNG to Cloudinary in the background
+      fetch("/api/v1/billing/upload-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          invoiceId: invoice.id,
+          base64Image: dataUrl
+        })
+      }).catch(uploadErr => {
+        console.error("Failed to upload HD image to Cloudinary:", uploadErr)
+      })
+
+      setStatusOverlay({
+        isOpen: true,
+        type: "success",
+        title: "HD Image Saved",
+        message: "Ultra-high-definition invoice image has been generated and saved."
+      })
+    } catch (err) {
+      console.error("Failed to download HD image:", err)
+      setStatusOverlay({
+        isOpen: true,
+        type: "error",
+        title: "Generation Failed",
+        message: "Failed to render high-definition image grid."
+      })
+    }
   }
 
   const handleDownloadInternal = async () => {
     if (invoiceRef.current === null || !invoice) return
     
-    // If parent provided onDownload, use it, otherwise use internal logic
     if (onDownload) {
-      onDownload();
-      return;
+      onDownload()
+      return
+    }
+
+    setInternalDownloading(true)
+    setStatusOverlay({
+      isOpen: true,
+      type: "pending",
+      title: "Saving PNG...",
+      message: "Generating high-fidelity invoice image..."
+    })
+
+    await saveActiveTemplateToSettings(activeTemplate, accentColor)
+
+    try {
+      await fetch("/api/v1/billing", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: invoice.id,
+          metadata: {
+            template: activeTemplate,
+            accentColor: accentColor,
+            theme: previewTheme
+          }
+        })
+      })
+    } catch (e) {
+      console.error("Failed to save download metadata to invoice:", e)
     }
 
     try {
+      await new Promise(resolve => setTimeout(resolve, 800))
+      const isDark = previewTheme === 'dark' || activeTemplate === 'premium_dark'
       const dataUrl = await toPng(invoiceRef.current, {
         quality: 1.0,
         pixelRatio: 2,
-        backgroundColor: '#ffffff',
+        backgroundColor: isDark ? '#0b051a' : '#ffffff',
       })
       
       const link = document.createElement("a")
-      link.download = `invoice-${invoice.id}.png`
+      link.download = `invoice-${invoice.id}-${activeTemplate}.png`
       link.href = dataUrl
       link.click()
+
+      setStatusOverlay({
+        isOpen: true,
+        type: "success",
+        title: "Download Successful",
+        message: "Invoice PNG image has been saved to your device."
+      })
+      setTimeout(() => {
+        setStatusOverlay(prev => ({ ...prev, isOpen: false }))
+      }, 1500)
     } catch (err) {
       console.error("Failed to download invoice:", err)
+      setStatusOverlay({
+        isOpen: true,
+        type: "error",
+        title: "Download Failed",
+        message: "Failed to generate image file for this invoice."
+      })
+    } finally {
+      setInternalDownloading(false)
     }
   }
 
   if (!isOpen || !invoice || !mounted) return null
 
-  const items = [
-    { description: "Product Subscription - " + invoice.plan, qty: 1, price: invoice.amount, total: invoice.amount },
-    { description: "Platform Fee", qty: 1, price: "$0.00", total: "$0.00" },
-    { description: "Additional Support", qty: 1, price: "$0.00", total: "$0.00" },
-  ]
+  const finalLogoUrl = (workspace?.metadata?.logo_url as string) || (workspace?.metadata?.logoUrl as string) || null
 
   const modalContent = (
     <>
@@ -101,181 +300,255 @@ export function InvoiceModal({ isOpen, onClose, invoice, onDownload, isDownloadi
         }
       `}</style>
       
-      <div className="fixed inset-0 z-[1000] flex items-start sm:items-center justify-center bg-slate-900/60 backdrop-blur-sm overflow-y-auto no-print print-modal-container px-0 sm:px-4 custom-scrollbar">
+      <div className="fixed inset-0 z-[1000] flex items-stretch md:items-center justify-center bg-slate-900/60 backdrop-blur-sm overflow-y-auto no-print print-modal-container px-0 sm:px-4 custom-scrollbar">
         {/* Overlay Close Trigger */}
         <div className="fixed inset-0 z-0 print:hidden no-print" onClick={onClose} />
         
-        {/* Modal Content - Refined Visual Weight */}
-        <div className="relative z-10 w-full max-w-5xl bg-white rounded-xl sm:rounded-2xl shadow-2xl animate-in fade-in slide-in-from-bottom sm:zoom-in duration-300 print:shadow-none print:rounded-none flex flex-col h-auto max-h-[96vh] sm:max-h-[96vh] my-4 sm:my-0 print:my-0 print:w-full print:block print-area">
+        {/* Modal Container: Flex layout to accommodate customizer sidebar */}
+        <div className={cn(
+          "relative z-10 w-full bg-white dark:bg-[#110825] rounded-none md:rounded-3xl shadow-2xl animate-in fade-in slide-in-from-bottom md:zoom-in duration-300 print:shadow-none print:rounded-none flex flex-col md:flex-row h-auto md:h-[88vh] overflow-y-auto md:overflow-hidden my-0 md:my-4 print:my-0 print:w-full print:block print-area",
+          readOnly ? "max-w-4xl" : "max-w-6xl"
+        )}>
           
-          {/* Controls */}
-          <div className="absolute top-3 right-3 sm:top-4 sm:right-6 flex items-center gap-2 z-[1100] print:hidden no-print">
-            <button 
-              onClick={handleDownloadInternal}
-              disabled={isDownloading}
-              className="p-2 rounded-xl bg-white/80 backdrop-blur-md hover:bg-white text-slate-900 transition-all border border-slate-200 shadow-sm cursor-pointer disabled:opacity-50"
-              title="Save as Image"
-            >
-              {isDownloading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> : <Download className="w-4 h-4 sm:w-5 sm:h-5" />}
-            </button>
-            <button 
-              onClick={handlePrint}
-              className="p-2 rounded-xl bg-white/80 backdrop-blur-md hover:bg-white text-slate-900 transition-all border border-slate-200 shadow-sm cursor-pointer"
-              title="Print Invoice"
-            >
-              <Printer className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-            <button 
-              onClick={onClose}
-              className="p-2 rounded-xl bg-white/80 backdrop-blur-md hover:bg-white text-slate-900 transition-all border border-slate-200 shadow-sm cursor-pointer"
-            >
-              <X className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-          </div>
+          {/* LEFT: Designer Customizer Toolbar */}
+          {!readOnly && (
+            <div className="w-full md:w-80 border-b md:border-b-0 md:border-r border-slate-150 dark:border-white/10 p-6 flex flex-col gap-6 no-print bg-slate-50/50 dark:bg-[#150a2e]/40 overflow-y-auto shrink-0">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-white/5">
+                <div className="flex items-center gap-2">
+                  <Paintbrush className="w-5 h-5 text-purple-650 dark:text-purple-400" />
+                  <h3 className="font-extrabold text-sm text-slate-800 dark:text-white uppercase tracking-wider">Invoice Designer</h3>
+                </div>
+                <button 
+                  onClick={onClose}
+                  className="md:hidden p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-slate-400"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
 
-          {/* Scrollable Body Content */}
-          <div className="flex-1 overflow-y-auto no-scrollbar rounded-xl sm:rounded-2xl print:overflow-visible print:block">
-            {/* Invoice Body */}
-            <div 
-              ref={invoiceRef} 
-              id="invoice-content"
-              className="p-0 flex flex-col bg-white w-full mx-auto min-h-full print:block"
-              style={{ color: "#1e293b" }} 
-            >
-              {/* Branded Header Section - Pronounced Height & Curved Bottom */}
-              <div 
-                className="relative p-6 sm:p-7 md:p-8 overflow-hidden rounded-b-[2rem] sm:rounded-b-[2.5rem] print:rounded-none" 
-                style={{ 
-                  background: "linear-gradient(135deg, #7c3aed 0%, #c026d3 100%)",
-                }}
-              >
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay" />
-                <div className="absolute bottom-[-50px] left-[-20px] w-80 h-80 bg-white/10 rounded-full blur-3xl print:hidden" />
+              {/* Template Selector Card List */}
+              <div className="space-y-3">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Template</span>
+                <div className="grid grid-cols-1 gap-2">
+                  {[
+                    { id: 'classic', label: 'Classic Design' },
+                    { id: 'minimalist', label: 'Minimalist Clean' },
+                    { id: 'detailed', label: 'Detailed Split' },
+                    { id: 'modern', label: 'Modern Rounded' },
+                    { id: 'premium_dark', label: 'Premium Dark Mode', special: true }
+                  ].map((item) => {
+                    const isActive = activeTemplate === item.id
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => setActiveTemplate(item.id as TemplateType)}
+                        className={cn(
+                          "w-full px-4 py-3 rounded-2xl border text-xs text-left font-bold transition-all relative flex items-center justify-between cursor-pointer",
+                          isActive
+                            ? "bg-purple-600 border-purple-600 text-white shadow-md shadow-purple-600/10"
+                            : "border-slate-200/80 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 text-slate-700 dark:text-slate-350 hover:bg-slate-100/50 dark:hover:bg-white/5",
+                          item.special && !isActive && "border-amber-500/20 text-amber-500 hover:border-amber-500/40"
+                        )}
+                      >
+                        <span>{item.label}</span>
+                        {isActive && <Check className="w-4 h-4 text-white" />}
+                        {item.special && !isActive && (
+                          <span className="px-1.5 py-0.5 rounded text-[8px] bg-amber-500/10 border border-amber-500/20 text-amber-500 font-extrabold uppercase scale-90">
+                            LUX
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Accent Color Customizer */}
+              <div className="space-y-3">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <Palette className="w-3.5 h-3.5" /> Accent Color
+                </span>
                 
-                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  <div className="space-y-3">
-                    <div className="relative w-36 h-9 sm:w-44 sm:h-11">
-                      <Image 
-                        src="https://res.cloudinary.com/weburea/image/upload/v1783571838/logo_dark.svg" 
-                        alt="Recura" 
-                        fill 
-                        className="object-contain brightness-0 invert" 
-                        priority
-                      />
-                    </div>
-                    <div className="text-white/90 text-xs sm:text-sm font-bold tracking-tight">
-                      <p className="opacity-80">Recura Technologies Inc.</p>
-                    </div>
+                {/* Preset circles */}
+                <div className="flex flex-wrap gap-2.5 items-center">
+                  {PRESET_COLORS.map((color) => {
+                    const isColorActive = accentColor.toLowerCase() === color.value.toLowerCase()
+                    return (
+                      <button
+                        key={color.value}
+                        onClick={() => setAccentColor(color.value)}
+                        style={{ backgroundColor: color.value }}
+                        className="w-7 h-7 rounded-full border border-black/10 dark:border-white/20 flex items-center justify-center cursor-pointer transition-transform hover:scale-110 shadow-sm relative shrink-0"
+                        title={color.name}
+                      >
+                        {isColorActive && <Check className="w-3.5 h-3.5 text-white drop-shadow" />}
+                      </button>
+                    )
+                  })}
+
+                  {/* Color Picker Box */}
+                  <div className="relative w-7 h-7 rounded-full border border-slate-300 dark:border-white/20 overflow-hidden cursor-pointer shrink-0 transition-transform hover:scale-110 flex items-center justify-center bg-slate-100/50">
+                    <input
+                      type="color"
+                      value={accentColor}
+                      onChange={(e) => setAccentColor(e.target.value)}
+                      className="absolute inset-0 w-[200%] h-[200%] -translate-x-1/4 -translate-y-1/4 cursor-pointer border-none bg-transparent"
+                      title="Choose Custom Color"
+                    />
+                    <Palette className="w-3.5 h-3.5 text-slate-500 pointer-events-none mix-blend-difference" />
                   </div>
-
-                  <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl sm:rounded-[2rem] p-4 sm:p-5 flex items-center gap-4 sm:gap-4 print:bg-transparent print:border-slate-100 shadow-2xl">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white flex items-center justify-center text-purple-600 shadow-xl print:shadow-none shrink-0">
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#7c3aed] to-[#c026d3] text-white font-black text-lg sm:text-lg rounded-full border-2 sm:border-3 border-white/30">
-                        {invoice.customer.substring(0, 1)}
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-white uppercase text-[8px] sm:text-[9px] font-black tracking-[0.25em] opacity-80 mb-0.5 sm:mb-0.5">Total Amount:</p>
-                      <div className="flex items-baseline gap-1.5 sm:gap-1.5">
-                        <h2 className="text-white text-2xl sm:text-3xl font-black tracking-tighter">{invoice.amount.replace('$', '')}</h2>
-                        <span className="text-white/70 font-bold text-xs sm:text-sm tracking-tight">$ USD</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Info Bar - Floating over the curved header */}
-              <div className="px-6 sm:px-12 py-2 flex flex-col sm:flex-row gap-3 -mt-10 relative z-10 print:mt-10 print:px-0">
-                <div className="px-5 py-5 rounded-2xl bg-white border border-slate-100 shadow-2xl shadow-purple-900/10 flex-1 print:shadow-none">
-                  <p className="text-[9px] font-black text-purple-600 uppercase tracking-widest mb-0.5 opacity-80">Invoice Number:</p>
-                  <p className="text-sm sm:text-base font-black text-slate-900 tracking-tight">Nº: {invoice.id.split('-')[1] || invoice.id}</p>
-                </div>
-                <div className="px-5 py-5 rounded-2xl bg-white border border-slate-100 shadow-2xl shadow-indigo-900/10 flex-1 print:shadow-none">
-                  <p className="text-[9px] font-black text-indigo-600 uppercase tracking-widest mb-0.5 opacity-80">Issued Date:</p>
-                  <p className="text-sm sm:text-base font-black text-slate-900 tracking-tight">{invoice.date}</p>
-                </div>
-                <div className="px-5 py-5 rounded-2xl bg-white border border-slate-100 shadow-2xl shadow-blue-900/10 flex-1 print:shadow-none">
-                  <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-0.5 opacity-80">Due Date:</p>
-                  <p className="text-sm sm:text-base font-black text-slate-900 tracking-tight">{invoice.dueDate}</p>
-                </div>
-              </div>
-
-              {/* Sender & Recipient Details - More Pronounced */}
-              <div className="px-6 sm:px-12 py-6 grid grid-cols-1 md:grid-cols-2 gap-8 print:px-0">
-                <div className="p-6 rounded-3xl bg-slate-50 border border-slate-100 space-y-4 print:bg-transparent shadow-sm print:shadow-none">
-                  <h4 className="text-[10px] font-black text-slate-900 flex items-center gap-3 uppercase tracking-widest">
-                    <span className="w-2 h-2 rounded-full bg-purple-600 shadow-lg shadow-purple-500/40" />
-                    Recipient
-                  </h4>
-                  <div className="space-y-1.5">
-                    <p className="text-xl font-black text-slate-900 tracking-tight">{invoice.customer}</p>
-                    <p className="text-xs font-bold text-slate-500">{invoice.email}</p>
-                  </div>
-                  <p className="text-[10px] font-bold text-slate-400 leading-relaxed uppercase tracking-wider">
-                    123 Business Street, San Francisco, CA 94107
-                  </p>
-                </div>
-
-                <div className="p-6 rounded-3xl bg-white border border-slate-100 space-y-4 print:bg-transparent shadow-sm print:shadow-none">
-                  <h4 className="text-[10px] font-black text-slate-900 flex items-center gap-3 uppercase tracking-widest">
-                    <span className="w-2 h-2 rounded-full bg-slate-200" />
-                    Sender
-                  </h4>
-                  <div className="space-y-1.5">
-                    <p className="text-xl font-black text-slate-900 tracking-tight">Recura Technologies</p>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">billing@recura.tech</p>
-                  </div>
-                  <p className="text-[10px] font-bold text-slate-400 leading-relaxed uppercase tracking-wider">
-                    456 Innovation Way, New York, NY 10001
-                  </p>
-                </div>
-              </div>
-
-              {/* Items Table - Restored Visual Weight */}
-              <div className="px-6 sm:px-12 py-2 flex-1 print:px-0">
-                <div className="rounded-xl border border-slate-100 overflow-x-auto no-scrollbar print:border-none print:overflow-visible">
-                  <table className="w-full min-w-[500px] sm:min-w-0">
-                    <thead className="bg-slate-50 border-b border-slate-100 print:bg-white print:border-b-2">
-                      <tr>
-                        <th className="px-6 py-4 text-left text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Description</th>
-                        <th className="px-4 py-4 text-center text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Qty</th>
-                        <th className="px-4 py-4 text-right text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Price</th>
-                        <th className="px-6 py-4 text-right text-[10px] font-extrabold text-slate-400 uppercase tracking-[0.2em]">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50 print:divide-slate-200">
-                      {items.map((item, idx) => (
-                        <tr key={idx} className="group hover:bg-slate-50/50 transition-colors">
-                          <td className="px-6 py-4 text-xs font-bold text-slate-900">{item.description}</td>
-                          <td className="px-4 py-4 text-center text-xs font-bold text-slate-400">{item.qty}</td>
-                          <td className="px-4 py-4 text-right text-xs font-bold text-slate-400">{item.price}</td>
-                          <td className="px-6 py-4 text-right text-xs font-extrabold text-purple-600">{item.total}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Footer Section - Refined */}
-              <div className="px-8 sm:px-12 py-6 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-6 print:px-0 print:border-t-2 print:mt-6">
-                <div className="max-w-md space-y-1 text-center md:text-left print:text-left">
-                  <h5 className="text-[10px] font-black text-slate-900 uppercase tracking-widest opacity-80">Legal Notice:</h5>
-                  <p className="text-[10px] font-bold text-slate-400 leading-relaxed uppercase tracking-wide">
-                    This is a computer generated invoice. No signature is required.
-                  </p>
                 </div>
                 
-                <div className="px-6 py-4 rounded-2xl bg-purple-50/50 border-2 border-purple-100 flex items-center gap-6 print:bg-transparent print:border-slate-100 print:py-2 print:px-0">
-                  <span className="text-purple-600/60 font-black text-[10px] uppercase tracking-[0.3em]">Total Due:</span>
-                  <span className="text-2xl sm:text-3xl font-black text-[#7c3aed] tracking-tighter">{invoice.amount}</span>
-                </div>
+                {/* HEX Value display */}
+                <input
+                  type="text"
+                  value={accentColor.toUpperCase()}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  placeholder="#7C3AED"
+                  maxLength={7}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-650 text-xs font-mono font-bold"
+                />
               </div>
+
+              {/* Theme Toggle (not visible if premium_dark template selected) */}
+              {activeTemplate !== 'premium_dark' && (
+                <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-white/5">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Theme Preview</span>
+                  <div className="grid grid-cols-2 gap-2 bg-slate-100/55 dark:bg-white/5 p-1 rounded-xl">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewTheme('light')}
+                      className={cn(
+                        "py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer transition-all",
+                        previewTheme === 'light' 
+                          ? "bg-white dark:bg-[#1a1033] text-slate-950 dark:text-white shadow-sm" 
+                          : "text-slate-400 dark:text-slate-550 hover:text-slate-700"
+                      )}
+                    >
+                      <Sun className="w-3.5 h-3.5" /> Light
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewTheme('dark')}
+                      className={cn(
+                        "py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer transition-all",
+                        previewTheme === 'dark' 
+                          ? "bg-white dark:bg-[#1a1033] text-slate-950 dark:text-white shadow-sm" 
+                          : "text-slate-400 dark:text-slate-550 hover:text-slate-700"
+                      )}
+                    >
+                      <Moon className="w-3.5 h-3.5" /> Dark
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="space-y-2.5 pt-6 border-t border-slate-100 dark:border-white/5">
+                <button
+                  onClick={handleSaveHDImage}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-250/60 dark:border-white/10 bg-slate-50/50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 font-bold text-xs cursor-pointer transition-all"
+                >
+                  <Sparkles className="w-4 h-4 text-amber-500" />
+                  Save HD Image
+                </button>
+                <button
+                  onClick={onClose}
+                  className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-355 font-bold text-xs cursor-pointer text-center"
+                >
+                  Close View
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Right Paper Area */}
+          <div className="flex-1 flex flex-col min-w-0 print:block print:p-0 print:static print:h-auto">
+            {/* Top Toolbar */}
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-white/5 bg-white dark:bg-[#110825]/50 flex items-center justify-between shrink-0 no-print">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                  {readOnly ? "Invoice Details View" : "Preview Area"}
+                </span>
+                <h4 className="text-xs font-black text-slate-900 dark:text-white leading-none mt-1">
+                  {normalizedInvoice.customer} • {normalizedInvoice.invoiceNumber || normalizedInvoice.id}
+                </h4>
+              </div>
+              <div className="flex items-center gap-2">
+                {!readOnly && (
+                  <button
+                    onClick={handleDownloadInternal}
+                    disabled={internalDownloading}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs tracking-wide transition-colors shadow-sm cursor-pointer whitespace-nowrap"
+                  >
+                    {internalDownloading ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Download className="w-3.5 h-3.5" />
+                    )}
+                    Save PNG
+                  </button>
+                )}
+                {readOnly && invoice.metadata?.savedImageUrl && (
+                  <a
+                    href={invoice.metadata.savedImageUrl}
+                    download={`invoice-${normalizedInvoice.invoiceNumber || invoice.id}.png`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs tracking-wide transition-colors shadow-sm cursor-pointer whitespace-nowrap"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    Download PNG
+                  </a>
+                )}
+                <button
+                  onClick={onClose}
+                  className="p-2 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-350 transition-all cursor-pointer"
+                >
+                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Main Preview Screen */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 flex items-start justify-center print:p-0 print:overflow-visible print:block bg-slate-50/30 dark:bg-[#0c051e]/30">
+              {readOnly && invoice.metadata?.savedImageUrl ? (
+                <div className="w-full max-w-[800px] flex items-center justify-center bg-white dark:bg-[#110825] p-6 rounded-3xl border border-slate-150 dark:border-white/10 shadow-2xl relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img 
+                    src={invoice.metadata.savedImageUrl} 
+                    alt="Saved Invoice HD Image" 
+                    className="w-full h-auto object-contain rounded-2xl shadow-md max-h-[70vh]"
+                  />
+                </div>
+              ) : (
+                /* Active Invoice Paper Container */
+                <div 
+                  ref={invoiceRef} 
+                  id="invoice-content"
+                  className="w-full max-w-[800px] shadow-2xl shadow-purple-950/5 dark:shadow-none print:shadow-none print:w-full rounded-2xl md:rounded-3xl overflow-hidden print:rounded-none"
+                >
+                  <InvoiceTemplateRenderer
+                    template={activeTemplate}
+                    invoice={normalizedInvoice}
+                    logoUrl={finalLogoUrl}
+                    primaryColor={accentColor}
+                    theme={previewTheme}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      <StatusModal
+        isOpen={statusOverlay.isOpen}
+        onClose={() => setStatusOverlay(prev => ({ ...prev, isOpen: false }))}
+        type={statusOverlay.type}
+        title={statusOverlay.title}
+        message={statusOverlay.message}
+      />
     </>
   )
 

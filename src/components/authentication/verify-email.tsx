@@ -11,7 +11,6 @@ function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const emailParam = searchParams.get('email') || 'amaka@brightline-gym.com';
-  const devCodeParam = searchParams.get('devCode');
 
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
@@ -76,7 +75,7 @@ function VerifyEmailContent() {
     setError('');
 
     try {
-      const res = await fetch('/api/auth/verify-email', {
+      const res = await fetch('/api/v1/auth/verify-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -104,7 +103,7 @@ function VerifyEmailContent() {
     setIsLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/auth/resend-verification', {
+      const res = await fetch('/api/v1/auth/resend-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: emailParam }),

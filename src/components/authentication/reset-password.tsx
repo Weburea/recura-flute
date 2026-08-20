@@ -98,7 +98,7 @@ function ResetPasswordContent() {
     if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
       try {
-        const res = await fetch('/api/auth/reset-password', {
+        const res = await fetch('/api/v1/auth/reset-password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

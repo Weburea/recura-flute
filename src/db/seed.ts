@@ -16,6 +16,7 @@ async function seed() {
 
   try {
     // 1. Ensure Table Schema Exists in Neon PostgreSQL
+    // Create profiles
     await sql`
       CREATE TABLE IF NOT EXISTS "profiles" (
         "id" varchar(255) PRIMARY KEY,
@@ -30,7 +31,10 @@ async function seed() {
         "created_at" timestamp with time zone DEFAULT now() NOT NULL,
         "updated_at" timestamp with time zone DEFAULT now() NOT NULL
       );
+    `;
 
+    // Create accounts
+    await sql`
       CREATE TABLE IF NOT EXISTS "accounts" (
         "id" varchar(255) PRIMARY KEY,
         "user_id" varchar(255) NOT NULL REFERENCES "profiles"("id") ON DELETE CASCADE,
@@ -41,7 +45,10 @@ async function seed() {
         "expires_at" integer,
         "created_at" timestamp with time zone DEFAULT now() NOT NULL
       );
+    `;
 
+    // Create verification_tokens
+    await sql`
       CREATE TABLE IF NOT EXISTS "verification_tokens" (
         "id" varchar(255) PRIMARY KEY,
         "identifier" text NOT NULL,
@@ -51,7 +58,10 @@ async function seed() {
         "attempts" integer DEFAULT 0 NOT NULL,
         "created_at" timestamp with time zone DEFAULT now() NOT NULL
       );
+    `;
 
+    // Create plans
+    await sql`
       CREATE TABLE IF NOT EXISTS "plans" (
         "id" varchar(255) PRIMARY KEY,
         "name" text NOT NULL,
@@ -64,7 +74,10 @@ async function seed() {
         "created_at" timestamp with time zone DEFAULT now() NOT NULL,
         "updated_at" timestamp with time zone DEFAULT now() NOT NULL
       );
+    `;
 
+    // Create workspaces
+    await sql`
       CREATE TABLE IF NOT EXISTS "workspaces" (
         "id" varchar(255) PRIMARY KEY,
         "name" text NOT NULL,
@@ -80,7 +93,10 @@ async function seed() {
         "created_at" timestamp with time zone DEFAULT now() NOT NULL,
         "updated_at" timestamp with time zone DEFAULT now() NOT NULL
       );
+    `;
 
+    // Create user_workspaces
+    await sql`
       CREATE TABLE IF NOT EXISTS "user_workspaces" (
         "id" varchar(255) PRIMARY KEY,
         "user_id" varchar(255) NOT NULL REFERENCES "profiles"("id") ON DELETE CASCADE,
@@ -88,7 +104,10 @@ async function seed() {
         "role" text DEFAULT 'owner' NOT NULL,
         "joined_at" timestamp with time zone DEFAULT now() NOT NULL
       );
+    `;
 
+    // Create connected_integrations
+    await sql`
       CREATE TABLE IF NOT EXISTS "connected_integrations" (
         "id" varchar(255) PRIMARY KEY,
         "workspace_id" varchar(255) NOT NULL REFERENCES "workspaces"("id") ON DELETE CASCADE,
@@ -98,7 +117,10 @@ async function seed() {
         "credentials" jsonb DEFAULT '{}'::jsonb NOT NULL,
         "connected_at" timestamp with time zone DEFAULT now() NOT NULL
       );
+    `;
 
+    // Create onboarding_progress
+    await sql`
       CREATE TABLE IF NOT EXISTS "onboarding_progress" (
         "id" varchar(255) PRIMARY KEY,
         "user_id" varchar(255) NOT NULL REFERENCES "profiles"("id") ON DELETE CASCADE,

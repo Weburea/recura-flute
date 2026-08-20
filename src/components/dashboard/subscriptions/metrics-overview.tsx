@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { TrendingUp, Users, AlertTriangle } from "lucide-react"
+import { TrendingUp, Users, PlayCircle, XCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface MetricCardProps {
@@ -26,29 +26,86 @@ function MetricCard({ title, value, icon: Icon, iconColor, iconBg }: MetricCardP
   )
 }
 
-export function MetricsOverview() {
+interface MetricsOverviewProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  subscriptions?: any[]
+  businessType?: string
+}
+
+export function MetricsOverview({ subscriptions = [], businessType = "other" }: MetricsOverviewProps) {
+  const activeSubs = subscriptions.filter(s => s.status === 'Active')
+  const canceledSubs = subscriptions.filter(s => s.status === 'Canceled')
+
+  // Calculate MRR sum of ALL packages in list (active, paused, canceled)
+  const totalValueCents = subscriptions.reduce((acc, s) => {
+    const price = s.price || 0
+    if (s.interval === 'year') {
+      return acc + Math.round(price / 12)
+    }
+    return acc + price
+  }, 0)
+
+  const mrrValue = `$${(totalValueCents / 100).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })}`
+
+  let mrrTitle = "Total Package Value"
+  let totalTitle = "Total Packages"
+  let activeTitle = "Active Packages"
+  let canceledTitle = "Canceled Packages"
+
+  if (businessType === "saas") {
+    mrrTitle = "Total Subscription Value"
+    totalTitle = "Total Subscribers"
+    activeTitle = "Active Subscribers"
+    canceledTitle = "Canceled Subscribers"
+  } else if (businessType === "agencies") {
+    mrrTitle = "Total Retainer Value"
+    totalTitle = "Total Agreements"
+    activeTitle = "Active Agreements"
+    canceledTitle = "Canceled Agreements"
+  } else if (businessType === "social_media") {
+    mrrTitle = "Total Package Value"
+    totalTitle = "Total Packages"
+    activeTitle = "Active Packages"
+    canceledTitle = "Canceled Packages"
+  } else if (businessType === "marketplaces") {
+    mrrTitle = "Total Catalog Value"
+    totalTitle = "Total Products"
+    activeTitle = "Active Products"
+    canceledTitle = "Inactive Listings"
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <MetricCard
-        title="Total Active MRR"
-        value="$45,231"
+        title={mrrTitle}
+        value={mrrValue}
         icon={TrendingUp}
         iconColor="text-emerald-500 dark:text-emerald-400"
         iconBg="bg-emerald-50 dark:bg-emerald-500/20"
       />
       <MetricCard
-        title="Total Active Customers"
-        value="2,847"
+        title={totalTitle}
+        value={subscriptions.length.toString()}
         icon={Users}
         iconColor="text-blue-500 dark:text-blue-400"
         iconBg="bg-blue-50 dark:bg-blue-500/20"
       />
       <MetricCard
-        title="Average Churn Rate"
-        value="12%"
-        icon={AlertTriangle}
-        iconColor="text-orange-500 dark:text-orange-400"
-        iconBg="bg-orange-50 dark:bg-orange-500/20"
+        title={activeTitle}
+        value={activeSubs.length.toString()}
+        icon={PlayCircle}
+        iconColor="text-purple-500 dark:text-purple-400"
+        iconBg="bg-purple-50 dark:bg-purple-500/20"
+      />
+      <MetricCard
+        title={canceledTitle}
+        value={canceledSubs.length.toString()}
+        icon={XCircle}
+        iconColor="text-rose-500 dark:text-rose-400"
+        iconBg="bg-rose-50 dark:bg-rose-500/20"
       />
     </div>
   )

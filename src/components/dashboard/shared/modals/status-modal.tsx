@@ -142,7 +142,7 @@ export function StatusModal({ isOpen, onClose, type, title, message }: StatusMod
                 src="https://res.cloudinary.com/weburea/image/upload/v1783571840/logo_plan.svg" 
                 alt="Recura Logo" 
                 fill
-                className="object-contain"
+                className="object-contain invert dark:invert-0"
               />
            </div>
            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] bg-white px-4 py-1.5 rounded-full shadow-sm">

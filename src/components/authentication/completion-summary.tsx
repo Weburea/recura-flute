@@ -197,7 +197,17 @@ function CompletionSummaryContent() {
     }
 
     const typeFromUrl = searchParams.get('type') || localStorage.getItem('recura_business_type') || sessionStorage.getItem('recura_business_type') || 'saas';
-    const name = localStorage.getItem('recura_business_name') || sessionStorage.getItem('recura_business_name') || 'Your business';
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let parsedFormData: Record<string, any> = {};
+    try {
+      const rawForm = localStorage.getItem('recura_step4_formdata') || sessionStorage.getItem('recura_step4_formdata');
+      if (rawForm) parsedFormData = JSON.parse(rawForm);
+    } catch {
+      parsedFormData = {};
+    }
+
+    const name = parsedFormData.businessName || localStorage.getItem('recura_business_name') || sessionStorage.getItem('recura_business_name') || 'Your business';
     const paymentName = localStorage.getItem('recura_connected_payment') || sessionStorage.getItem('recura_connected_payment') || null;
     
     // Payment Object if connected
@@ -223,15 +233,6 @@ function CompletionSummaryContent() {
         softwareIntegrations.push({ id, name: logoMap[id].name, logoUrl: logoMap[id].logoUrl });
       }
     });
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let parsedFormData: Record<string, any> = {};
-    try {
-      const rawForm = localStorage.getItem('recura_step4_formdata') || sessionStorage.getItem('recura_step4_formdata');
-      if (rawForm) parsedFormData = JSON.parse(rawForm);
-    } catch {
-      parsedFormData = {};
-    }
 
     return {
       nicheType: typeFromUrl,
@@ -333,7 +334,7 @@ function CompletionSummaryContent() {
   const handleGoToDashboard = async () => {
     setIsLoading(true);
     try {
-      await fetch('/api/onboarding', {
+      await fetch('/api/v1/onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -342,6 +343,12 @@ function CompletionSummaryContent() {
           businessName,
           gateways: [connectedPaymentObj?.name].filter(Boolean),
           integrations: connectedIntegrations.map(i => i.id),
+          metadata: {
+            ...formData,
+            logo_url: formData.logo || formData.logoUrl || formData.logo_url || null,
+            website_url: formData.websiteUrl || formData.website_url || null,
+            niche: nicheType,
+          }
         }),
       });
       setIsLoading(false);

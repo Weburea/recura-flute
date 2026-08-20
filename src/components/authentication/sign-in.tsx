@@ -286,7 +286,7 @@ function SignInContent() {
     if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
       try {
-        const res = await fetch('/api/auth/signin', {
+        const res = await fetch('/api/v1/auth/signin', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -506,8 +506,8 @@ function SignInContent() {
 
           {/* Social Buttons: Google and GitHub */}
           <div className="grid grid-cols-2 gap-3">
-            <SocialButton label="Google" onClick={() => window.location.href = '/api/auth/oauth/google'} />
-            <SocialButton label="GitHub" onClick={() => window.location.href = '/api/auth/oauth/github'} />
+            <SocialButton label="Google" onClick={() => window.location.href = '/api/v1/auth/oauth/google'} />
+            <SocialButton label="GitHub" onClick={() => window.location.href = '/api/v1/auth/oauth/github'} />
           </div>
 
           {/* Divider */}

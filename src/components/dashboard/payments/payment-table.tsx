@@ -190,7 +190,10 @@ export function PaymentTable() {
 
   return (
     <>
-    <div className="dashboard-card bg-white dark:bg-[#150a2e] border border-slate-100 dark:border-white/10 rounded-[24px] p-0 overflow-hidden shadow-sm">
+    <div className={cn(
+      "dashboard-card bg-white dark:bg-[#150a2e] border border-slate-100 dark:border-white/10 rounded-[24px] p-0 shadow-sm",
+      activeMenuId !== null ? "!overflow-visible" : "overflow-hidden"
+    )}>
       {/* Header Container */}
       <div className="p-8 pb-4">
         {/* Search and Actions Row */}
@@ -264,7 +267,10 @@ export function PaymentTable() {
         </div>
       </div>
 
-        <div className="table-container border-t border-slate-50 dark:border-white/5">
+        <div className={cn(
+          "table-container border-t border-slate-50 dark:border-white/5",
+          activeMenuId !== null ? "!overflow-visible" : ""
+        )}>
           <table className="w-full">
             <thead>
               <tr>
@@ -378,7 +384,7 @@ export function PaymentTable() {
                       {activeMenuId === transaction.id && (
                         <div 
                           ref={menuRef}
-                          className="absolute top-[70%] right-6 w-48 bg-white dark:bg-[#150a2e] border border-slate-100 dark:border-white/10 rounded-2xl shadow-xl shadow-purple-500/10 dark:shadow-purple-900/40 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200 text-left"
+                          className="absolute right-0 top-full mt-1 z-[100] w-48 bg-white dark:bg-[#150a2e] border border-slate-100 dark:border-white/10 rounded-2xl shadow-2xl py-2 hidden md:block animate-in fade-in slide-in-from-top-2 duration-200 text-left"
                         >
                           <button 
                             onClick={() => openReceipt(transaction)}
@@ -448,6 +454,75 @@ export function PaymentTable() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Drawer (Bottom Sheet) */}
+      {activeMenuId !== null && (() => {
+        const activeTxn = paginatedTransactions.find(t => t.id === activeMenuId);
+        if (!activeTxn) return null;
+        return (
+          <div className="md:hidden">
+            {/* Backdrop */}
+            <div 
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[140] animate-in fade-in duration-200"
+              onClick={() => setActiveMenuId(null)}
+            />
+            {/* Drawer */}
+            <div className="fixed inset-x-0 bottom-0 bg-white dark:bg-[#150a2e] rounded-t-[32px] border-t border-slate-100 dark:border-white/10 p-6 pb-8 z-[150] animate-in slide-in-from-bottom duration-300 shadow-2xl">
+              {/* Drawer handle */}
+              <div className="w-12 h-1 bg-slate-200 dark:bg-white/20 rounded-full mx-auto mb-6" />
+              
+              {/* Header */}
+              <div className="flex items-center gap-3 mb-6 px-2">
+                <div className="relative w-10 h-10 rounded-full overflow-hidden bg-slate-100 dark:bg-white/10">
+                  <Image 
+                    src={activeTxn.avatar} 
+                    alt={activeTxn.customer} 
+                    fill 
+                    className="object-cover"
+                  />
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-900 dark:text-white capitalize">{activeTxn.customer}</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 lowercase">{activeTxn.plan} Plan • {activeTxn.amount}</p>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="space-y-1">
+                <button 
+                  onClick={() => openReceipt(activeTxn)}
+                  className="w-full px-4 py-3.5 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5 active:bg-slate-100 dark:active:bg-white/10 flex items-center gap-3 transition-colors text-left"
+                >
+                  <Receipt className="w-5 h-5 text-slate-400" />
+                  View Receipt Details
+                </button>
+                <button 
+                  onClick={() => setActiveMenuId(null)}
+                  className="w-full px-4 py-3.5 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5 active:bg-slate-100 dark:active:bg-white/10 flex items-center gap-3 transition-colors text-left"
+                >
+                  <Mail className="w-5 h-5 text-slate-400" />
+                  Resend Email Notification
+                </button>
+                <div className="h-[1px] bg-slate-100 dark:bg-white/5 my-2" />
+                <button 
+                  onClick={() => setActiveMenuId(null)}
+                  className="w-full px-4 py-3.5 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 active:bg-rose-100 dark:active:bg-rose-500/20 flex items-center gap-3 transition-colors text-left"
+                >
+                  <Trash2 className="w-5 h-5 text-rose-500" />
+                  Delete Payment Record
+                </button>
+              </div>
+
+              <button 
+                onClick={() => setActiveMenuId(null)}
+                className="w-full mt-4 py-3.5 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 active:bg-slate-200 dark:active:bg-white/15 transition-all text-center"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Render Receipt Modal */}
       <ReceiptModal 

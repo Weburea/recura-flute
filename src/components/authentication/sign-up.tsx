@@ -171,7 +171,7 @@ export function SignUp() {
     if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
       try {
-        const res = await fetch('/api/auth/signup', {
+        const res = await fetch('/api/v1/auth/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -417,8 +417,8 @@ export function SignUp() {
 
           {/* Social Auth Buttons (Google & GitHub) */}
           <div className="grid grid-cols-2 gap-3.5 pt-2">
-            <SocialButton label="Google" onClick={() => window.location.href = '/api/auth/oauth/google'} />
-            <SocialButton label="GitHub" onClick={() => window.location.href = '/api/auth/oauth/github'} />
+            <SocialButton label="Google" onClick={() => window.location.href = '/api/v1/auth/oauth/google'} />
+            <SocialButton label="GitHub" onClick={() => window.location.href = '/api/v1/auth/oauth/github'} />
           </div>
 
           {/* Divider */}

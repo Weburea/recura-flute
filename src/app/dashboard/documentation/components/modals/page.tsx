@@ -15,14 +15,17 @@ import {
   Database,
   Layout,
   Zap,
-  ArrowRight
+  ArrowRight,
+  Rocket
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { WorkspaceSettingsModals, SettingsModalType } from "@/components/dashboard/shared/modals/workspace-settings-modals"
 import { StatusModal, StatusType } from "@/components/dashboard/shared/modals/status-modal"
+import { WelcomeModal } from "@/components/dashboard/shared/modals/welcome-modal"
 
 export default function ModalsDocPage() {
   const [activeModal, setActiveModal] = React.useState<SettingsModalType | null>(null)
+  const [welcomeOpen, setWelcomeOpen] = React.useState(false)
   
   // Status Modal State
   const [status, setStatus] = React.useState<{
@@ -258,6 +261,32 @@ export default function ModalsDocPage() {
           </div>
         ))}
 
+        {/* Welcome Modal Preview Card */}
+        <div className="group relative bg-white dark:bg-[#150a2e] border border-slate-100 dark:border-white/10 rounded-[2.5rem] p-10 transition-all duration-500 hover:shadow-2xl hover:translate-y-[-8px]">
+           <div className="flex items-start justify-between mb-8">
+              <div className="w-16 h-16 rounded-[1.5rem] flex items-center justify-center bg-[#8400DB] shadow-lg transition-transform group-hover:scale-110">
+                <Rocket className="w-8 h-8 text-white" />
+              </div>
+              <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10">
+                 <div className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-500 animate-pulse" />
+                 <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Active</span>
+              </div>
+           </div>
+           <div>
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3 tracking-tighter leading-none">Welcome Modal</h3>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed mb-10">
+                Siri-style glassmorphic welcome card with a checklist, greeting users on their first dashboard access.
+              </p>
+           </div>
+           <button 
+             onClick={() => setWelcomeOpen(true)}
+             className="w-full h-16 flex items-center justify-center gap-3 rounded-2xl bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white font-black text-xs uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all duration-300 shadow-sm"
+           >
+              <Eye className="w-4 h-4" />
+              Open Live Preview
+           </button>
+        </div>
+
         {/* Add Component Controller */}
         <div className="group relative bg-slate-50/50 dark:bg-white/[0.02] border-2 border-dashed border-slate-200 dark:border-white/10 rounded-[2.5rem] p-10 flex flex-col items-center justify-center text-center">
             <div className="w-16 h-16 rounded-full border-2 border-dashed border-slate-300 dark:border-white/20 flex items-center justify-center mb-6">
@@ -342,6 +371,11 @@ export default function ModalsDocPage() {
         type={status.type}
         title={status.title}
         message={status.message}
+      />
+
+      <WelcomeModal 
+        isOpen={welcomeOpen}
+        onClose={() => setWelcomeOpen(false)}
       />
     </div>
   )

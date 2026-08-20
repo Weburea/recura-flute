@@ -6,6 +6,7 @@ import { GlobalBarsDoc } from "@/modules/documentation/sections/layout/GlobalBar
 import { PageHeaderDoc } from "@/modules/documentation/sections/layout/PageHeaderDoc"
 import { ResponsiveNavigationDoc } from "@/modules/documentation/sections/layout/ResponsiveNavigationDoc"
 import { RoutingStructureDoc } from "@/modules/documentation/sections/layout/RoutingStructureDoc"
+import { EmailTemplatesDoc } from "@/modules/documentation/sections/layout/EmailTemplatesDoc"
 import { DocContent } from "@/modules/documentation/components/DocContent"
 import { notFound } from "next/navigation"
 
@@ -56,6 +57,11 @@ export default async function LayoutDocPage({ params }: PageProps) {
       title: "Routing Structure",
       description: "A guide to Recura's URL organization and Next.js App Router conventions.",
       component: RoutingStructureDoc
+    },
+    "emails": {
+      title: "Email System",
+      description: "A live preview and coding guide for Recura's email layout system.",
+      component: EmailTemplatesDoc
     }
   }
 

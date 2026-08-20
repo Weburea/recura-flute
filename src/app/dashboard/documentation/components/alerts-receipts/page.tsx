@@ -379,6 +379,8 @@ export default function AlertsReceiptsDoc() {
       <CreateSubscriptionModal 
         isOpen={activeModal === "create-sub"}
         onClose={() => setActiveModal(null)}
+        onSuccess={() => {}}
+        businessType="saas"
       />
 
       <TeamModals 

@@ -6,3 +6,6 @@ export * from './workspaces';
 export * from './user-workspaces';
 export * from './connected-integrations';
 export * from './onboarding';
+export * from './customers';
+export * from './contracts';
+export * from './invoices';

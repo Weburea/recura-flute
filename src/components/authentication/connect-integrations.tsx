@@ -100,12 +100,9 @@ function ConnectIntegrationsContent() {
           <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900/60 text-amber-900 dark:text-amber-200 text-xs font-semibold flex items-start gap-3 shadow-xs animate-in fade-in duration-200 shrink-0">
             <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold">Free plan allows 2 integrations.</p>
+              <p className="font-bold">You can select up to 2 integrations to launch.</p>
               <p className="mt-0.5 text-amber-800 dark:text-amber-300 font-medium">
-                Upgrade to connect more tools or uncheck a tool to select a different one.{' '}
-                <a href="#upgrade" onClick={(e) => { e.preventDefault(); alert('Upgrade to Growth or Business plan to unlock up to 5+ integrations!'); }} className="underline font-bold hover:text-amber-950 dark:hover:text-white">
-                  Upgrade plan →
-                </a>
+                You can connect unlimited additional services inside the Dashboard Settings later.
               </p>
             </div>
           </div>
@@ -115,6 +112,8 @@ function ConnectIntegrationsContent() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-[330px] sm:max-h-[380px] lg:max-h-none lg:flex-1 lg:min-h-0 overflow-y-auto pr-1 custom-scrollbar">
           {integrationsList.map((item) => {
             const isChecked = selectedIds.includes(item.id);
+            const isLimitReached = selectedIds.length >= FREE_PLAN_CAP;
+            const isDisabled = !isChecked && isLimitReached && !item.alreadyConnected;
 
             return (
               <div
@@ -124,7 +123,8 @@ function ConnectIntegrationsContent() {
                   "p-4 rounded-2xl border transition-all flex items-center justify-between gap-3 cursor-pointer select-none h-fit",
                   item.alreadyConnected && "opacity-60 bg-gray-50 dark:bg-white/5 border-gray-200/80 dark:border-white/5 cursor-not-allowed",
                   !item.alreadyConnected && isChecked && "bg-purple-50/60 dark:bg-purple-950/50 border-purple-500 ring-1 ring-purple-500/20",
-                  !item.alreadyConnected && !isChecked && "bg-white dark:bg-white/5 border-gray-200/80 dark:border-white/10 hover:border-purple-300 dark:hover:border-purple-800/50"
+                  !item.alreadyConnected && !isChecked && !isDisabled && "bg-white dark:bg-white/5 border-gray-200/80 dark:border-white/10 hover:border-purple-300 dark:hover:border-purple-800/50",
+                  isDisabled && "opacity-40 bg-gray-50 dark:bg-white/5 border-gray-200/80 dark:border-white/5 cursor-not-allowed"
                 )}
               >
                 <div className="flex items-center gap-3 overflow-hidden flex-1">
