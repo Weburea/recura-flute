@@ -188,17 +188,24 @@ export function TemplateSelector({ onPreviewTemplate }: TemplateSelectorProps) {
                     className={cn(
                       "flip-card-front p-4 flex flex-col justify-between overflow-hidden rounded-3xl relative transition-all duration-300 hover:scale-[1.02] border shadow-lg text-white",
                       isActive 
-                        ? "ring-2 ring-purple-600 ring-offset-2 dark:ring-offset-slate-950 border-purple-600 shadow-purple-600/20" 
+                        ? "ring-2 ring-white/80 border-white shadow-xl scale-[1.01]" 
                         : "border-white/10"
                     )}
                   >
-                    {/* Blended overlay matching project color identity */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#1c1236] to-[#0f0722] opacity-[0.94] dark:opacity-96 -z-10" />
+                    {/* Premium gradient overlays blended with Background Gradient SVG */}
+                    <div className={cn(
+                      "absolute inset-0 bg-gradient-to-br opacity-[0.88] dark:opacity-[0.92] -z-10",
+                      template.id === 'classic' && "from-indigo-650 to-blue-700",
+                      template.id === 'minimalist' && "from-emerald-500 to-teal-650",
+                      template.id === 'detailed' && "from-cyan-500 to-blue-600",
+                      template.id === 'modern' && "from-rose-500 to-orange-500",
+                      template.id === 'premium_dark' && "from-[#2e1065] via-[#4c1d95] to-slate-950"
+                    )} />
 
                     {/* Top Row: Badge & Flip Icon */}
                     <div className="flex justify-between items-start relative z-10 w-full">
                       {isActive ? (
-                        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-600 text-white font-black text-[9px] uppercase tracking-wider shadow-sm z-20">
+                        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/20 border border-white/25 backdrop-blur-md text-white font-black text-[9px] uppercase tracking-wider shadow-sm z-20">
                           <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                           Active
                         </span>
@@ -245,11 +252,18 @@ export function TemplateSelector({ onPreviewTemplate }: TemplateSelectorProps) {
                     }}
                     className={cn(
                       "flip-card-back p-4 flex flex-col justify-between overflow-hidden rounded-3xl relative border text-white",
-                      isActive ? "border-purple-600" : "border-white/10"
+                      isActive ? "border-white/80" : "border-white/10"
                     )}
                   >
-                    {/* Blended overlay matching project color identity */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#1c1236] to-[#0f0722] opacity-[0.94] dark:opacity-96 -z-10" />
+                    {/* Premium gradient overlays blended with Background Gradient SVG */}
+                    <div className={cn(
+                      "absolute inset-0 bg-gradient-to-br opacity-[0.88] dark:opacity-[0.92] -z-10",
+                      template.id === 'classic' && "from-indigo-650 to-blue-700",
+                      template.id === 'minimalist' && "from-emerald-500 to-teal-650",
+                      template.id === 'detailed' && "from-cyan-500 to-blue-600",
+                      template.id === 'modern' && "from-rose-500 to-orange-500",
+                      template.id === 'premium_dark' && "from-[#2e1065] via-[#4c1d95] to-slate-950"
+                    )} />
 
                     <div className="space-y-1">
                       <div className="flex justify-between items-center">

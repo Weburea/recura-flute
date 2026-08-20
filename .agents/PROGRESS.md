@@ -3054,17 +3054,18 @@ npm run db:generate: Production SQL migration generator.
 
 ---
 
-## 📍 Milestone 28: Selector Card Brand Layout Unification
+## 📍 Milestone 28: Professional Colorful Selector Card Layouts
 
 **Status**: Completed  
 **Date**: August 20, 2026
 
 ### Summary of Changes
 
-- **Unified Selector Card Brand Backgrounds**:
-  - Refactored [`template-selector.tsx`](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/billing/template-selector.tsx) to remove multiple mismatched card colors.
-  - Set a single, premium unified dark gradient overlay matching Recura's signature deep brand theme (`from-[#1c1236] to-[#0f0722]` with `opacity-94` to `opacity-96`) for all cards. This creates a clean, uniform look that integrates the vector waves of `Background Gradient.svg` and blends perfectly with the dashboard.
-  - Highlighted the active card with a glowing Recura brand purple border (`ring-purple-600 border-purple-600`) and a matching purple "Active" badge.
+- **Refined Colorful Selector Cards**:
+  - Restored the colorful theme for all selector cards in [`template-selector.tsx`](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/billing/template-selector.tsx) using a bright, professional, and sophisticated color palette.
+  - Blended the gradient overlays (`opacity-[0.88]` to `opacity-[0.92]`) with `Background Gradient.svg` to create textured card backgrounds (Classic: soft indigo/blue, Minimalist: mint/emerald, Detailed: sophisticated teal/cyan, Modern: warm rose/orange sunset coral, Premium Dark: luxury violet/amethyst).
+  - Designed a premium glassmorphic active badge (`bg-white/20 border-white/25 backdrop-blur-md text-white`) that sits at the top of the selected card.
+  - Highlighted the active card with a high-contrast glowing white border (`ring-white/80 border-white`) for a clean, realistic fintech aesthetic.
 
 - **Verification & Test Results**:
   - Confirmed all code compiles with `npx tsc --noEmit` and passes ESLint with 0 errors/warnings.
