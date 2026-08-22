@@ -12,6 +12,7 @@ export const customers = pgTable('customers', {
   plan: text('plan'),
   avatarUrl: text('avatar_url'),
   spent: integer('spent').default(0).notNull(), // spent in cents
+  currencySymbol: text('currency_symbol').default('$').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });

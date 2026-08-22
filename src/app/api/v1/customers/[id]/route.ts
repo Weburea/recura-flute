@@ -107,7 +107,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
 
     const body = await request.json();
-    const { name, email, status, plan, spent, avatarUrl } = body;
+    const { name, email, status, plan, spent, avatarUrl, currencySymbol } = body;
 
     // Verify customer exists and belongs to this workspace
     const existing = await db
@@ -132,6 +132,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (plan !== undefined) updateData.plan = plan;
     if (spent !== undefined) updateData.spent = spent;
     if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl;
+    if (currencySymbol !== undefined) updateData.currencySymbol = currencySymbol;
 
     const oldAvatarUrl = existing[0].avatarUrl;
     if (avatarUrl !== undefined && avatarUrl !== oldAvatarUrl && oldAvatarUrl) {

@@ -13,6 +13,13 @@ interface CreateSubscriptionModalProps {
   editData?: any
 }
 
+const CURRENCIES = [
+  { code: "USD", symbol: "$", name: "US Dollar" },
+  { code: "EUR", symbol: "€", name: "Euro" },
+  { code: "GBP", symbol: "£", name: "Pound Sterling" },
+  { code: "NGN", symbol: "₦", name: "Nigerian Naira" },
+]
+
 const plans = ["Basic Plan", "Premium Plan", "Enterprise Package"]
 
 export function CreateSubscriptionModal({ isOpen, onClose, onSuccess, businessType, editData }: CreateSubscriptionModalProps) {
@@ -29,14 +36,20 @@ export function CreateSubscriptionModal({ isOpen, onClose, onSuccess, businessTy
   const [isUploading, setIsUploading] = React.useState(false)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false)
+  const [selectedCurrency, setSelectedCurrency] = React.useState(CURRENCIES[0])
+  const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = React.useState(false)
   const dropdownRef = React.useRef<HTMLDivElement>(null)
+  const currencyDropdownRef = React.useRef<HTMLDivElement>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
-  // Handle click outside to close dropdown
+  // Handle click outside to close dropdowns
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false)
+      }
+      if (currencyDropdownRef.current && !currencyDropdownRef.current.contains(event.target as Node)) {
+        setIsCurrencyDropdownOpen(false)
       }
     }
     document.addEventListener("mousedown", handleClickOutside)
@@ -54,6 +67,9 @@ export function CreateSubscriptionModal({ isOpen, onClose, onSuccess, businessTy
         amount: editData?.price ? (editData.price / 100).toString() : "",
         avatarUrl: editData?.customer?.avatarUrl || "",
       })
+      const symbol = editData?.customer?.currencySymbol || "$";
+      const curr = CURRENCIES.find(c => c.symbol === symbol) || CURRENCIES[0];
+      setSelectedCurrency(curr);
       setErrors({})
     }
   }, [isOpen, editData])
@@ -125,6 +141,7 @@ export function CreateSubscriptionModal({ isOpen, onClose, onSuccess, businessTy
             avatarUrl: formData.avatarUrl || null,
             spent: priceCents,
             plan: formData.plan,
+            currencySymbol: selectedCurrency.symbol,
           }
 
           const customerRes = await fetch(`/api/v1/customers/${editData.customerId}`, {
@@ -167,6 +184,7 @@ export function CreateSubscriptionModal({ isOpen, onClose, onSuccess, businessTy
           avatarUrl: formData.avatarUrl || null,
           spent: priceCents,
           plan: formData.plan,
+          currencySymbol: selectedCurrency.symbol,
         }
 
         const customerRes = await fetch("/api/v1/customers", {
@@ -377,19 +395,57 @@ export function CreateSubscriptionModal({ isOpen, onClose, onSuccess, businessTy
                     )}
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Amount ($)</label>
-                    <input
-                      type="number"
-                      value={formData.amount}
-                      onChange={(e) => setFormData({...formData, amount: e.target.value})}
-                      placeholder="0.00"
-                      className={cn(
-                        "w-full px-5 py-3.5 rounded-2xl border bg-slate-50/50 dark:bg-white/5 text-sm font-bold transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/20 dark:placeholder-slate-600",
-                        errors.amount 
-                          ? "border-rose-200 dark:border-rose-500/30 bg-rose-50/30 dark:bg-rose-500/5 text-rose-900 dark:text-rose-400" 
-                          : "border-slate-100 dark:border-white/5 text-slate-900 dark:text-white"
-                      )}
-                    />
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Amount</label>
+                    <div className="flex gap-3 relative">
+                      {/* Currency Selector Dropdown */}
+                      <div className="relative" ref={currencyDropdownRef}>
+                        <button
+                          type="button"
+                          onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
+                          className="h-full px-4 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5 transition-all hover:bg-slate-100/50 dark:hover:bg-white/10"
+                        >
+                          <span className="text-lg">{selectedCurrency.symbol}</span>
+                          <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                        </button>
+
+                        {isCurrencyDropdownOpen && (
+                          <div className="absolute top-[calc(100%+8px)] left-0 w-[180px] bg-white dark:bg-[#150a2e] border border-slate-100 dark:border-white/10 rounded-2xl shadow-2xl py-2 z-[150] animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden">
+                            {CURRENCIES.map((curr) => (
+                              <button
+                                key={curr.code}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedCurrency(curr)
+                                  setIsCurrencyDropdownOpen(false)
+                                }}
+                                className={cn(
+                                  "w-full px-5 py-2.5 text-xs font-bold text-left flex items-center justify-between transition-colors",
+                                  selectedCurrency.code === curr.code
+                                    ? "text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10"
+                                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
+                                )}
+                              >
+                                <span>{curr.name} ({curr.symbol})</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Amount Input */}
+                      <input
+                        type="number"
+                        value={formData.amount}
+                        onChange={(e) => setFormData({...formData, amount: e.target.value})}
+                        placeholder="0.00"
+                        className={cn(
+                          "flex-1 px-5 py-3.5 rounded-2xl border bg-slate-50/50 dark:bg-white/5 text-sm font-bold transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/20 dark:placeholder-slate-600",
+                          errors.amount 
+                            ? "border-rose-200 dark:border-rose-500/30 bg-rose-50/30 dark:bg-rose-500/5 text-rose-900 dark:text-rose-400" 
+                            : "border-slate-100 dark:border-white/5 text-slate-900 dark:text-white"
+                        )}
+                      />
+                    </div>
                   </div>
                 </div>
 

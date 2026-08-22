@@ -152,8 +152,9 @@ export function SubscriptionTable({
 
       let billingCycle = s.billingCycle;
       if (typeof s.price === 'number') {
+        const symbol = s.customer?.currencySymbol || "$";
         const intervalText = s.interval === 'one-time' ? 'one-time' : `${s.interval || 'month'}`;
-        billingCycle = `$${(s.price / 100).toFixed(2)}/ ${intervalText}`;
+        billingCycle = `${symbol}${(s.price / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/ ${intervalText}`;
       } else {
         billingCycle = s.billingCycle || "$0.00";
       }

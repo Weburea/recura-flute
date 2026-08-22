@@ -67,25 +67,27 @@ export async function GET() {
           latestPlan = customer.plan;
         }
         latestDate = latestInv.createdAt || customer.updatedAt;
-      }
-      
-      if (
-        totalSpent !== customer.spent || 
-        latestPlan !== customer.plan || 
-        latestDate.getTime() !== customer.updatedAt.getTime()
-      ) {
-        await db
-          .update(schema.customers)
-          .set({
-            spent: totalSpent,
-            plan: latestPlan || 'Service Plan',
-            updatedAt: latestDate,
-          })
-          .where(eq(schema.customers.id, customer.id));
-          
-        customer.spent = totalSpent;
-        customer.plan = latestPlan || 'Service Plan';
-        customer.updatedAt = latestDate;
+
+        const maxSpent = Math.max(customer.spent, totalSpent);
+
+        if (
+          maxSpent !== customer.spent || 
+          latestPlan !== customer.plan || 
+          latestDate.getTime() !== customer.updatedAt.getTime()
+        ) {
+          await db
+            .update(schema.customers)
+            .set({
+              spent: maxSpent,
+              plan: latestPlan || 'Service Plan',
+              updatedAt: latestDate,
+            })
+            .where(eq(schema.customers.id, customer.id));
+            
+          customer.spent = maxSpent;
+          customer.plan = latestPlan || 'Service Plan';
+          customer.updatedAt = latestDate;
+        }
       }
     }
 
@@ -103,7 +105,7 @@ export async function GET() {
 
     const data = customersList.map(customer => {
       const customerInvoices = workspaceInvoices.filter(inv => inv.customerId === customer.id);
-      let currencySymbol = defaultSymbol;
+      let currencySymbol = customer.currencySymbol || defaultSymbol;
       if (customerInvoices.length > 0) {
         const sortedInvoices = [...customerInvoices].sort((a, b) => 
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -163,7 +165,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, email, status, plan, avatarUrl, spent } = body;
+    const { name, email, status, plan, avatarUrl, spent, currencySymbol } = body;
 
     if (!name || !email) {
       return NextResponse.json(
@@ -183,6 +185,7 @@ export async function POST(request: Request) {
       plan: plan || null,
       avatarUrl: avatarUrl || null,
       spent: typeof spent === 'number' ? spent : 0,
+      currencySymbol: currencySymbol || '$',
     };
 
     await db.insert(schema.customers).values(newCustomer);

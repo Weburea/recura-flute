@@ -55,6 +55,7 @@ export async function GET() {
           name: schema.customers.name,
           email: schema.customers.email,
           avatarUrl: schema.customers.avatarUrl,
+          currencySymbol: schema.customers.currencySymbol,
         },
       })
       .from(schema.contracts)
