@@ -244,7 +244,7 @@ export function BillingTable({
   }
 
   const handlePrint = () => {
-    const tableHeader = ["Invoice", "Customer", planColHeader, "Amount", "Date", "Status"];
+    const tableHeader = ["Invoice", "Customer", planColHeader, "Amount", "Due Date", "Status"];
     const rows = filteredInvoices.map(i => `
       <tr>
         <td style="padding: 12px; border-bottom: 1px solid #eee; font-weight: bold;">${i.invoiceNumber}</td>
@@ -256,7 +256,7 @@ export function BillingTable({
         </td>
         <td style="padding: 12px; border-bottom: 1px solid #eee;">${i.plan}</td>
         <td style="padding: 12px; border-bottom: 1px solid #eee; font-weight: bold;">${i.amount}</td>
-        <td style="padding: 12px; border-bottom: 1px solid #eee;">${i.date}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #eee;">${i.dueDate}</td>
         <td style="padding: 12px; border-bottom: 1px solid #eee;">${i.status}</td>
       </tr>
     `).join("");
@@ -298,7 +298,7 @@ export function BillingTable({
   };
 
   const handleExport = () => {
-    const headers = ["Invoice", "Customer", "Email", "Plan", "Amount", "Date", "Due Date", "Status"]
+    const headers = ["Invoice", "Customer", "Email", "Plan", "Amount", "Due Date", "Status"]
     const csvContent = [
       headers.join(","),
       ...filteredInvoices.map(i => [
@@ -307,7 +307,6 @@ export function BillingTable({
         `"${i.email}"`,
         `"${i.plan}"`,
         `"${i.amount}"`,
-        i.date,
         i.dueDate,
         i.status
       ].join(","))
@@ -522,8 +521,7 @@ export function BillingTable({
               <th className="table-header-cell">Customer</th>
               <th className="table-header-cell hidden lg:table-cell">{planColHeader}</th>
               <th className="table-header-cell">Amount</th>
-              <th className="table-header-cell hidden md:table-cell">Date</th>
-              <th className="table-header-cell hidden xl:table-cell">Due Date</th>
+              <th className="table-header-cell hidden md:table-cell">Due Date</th>
               <th className="table-header-cell">Status</th>
               <th className="table-header-cell">Actions</th>
             </tr>
@@ -591,14 +589,13 @@ export function BillingTable({
                       </div>
                     </div>
                   </td>
-                  <td className="table-data-cell font-bold text-slate-600 dark:text-slate-300 hidden lg:table-cell max-w-[200px]">
-                    <div className="text-xs truncate font-bold" title={invoice.plan}>
+                  <td className="table-data-cell font-bold text-slate-600 dark:text-slate-300 hidden lg:table-cell max-w-[240px]">
+                    <div className="truncate font-bold" title={invoice.plan}>
                       {invoice.plan}
                     </div>
                   </td>
                   <td className="table-data-cell font-bold text-slate-900 dark:text-white">{invoice.amount}</td>
-                  <td className="table-data-cell font-bold text-slate-500 dark:text-slate-400 hidden md:table-cell">{invoice.date}</td>
-                  <td className="table-data-cell font-bold text-slate-500 dark:text-slate-400 hidden xl:table-cell">{invoice.dueDate}</td>
+                  <td className="table-data-cell font-bold text-slate-500 dark:text-slate-400 hidden md:table-cell">{invoice.dueDate}</td>
                   <td className="table-data-cell">
                     <span className={cn("status-badge", statusStyles[invoice.status as keyof typeof statusStyles])}>
                       {invoice.status}

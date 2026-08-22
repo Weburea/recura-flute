@@ -41,6 +41,54 @@ export async function GET() {
       .from(schema.customers)
       .where(eq(schema.customers.workspaceId, workspaceId));
 
+    // Fetch all invoices for this workspace to sync customer stats
+    const workspaceInvoices = await db
+      .select()
+      .from(schema.invoices)
+      .where(eq(schema.invoices.workspaceId, workspaceId));
+
+    for (const customer of customersList) {
+      const customerInvoices = workspaceInvoices.filter(inv => inv.customerId === customer.id);
+      const totalSpent = customerInvoices.reduce((acc, inv) => acc + (inv.amount || 0), 0);
+      
+      let latestPlan = customer.plan;
+      let latestDate = customer.updatedAt;
+      
+      if (customerInvoices.length > 0) {
+        const sortedInvoices = [...customerInvoices].sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        const latestInv = sortedInvoices[0];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const metadata = latestInv.metadata as any;
+        if (metadata?.items && Array.isArray(metadata.items) && metadata.items.length > 0) {
+          latestPlan = metadata.items[0].description;
+        } else {
+          latestPlan = customer.plan;
+        }
+        latestDate = latestInv.createdAt || customer.updatedAt;
+      }
+      
+      if (
+        totalSpent !== customer.spent || 
+        latestPlan !== customer.plan || 
+        latestDate.getTime() !== customer.updatedAt.getTime()
+      ) {
+        await db
+          .update(schema.customers)
+          .set({
+            spent: totalSpent,
+            plan: latestPlan || 'Service Plan',
+            updatedAt: latestDate,
+          })
+          .where(eq(schema.customers.id, customer.id));
+          
+        customer.spent = totalSpent;
+        customer.plan = latestPlan || 'Service Plan';
+        customer.updatedAt = latestDate;
+      }
+    }
+
     return NextResponse.json({
       success: true,
       data: customersList,
