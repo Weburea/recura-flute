@@ -32,6 +32,19 @@ export interface DetailedInvoice extends Invoice {
   }>
 }
 
+export function formatAmount(val: number | string | null | undefined, symbol: string): string {
+  if (val === null || val === undefined) return ""
+  let num: number
+  if (typeof val === 'number') {
+    num = val
+  } else {
+    const cleaned = String(val).replace(/[^0-9.-]/g, '')
+    num = parseFloat(cleaned)
+  }
+  if (isNaN(num)) return String(val)
+  return `${symbol}${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function normalizeInvoiceForTemplate(invoice: any, workspaceContext?: any, userContext?: any): DetailedInvoice {
   if (!invoice) return {} as DetailedInvoice
@@ -61,11 +74,11 @@ export function normalizeInvoiceForTemplate(invoice: any, workspaceContext?: any
 
   let amountStr = ""
   if (typeof rawInvoice.amount === 'number') {
-    amountStr = `${currencySymbol}${(rawInvoice.amount / 100).toFixed(2)}`
+    amountStr = formatAmount(rawInvoice.amount / 100, currencySymbol)
   } else if (typeof rawInvoice.amount === 'string') {
-    const cleaned = rawInvoice.amount.replace(/[^0-9.]/g, '')
+    const cleaned = rawInvoice.amount.replace(/[^0-9.-]/g, '')
     if (!isNaN(parseFloat(cleaned))) {
-      amountStr = `${currencySymbol}${parseFloat(cleaned).toFixed(2)}`
+      amountStr = formatAmount(parseFloat(cleaned), currencySymbol)
     } else {
       amountStr = rawInvoice.amount.startsWith(currencySymbol) ? rawInvoice.amount : `${currencySymbol}${rawInvoice.amount}`
     }
@@ -146,24 +159,10 @@ function useNormalizedItems(invoice: DetailedInvoice): NormalizedItem[] {
         const qty = item.qty ?? item.quantity ?? 1
         const priceVal = item.price
         
-        let priceStr = String(priceVal)
-        if (typeof priceVal === 'number') {
-          priceStr = `${symbol}${priceVal.toFixed(2)}`
-        } else if (typeof priceVal === 'string' && !priceVal.startsWith('$') && !priceVal.startsWith('₦') && !priceVal.startsWith('€') && !priceVal.startsWith('£')) {
-          const num = parseFloat(priceVal.replace(/[^0-9.]/g, ''))
-          priceStr = isNaN(num) ? priceVal : `${symbol}${num.toFixed(2)}`
-        }
+        const priceStr = formatAmount(priceVal, symbol)
         
         const totalVal = item.total ?? (typeof priceVal === 'number' ? priceVal * qty : null)
-        let totalStr = String(totalVal)
-        if (typeof totalVal === 'number') {
-          totalStr = `${symbol}${totalVal.toFixed(2)}`
-        } else if (typeof totalVal === 'string' && !totalVal.startsWith('$') && !totalVal.startsWith('₦') && !totalVal.startsWith('€') && !totalVal.startsWith('£')) {
-          const num = parseFloat(totalVal.replace(/[^0-9.]/g, ''))
-          totalStr = isNaN(num) ? totalVal : `${symbol}${num.toFixed(2)}`
-        } else if (totalVal === null) {
-          totalStr = priceStr
-        }
+        const totalStr = totalVal === null ? priceStr : formatAmount(totalVal, symbol)
         
         return {
           id: item.id || idx,
@@ -235,7 +234,7 @@ function ClassicTemplate({ invoice, logoUrl, primaryColor, isDarkMode }: Templat
   const symbol = invoice.currencySymbol || "$"
 
   const formattedSubtotal = invoice.subtotal !== undefined
-    ? (typeof invoice.subtotal === 'number' ? `${symbol}${invoice.subtotal.toFixed(2)}` : String(invoice.subtotal))
+    ? formatAmount(invoice.subtotal, symbol)
     : invoice.amount
 
   return (
@@ -446,15 +445,15 @@ function MinimalistTemplate({ invoice, logoUrl, primaryColor, isDarkMode }: Temp
   const symbol = invoice.currencySymbol || "$"
 
   const subtotalStr = invoice.subtotal !== undefined
-    ? (typeof invoice.subtotal === 'number' ? `${symbol}${invoice.subtotal.toFixed(2)}` : String(invoice.subtotal))
+    ? formatAmount(invoice.subtotal, symbol)
     : invoice.amount
 
   const taxStr = invoice.tax !== undefined
-    ? (typeof invoice.tax === 'number' ? `${symbol}${invoice.tax.toFixed(2)}` : String(invoice.tax))
+    ? formatAmount(invoice.tax, symbol)
     : `${symbol}0.00`
 
   const discountStr = invoice.discount !== undefined
-    ? (typeof invoice.discount === 'number' ? `${symbol}${invoice.discount.toFixed(2)}` : String(invoice.discount))
+    ? formatAmount(invoice.discount, symbol)
     : `${symbol}0.00`
 
   return (
@@ -626,7 +625,7 @@ function DetailedTemplate({ invoice, logoUrl, primaryColor, isDarkMode }: Templa
   const symbol = invoice.currencySymbol || "$"
 
   const subtotalStr = invoice.subtotal !== undefined
-    ? (typeof invoice.subtotal === 'number' ? `${symbol}${invoice.subtotal.toFixed(2)}` : String(invoice.subtotal))
+    ? formatAmount(invoice.subtotal, symbol)
     : invoice.amount
 
   return (
@@ -784,7 +783,7 @@ function ModernTemplate({ invoice, logoUrl, primaryColor, isDarkMode }: Template
   const symbol = invoice.currencySymbol || "$"
 
   const subtotalStr = invoice.subtotal !== undefined
-    ? (typeof invoice.subtotal === 'number' ? `${symbol}${invoice.subtotal.toFixed(2)}` : String(invoice.subtotal))
+    ? formatAmount(invoice.subtotal, symbol)
     : invoice.amount
 
   return (
@@ -949,7 +948,7 @@ function PremiumDarkTemplate({ invoice, logoUrl, primaryColor }: Omit<TemplatePr
   const symbol = invoice.currencySymbol || "$"
 
   const subtotalStr = invoice.subtotal !== undefined
-    ? (typeof invoice.subtotal === 'number' ? `${symbol}${invoice.subtotal.toFixed(2)}` : String(invoice.subtotal))
+    ? formatAmount(invoice.subtotal, symbol)
     : invoice.amount
 
   return (

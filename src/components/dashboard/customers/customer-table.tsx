@@ -515,13 +515,25 @@ export function CustomerTable({
                   </td>
                   <td className="table-data-cell">
                     <div className="flex items-center gap-3">
-                    <div className="relative w-8 h-8 rounded-full overflow-hidden bg-slate-100 dark:bg-white/10">
-                      <Image 
-                        src={customer.avatar} 
-                        alt={customer.name} 
-                        fill 
-                        className="object-cover"
-                      />
+                    <div className="relative w-8 h-8 rounded-full overflow-hidden bg-slate-100 dark:bg-white/10 flex-shrink-0 flex items-center justify-center">
+                      {customer.avatar && 
+                       !customer.avatar.includes('24%201.png') && 
+                       !customer.avatar.includes('11%201.png') && 
+                       !customer.avatar.includes('61%201.png') && 
+                       !customer.avatar.includes('9%201.png') && 
+                       !customer.avatar.includes('60%201.png') && 
+                       !customer.avatar.includes('59%201.png') ? (
+                        <Image 
+                          src={customer.avatar} 
+                          alt={customer.name} 
+                          fill 
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 text-xs font-extrabold uppercase">
+                          {customer.name.charAt(0)}
+                        </div>
+                      )}
                     </div>
                     <span className="font-bold text-slate-900 dark:text-white capitalize">{customer.name}</span>
                   </div>

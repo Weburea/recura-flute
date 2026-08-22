@@ -447,7 +447,7 @@ export function CreateInvoiceModal({
       const mm = String(dateObj.getMonth() + 1).padStart(2, '0')
       const yy = String(dateObj.getFullYear()).slice(-2)
       const wsPart = (workspace?.name || "REC").slice(0, 3).toUpperCase()
-      const generatedInvoiceNumber = `INV_${randomPart}_${dd}${mm}${yy}_${wsPart}`
+      const generatedInvoiceNumber = `INV_${randomPart}${dd}${mm}${yy}_${wsPart}`
 
       // Prefix phone number with dial prefix
       const finalPhone = activeTab === 'new' && customerDetails.phone
@@ -487,7 +487,7 @@ export function CreateInvoiceModal({
               name: customerDetails.name,
               email: customerDetails.email,
               avatarUrl: customerDetails.logoUrl || null,
-              plan: 'Custom Service Plan'
+              plan: items[0]?.description || 'Service Plan'
             } : null,
             amount: amountCents,
             dueDate: rangeEnd ? rangeEnd.toISOString() : null,
@@ -502,7 +502,7 @@ export function CreateInvoiceModal({
               name: customerDetails.name,
               email: customerDetails.email,
               avatarUrl: customerDetails.logoUrl || null,
-              plan: 'Custom Service Plan'
+              plan: items[0]?.description || 'Service Plan'
             } : null,
             amount: amountCents,
             status: 'Unpaid',

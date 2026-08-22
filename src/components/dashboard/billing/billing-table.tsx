@@ -591,7 +591,11 @@ export function BillingTable({
                       </div>
                     </div>
                   </td>
-                  <td className="table-data-cell font-bold text-slate-600 dark:text-slate-300 hidden lg:table-cell">{invoice.plan}</td>
+                  <td className="table-data-cell font-bold text-slate-600 dark:text-slate-300 hidden lg:table-cell max-w-[200px]">
+                    <div className="text-xs truncate font-bold" title={invoice.plan}>
+                      {invoice.plan}
+                    </div>
+                  </td>
                   <td className="table-data-cell font-bold text-slate-900 dark:text-white">{invoice.amount}</td>
                   <td className="table-data-cell font-bold text-slate-500 dark:text-slate-400 hidden md:table-cell">{invoice.date}</td>
                   <td className="table-data-cell font-bold text-slate-500 dark:text-slate-400 hidden xl:table-cell">{invoice.dueDate}</td>

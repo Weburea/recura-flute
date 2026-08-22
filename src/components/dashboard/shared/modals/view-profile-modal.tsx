@@ -61,12 +61,24 @@ export function ViewProfileModal({ isOpen, onClose, customer }: ViewProfileModal
         <div className="p-6 flex flex-col items-center">
           {/* Avatar Area */}
           <div className="relative w-24 h-24 rounded-full overflow-hidden bg-slate-100 dark:bg-white/10 p-1 border-2 border-purple-500/20 mb-4 flex items-center justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src={avatarUrl} 
-              alt={customer.name} 
-              className="w-full h-full object-cover rounded-full"
-            />
+            {avatarUrl && 
+             !avatarUrl.includes('24%201.png') && 
+             !avatarUrl.includes('11%201.png') && 
+             !avatarUrl.includes('61%201.png') && 
+             !avatarUrl.includes('9%201.png') && 
+             !avatarUrl.includes('60%201.png') && 
+             !avatarUrl.includes('59%201.png') ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img 
+                src={avatarUrl} 
+                alt={customer.name} 
+                className="w-full h-full object-cover rounded-full"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 text-3xl font-extrabold uppercase rounded-full">
+                {customer.name.charAt(0)}
+              </div>
+            )}
           </div>
 
           <h2 className="text-xl font-extrabold text-slate-900 dark:text-white capitalize text-center mb-1">{customer.name}</h2>

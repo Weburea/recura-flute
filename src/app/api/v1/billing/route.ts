@@ -2,9 +2,43 @@ import { NextResponse } from 'next/server';
 import { db } from '@/db';
 import * as schema from '@/db/schema';
 import { getSession } from '@/lib/session';
-import { eq, asc } from 'drizzle-orm';
+import { eq, asc, desc } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
+
+async function syncCustomerFromInvoices(customerId: string) {
+  try {
+    const invoices = await db
+      .select()
+      .from(schema.invoices)
+      .where(eq(schema.invoices.customerId, customerId))
+      .orderBy(desc(schema.invoices.createdAt));
+
+    const totalCents = invoices.reduce((acc, inv) => acc + (inv.amount || 0), 0);
+
+    let latestPlan = null;
+    let latestDate = new Date();
+    if (invoices.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const metadata = invoices[0].metadata as any;
+      if (metadata?.items && Array.isArray(metadata.items) && metadata.items.length > 0) {
+        latestPlan = metadata.items[0].description;
+      }
+      latestDate = invoices[0].createdAt || new Date();
+    }
+
+    await db
+      .update(schema.customers)
+      .set({
+        spent: totalCents,
+        plan: latestPlan || 'Service Plan',
+        updatedAt: latestDate,
+      })
+      .where(eq(schema.customers.id, customerId));
+  } catch (err) {
+    console.error(`[SYNC CUSTOMER ERROR] Failed to sync customer ${customerId}:`, err);
+  }
+}
 
 export async function GET() {
   try {
@@ -177,6 +211,7 @@ export async function POST(request: Request) {
     };
 
     await db.insert(schema.invoices).values(newInvoice);
+    await syncCustomerFromInvoices(finalCustomerId);
 
     return NextResponse.json({
       success: true,
@@ -262,6 +297,7 @@ export async function PUT(request: Request) {
       .update(schema.invoices)
       .set(updates)
       .where(eq(schema.invoices.id, id));
+    await syncCustomerFromInvoices(targetInvoice.customerId);
 
     return NextResponse.json({
       success: true,

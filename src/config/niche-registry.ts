@@ -63,7 +63,7 @@ export const NICHE_REGISTRY: Record<string, NicheConfig> = {
     pageSubtitle: "Manage your client relationships and incoming leads",
     entityLabel: "Clients",
     col3Header: "Retainer",
-    col4Header: "LTV",
+    col4Header: "Amount",
     tabs: ["All", "Active", "Inactive"],
     ctaLabel: "Add Client",
     statusBadgeStyles: {
@@ -75,7 +75,7 @@ export const NICHE_REGISTRY: Record<string, NicheConfig> = {
       { id: "name", label: "Client Name", type: "text", placeholder: "e.g. Acme Corporation", required: true },
       { id: "email", label: "Client Email", type: "email", placeholder: "contact@acme.com", required: true },
       { id: "plan", label: "Retainer Type", type: "text", placeholder: "e.g. Full-Suite Retainer" },
-      { id: "spent", label: "Lifetime Value ($)", type: "number", placeholder: "0.00" },
+      { id: "spent", label: "Amount ($)", type: "number", placeholder: "0.00" },
       { id: "avatarUrl", label: "Client Logo", type: "file" },
     ],
     subPageTitle: "Retainer Contracts",

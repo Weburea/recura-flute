@@ -3072,6 +3072,37 @@ npm run db:generate: Production SQL migration generator.
 
 ---
 
+## 📍 Milestone 29: Invoice Number Formatting, Price Comma Separation, and CRM Dashboard Syncing
+
+**Status**: Completed  
+**Date**: August 22, 2026
+
+### Summary of Changes
+
+- **Invoice Number Format Change**:
+  - Removed the extra middle underscore before the date in generated invoice numbers inside [create-invoice-modal.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/shared/modals/create-invoice-modal.tsx) (changed format from `INV_5708_200826_ADD` to `INV_5708200826_ADD`).
+
+- **Thousands Commas Pricing Format**:
+  - Added a new reusable `formatAmount` helper at the top of [invoice-templates.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/billing/invoice-templates.tsx).
+  - Applied the helper across all 5 invoice designs to format prices, subtotals, item totals, tax, and discount fields with thousands comma-separators (e.g. `1,054,615.00` instead of `1054615.00`).
+
+- **CRM Customer List Table & Data Sync**:
+  - Re-labeled columns and form labels for the agencies CRM niche in [niche-registry.ts](file:///c:/FRONT-END/REACT/recura/src/config/niche-registry.ts) from `LTV` / `Lifetime Value ($)` to `Amount` / `Amount ($)`.
+  - Added an automated database sync helper `syncCustomerFromInvoices` inside the billing route [route.ts](file:///c:/FRONT-END/REACT/recura/src/app/api/v1/billing/route.ts). Whenever an invoice is generated or updated, it calculates the client's spent total, sets the plan to the actual description of the first invoice item, and sets the client's last activity date dynamically.
+  - Set the default plan field dynamically on client creation in [create-invoice-modal.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/shared/modals/create-invoice-modal.tsx) based on the first line item description.
+
+- **Professional CSS Initials Avatar Placeholders**:
+  - Replaced the mock person photos (which the user didn't upload) with dynamic, clean CSS initials badges (e.g., "F" for Fleet Management Platform) on both the client list table in [customer-table.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/customers/customer-table.tsx) and the profile view card in [view-profile-modal.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/shared/modals/view-profile-modal.tsx).
+
+- **Retainer Description Column Typography**:
+  - Constrained the retainer/plan description cell max-width in [billing-table.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/billing/billing-table.tsx) and truncated it to a single line with trailing ellipsis (`...`) using a smaller font size (`text-xs`), preventing row overflow.
+
+- **Verification & Test Results**:
+  - Successfully verified Drizzle Studio starts and runs perfectly.
+  - Confirmed all code compiles with `npx tsc --noEmit` and passes ESLint with 0 errors/warnings.
+
+---
+
 ## 📍 Future Milestones Log Format Template
 
 _The following template will be populated as new features are built out:_
