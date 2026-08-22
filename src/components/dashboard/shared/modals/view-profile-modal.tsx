@@ -14,13 +14,14 @@ interface ViewProfileModalProps {
 export function ViewProfileModal({ isOpen, onClose, customer }: ViewProfileModalProps) {
   if (!isOpen || !customer) return null
 
-  // Format spent cents to dollar string
+  // Format spent cents to currency string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const formatSpent = (val: any) => {
+    const symbol = customer.currencySymbol || "$"
     if (typeof val === 'number') {
-      return `$${(val / 100).toFixed(2)}`
+      return `${symbol}${(val / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     }
-    return val || "$0.00"
+    return val || `${symbol}0.00`
   }
 
   // Format activity date

@@ -145,7 +145,7 @@ export function CustomerTable({
       status: c.status || "Active",
       plan: c.plan || "N/A",
       spent: typeof c.spent === 'number' 
-        ? `$${(c.spent / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
+        ? `${c.currencySymbol || '$'}${(c.spent / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
         : (c.spent || "$0.00"),
       lastActivity: c.lastActivity || (c.createdAt ? new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'),
       avatar: c.avatar || c.avatarUrl || "https://res.cloudinary.com/weburea/image/upload/v1783571691/24%201.png",

@@ -89,9 +89,39 @@ export async function GET() {
       }
     }
 
+    // Fetch workspace to get default currency symbol
+    const workspacesList = await db
+      .select()
+      .from(schema.workspaces)
+      .where(eq(schema.workspaces.id, workspaceId))
+      .limit(1);
+    
+    const defaultSymbol = workspacesList[0]?.metadata && typeof workspacesList[0].metadata === 'object'
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ? (workspacesList[0].metadata as any).currencySymbol || '$'
+      : '$';
+
+    const data = customersList.map(customer => {
+      const customerInvoices = workspaceInvoices.filter(inv => inv.customerId === customer.id);
+      let currencySymbol = defaultSymbol;
+      if (customerInvoices.length > 0) {
+        const sortedInvoices = [...customerInvoices].sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        const latestInv = sortedInvoices[0];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const metadata = latestInv.metadata as any;
+        currencySymbol = metadata?.currencySymbol || defaultSymbol;
+      }
+      return {
+        ...customer,
+        currencySymbol,
+      };
+    });
+
     return NextResponse.json({
       success: true,
-      data: customersList,
+      data,
     });
   } catch (err) {
     console.error('Error in GET /api/v1/customers:', err);

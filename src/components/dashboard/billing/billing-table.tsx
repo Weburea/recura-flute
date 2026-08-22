@@ -495,10 +495,7 @@ export function BillingTable({
       </div>
 
       {/* Table */}
-      <div className={cn(
-        "table-container border-t border-slate-50 dark:border-white/5",
-        "!overflow-visible"
-      )}>
+      <div className="table-container border-t border-slate-50 dark:border-white/5">
         <table className="w-full">
           <thead>
             <tr>
