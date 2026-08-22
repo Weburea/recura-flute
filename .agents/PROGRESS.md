@@ -3091,6 +3091,7 @@ npm run db:generate: Production SQL migration generator.
   - Re-labeled columns and form labels for the agencies CRM niche in [niche-registry.ts](file:///c:/FRONT-END/REACT/recura/src/config/niche-registry.ts) from `LTV` / `Lifetime Value ($)` to `Amount` / `Amount ($)`.
   - Added an automated database sync helper `syncCustomerFromInvoices` inside the billing route [route.ts](file:///c:/FRONT-END/REACT/recura/src/app/api/v1/billing/route.ts). Whenever an invoice is generated or updated, it calculates the client's spent total, sets the plan to the actual description of the first invoice item, and sets the client's last activity date dynamically.
   - Implemented dynamic database sync inside the main customer list route in [route.ts](file:///c:/FRONT-END/REACT/recura/src/app/api/v1/customers/route.ts) on GET requests. When fetching the customer list, all customer records in the workspace are dynamically checked and synchronized with their invoices (summing total amount, retrieving first item plan name, and updating activity timestamp), ensuring the CRM list and Drizzle Studio are always 100% correct, even for existing accounts.
+  - Resolved dynamic invoice currency symbols (e.g. Naira `₦` or Euro `€`) on GET requests and updated [customer-table.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/customers/customer-table.tsx) and [view-profile-modal.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/shared/modals/view-profile-modal.tsx) to format client Spent/Revenue amounts using the dynamic currency symbol and comma separators (no longer showing fallback `$0.00` or `$1,054,615.00` for Naira/Euro invoices).
   - Set the default plan field dynamically on client creation in [create-invoice-modal.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/shared/modals/create-invoice-modal.tsx) based on the first line item description.
 
 - **Professional CSS Initials Avatar Placeholders**:
@@ -3100,6 +3101,7 @@ npm run db:generate: Production SQL migration generator.
   - Removed the issue date column (`Date`) from the billing table in [billing-table.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/billing/billing-table.tsx) to free up horizontal space.
   - Promoted the due date column (`Due Date`) to be shown starting from medium screens (`hidden md:table-cell` instead of `hidden xl:table-cell`).
   - Restored the font size of the campaign/plan name description column to the standard table text size (removing the custom `text-xs`) while preserving truncation (`truncate font-bold` with a clean `max-w-[240px]` boundary) to keep it perfectly aligned on a single line.
+  - Removed the `!overflow-visible` container class override from the table wrapper in [billing-table.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/billing/billing-table.tsx), restoring native responsive horizontal scrolling on mobile viewports.
   - Updated CSV exports and PDF print output formats inside [billing-table.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/billing/billing-table.tsx) to align with these header improvements.
 
 - **Verification & Test Results**:
