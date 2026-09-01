@@ -33,7 +33,7 @@ interface PhoneCountry {
 
 const PHONE_COUNTRIES: PhoneCountry[] = [
   { name: "United States", code: "US", phonePrefix: "+1", flag: "🇺🇸", regex: /^\d{10}$/, format: "10 digits: 202 555 0199", maxLength: 10 },
-  { name: "Nigeria", code: "NG", phonePrefix: "+234", flag: "🇳🇬", regex: /^\d{10,11}$/, format: "10 or 11 digits: 803 123 4567", maxLength: 11 },
+  { name: "Nigeria", code: "NG", phonePrefix: "+234", flag: "🇳🇬", regex: /^\d{10}$/, format: "10 digits: 803 123 4567", maxLength: 10 },
   { name: "United Kingdom", code: "GB", phonePrefix: "+44", flag: "🇬🇧", regex: /^\d{10}$/, format: "10 digits: 7911 123456", maxLength: 10 },
   { name: "Germany", code: "DE", phonePrefix: "+49", flag: "🇩🇪", regex: /^\d{10,11}$/, format: "10 or 11 digits: 170 1234567", maxLength: 11 },
   { name: "Switzerland", code: "CH", phonePrefix: "+41", flag: "🇨🇭", regex: /^\d{9}$/, format: "9 digits: 79 123 45 67", maxLength: 9 },
@@ -72,6 +72,8 @@ export function CreateInvoiceModal({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [customers, setCustomers] = React.useState<any[]>([])
   const [isLoadingCustomers, setIsLoadingCustomers] = React.useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [subscriptions, setSubscriptions] = React.useState<any[]>([])
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [isGenerating, setIsGenerating] = React.useState(false)
 
@@ -221,6 +223,7 @@ export function CreateInvoiceModal({
   React.useEffect(() => {
     if (isOpen && activeTab === 'choose') {
       setIsLoadingCustomers(true)
+      
       fetch("/api/v1/customers")
         .then(res => res.json())
         .then(json => {
@@ -230,6 +233,15 @@ export function CreateInvoiceModal({
         })
         .catch(err => console.error("Failed to load customers:", err))
         .finally(() => setIsLoadingCustomers(false))
+
+      fetch("/api/v1/subscriptions")
+        .then(res => res.json())
+        .then(json => {
+          if (json.success) {
+            setSubscriptions(json.data || [])
+          }
+        })
+        .catch(err => console.error("Failed to load subscriptions:", err))
     }
   }, [isOpen, activeTab])
 
@@ -237,6 +249,8 @@ export function CreateInvoiceModal({
   React.useEffect(() => {
     if (activeTab === 'choose' && selectedCustomerId) {
       const match = customers.find(c => c.id === selectedCustomerId)
+      const subMatch = subscriptions.find(s => s.customerId === selectedCustomerId)
+      
       if (match) {
         setCustomerDetails({
           name: match.name,
@@ -245,9 +259,46 @@ export function CreateInvoiceModal({
           address: "",
           phone: "",
         })
+
+        // Set currency dynamically
+        const curr = CURRENCIES.find(c => c.symbol === match.currencySymbol) || CURRENCIES[0]
+        setSelectedCurrency(curr)
+
+        // Set country dynamically
+        const countryMatch = match.currencySymbol === '₦' 
+          ? PHONE_COUNTRIES.find(c => c.code === 'NG') 
+          : PHONE_COUNTRIES[0]
+        if (countryMatch) {
+          setSelectedCountry(countryMatch)
+        }
+
+        // Set billing dates dynamically
+        if (subMatch) {
+          setRangeStart(subMatch.lastPaymentAt ? new Date(subMatch.lastPaymentAt) : new Date(subMatch.createdAt))
+          setRangeEnd(subMatch.nextBillingAt ? new Date(subMatch.nextBillingAt) : null)
+          
+          // Set line items dynamically
+          setItems([{
+            description: subMatch.plan || match.plan || "Product Subscription - Monthly Retainer",
+            qty: 1,
+            price: (subMatch.price / 100).toString()
+          }])
+        } else {
+          setRangeStart(new Date())
+          const d = new Date()
+          d.setDate(d.getDate() + 7)
+          setRangeEnd(d)
+
+          // Set line items dynamically
+          setItems([{
+            description: match.plan || "Product Subscription - Monthly Retainer",
+            qty: 1,
+            price: match.spent ? (match.spent / 100).toString() : ""
+          }])
+        }
       }
     }
-  }, [selectedCustomerId, customers, activeTab])
+  }, [selectedCustomerId, customers, subscriptions, activeTab])
 
   // Handle click outside dropdowns
   React.useEffect(() => {
@@ -394,12 +445,12 @@ export function CreateInvoiceModal({
       if (!customerDetails.email.trim() || !customerDetails.email.includes("@")) {
         newErrors.customerEmail = "Please enter a valid billing email"
       }
-      // Country-specific Phone Number Validation
-      if (customerDetails.phone.trim()) {
-        const numericPhone = customerDetails.phone.replace(/[^0-9]/g, "")
-        if (!selectedCountry.regex.test(numericPhone)) {
-          newErrors.phone = `Invalid format for ${selectedCountry.name}. E.g. ${selectedCountry.format}`
-        }
+    }
+    // Country-specific Phone Number Validation
+    if (customerDetails.phone.trim()) {
+      const numericPhone = customerDetails.phone.replace(/[^0-9]/g, "")
+      if (!selectedCountry.regex.test(numericPhone)) {
+        newErrors.phone = `Invalid format for ${selectedCountry.name}. E.g. ${selectedCountry.format}`
       }
     }
     if (!rangeEnd) {
@@ -420,6 +471,7 @@ export function CreateInvoiceModal({
     setIsGenerating(false)
     setIsSubmitting(false)
     setSelectedCustomerId("")
+    setSubscriptions([])
     setCustomerDetails({ name: "", email: "", logoUrl: "", address: "", phone: "" })
     setItems([{ description: "Product Subscription - Monthly Retainer", qty: 1, price: "" }])
     setTerms("")
@@ -747,7 +799,7 @@ export function CreateInvoiceModal({
 
                 {/* Additional billing override fields for selected profile */}
                 {selectedCustomerId && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <div className="space-y-4 p-5 rounded-3xl border border-slate-100 dark:border-white/5 bg-slate-50/20 dark:bg-white/[0.01] animate-in fade-in slide-in-from-top-1 duration-200">
                     <div className="space-y-2">
                       <label className="text-[10px] uppercase font-black text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> Billing Address</label>
                       <input
@@ -758,18 +810,87 @@ export function CreateInvoiceModal({
                         className="w-full px-4 py-2.5 border border-slate-200 dark:border-white/10 rounded-2xl bg-slate-50/50 dark:bg-white/5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-650 text-xs font-semibold"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] uppercase font-black text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Phone Number</label>
-                      <input
-                        type="text"
-                        placeholder="Billing phone override"
-                        value={customerDetails.phone}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/[^0-9+ ]/g, "")
-                          setCustomerDetails(prev => ({ ...prev, phone: val }))
-                        }}
-                        className="w-full px-4 py-2.5 border border-slate-200 dark:border-white/10 rounded-2xl bg-slate-50/50 dark:bg-white/5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-650 text-xs font-semibold"
-                      />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Country Selector for Choose Profile */}
+                      <div className="space-y-2 relative" ref={countryDropdownRef}>
+                        <label className="text-[10px] uppercase font-black text-slate-400 dark:text-slate-500 tracking-wider">Country</label>
+                        <button
+                          type="button"
+                          onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
+                          className="w-full px-4 py-2.5 border border-slate-200 dark:border-white/10 rounded-2xl bg-slate-50/50 dark:bg-white/5 text-xs font-bold text-slate-900 dark:text-white text-left flex items-center justify-between transition-all hover:bg-slate-100 dark:hover:bg-white/10 h-10 cursor-pointer"
+                        >
+                          <span className="flex items-center gap-2">
+                            <span>{selectedCountry.flag}</span>
+                            <span>{selectedCountry.name}</span>
+                          </span>
+                          <ChevronDown className={cn("w-3.5 h-3.5 text-slate-400 transition-transform duration-200", isCountryDropdownOpen && "rotate-180")} />
+                        </button>
+
+                        {isCountryDropdownOpen && (
+                          <div className="absolute top-[calc(100%+4px)] left-0 w-full bg-white dark:bg-[#150a2e] border border-slate-200/50 dark:border-white/10 rounded-2xl shadow-xl z-[160] flex flex-col overflow-hidden max-h-56">
+                            <div className="p-2 border-b border-slate-100 dark:border-white/5 relative shrink-0">
+                              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                              <input
+                                type="text"
+                                placeholder="Search country name or code..."
+                                value={countrySearchQuery}
+                                onChange={(e) => setCountrySearchQuery(e.target.value)}
+                                onClick={(e) => e.stopPropagation()}
+                                className="w-full pl-9 pr-4 py-2 text-xs font-semibold bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none"
+                              />
+                            </div>
+                            <div className="overflow-y-auto custom-scrollbar py-1">
+                              {filteredCountries.length === 0 ? (
+                                <div className="px-5 py-4 text-xs font-bold text-slate-400 text-center">No countries found</div>
+                              ) : (
+                                filteredCountries.map((c) => (
+                                  <button
+                                    key={c.code}
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedCountry(c)
+                                      setIsCountryDropdownOpen(false)
+                                    }}
+                                    className={cn(
+                                      "w-full px-4 py-2 text-xs font-bold text-left flex items-center gap-2 transition-all cursor-pointer h-9",
+                                      selectedCountry.code === c.code 
+                                        ? "text-purple-650 bg-purple-50 dark:bg-purple-500/10" 
+                                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5"
+                                    )}
+                                  >
+                                    <span>{c.flag}</span>
+                                    <span>{c.name}</span>
+                                  </button>
+                                ))
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Phone Number with prefix */}
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase font-black text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Phone Number</label>
+                        <div className="flex gap-2">
+                          <div className="w-20 shrink-0 px-3 py-2.5 border border-slate-250 dark:border-white/10 rounded-2xl bg-slate-50/50 dark:bg-white/5 text-slate-900 dark:text-white text-xs font-black flex items-center justify-center gap-1.5">
+                            <span>{selectedCountry.flag}</span>
+                            <span className="text-[10px] text-slate-500 dark:text-slate-400">{selectedCountry.phonePrefix}</span>
+                          </div>
+                          <input
+                            type="text"
+                            placeholder={selectedCountry.format}
+                            value={customerDetails.phone}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/[^0-9]/g, "")
+                              if (val.length <= selectedCountry.maxLength) {
+                                setCustomerDetails(prev => ({ ...prev, phone: val }))
+                              }
+                            }}
+                            className="flex-1 px-4 py-2.5 border border-slate-200 dark:border-white/10 rounded-2xl bg-slate-50/50 dark:bg-white/5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-650 text-xs font-semibold"
+                          />
+                        </div>
+                        {errors.phone && <p className="text-[10px] text-rose-500 font-bold leading-none mt-1">{errors.phone}</p>}
+                      </div>
                     </div>
                   </div>
                 )}

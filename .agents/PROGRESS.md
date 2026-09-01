@@ -3110,6 +3110,227 @@ npm run db:generate: Production SQL migration generator.
 
 ---
 
+## 📍 Milestone 103: Billing Table Mobile Scroll, Modal Amount Input Overflow Fix & Customer Spent Restoration
+
+**Status**: Completed
+**Date**: August 22, 2026
+
+### Summary of Changes
+
+- **Billing Table Mobile Scrollability** ([billing-table.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/billing/billing-table.tsx)):
+  - Removed `hidden lg:table-cell` from the Plan column header and body cells.
+  - Removed `hidden md:table-cell` from the Due Date column header and body cells.
+  - All columns now display on all screen sizes, allowing natural horizontal scroll via the `.table-container` wrapper (`overflow-x-auto`), matching the behavior of the customer and subscription tables.
+  - Added dynamic `!overflow-visible` class to the table container when `activeMenuId` is not null, consistent with the customer table pattern.
+
+- **Modal Amount Input Overflow Fix** ([create-subscription-modal.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/shared/modals/create-subscription-modal.tsx) & [add-customer-modal.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/shared/modals/add-customer-modal.tsx)):
+  - Merged the separate currency dropdown button and amount input (previously two independent flex children with `gap-3`) into a single unified border container.
+  - The outer wrapper now holds the shared `rounded-2xl border` and `focus-within:ring-2` styling, while the currency selector sits as a `shrink-0` left-inset element with a `border-r` divider.
+  - The amount input uses `min-w-0` and `bg-transparent` to fill remaining space without overflow.
+  - This prevents the amount field from pushing outside the modal boundaries on narrow screens and inside `grid-cols-2` layouts.
+
+- **Customer Spent Values Restoration**:
+  - Wrote and executed a database restore script to set demonstration spent values for all 19 mock customers that had been accidentally reset to `$0.00`.
+  - Values range from `$99.00` (Mailchimp) to `$899.00` (QuickBooks) to make the CRM dashboard look populated.
+  - The `/api/v1/customers` GET route already uses `Math.max(customer.spent, totalSpent)` to preserve manually set spent values and only increase them from invoice totals, so these restored values will be maintained going forward.
+
+- **Verification & Test Results**:
+  - TypeScript: `npx tsc --noEmit` passed with 0 errors.
+  - ESLint: `npx eslint --max-warnings 0` passed with 0 errors/warnings on all 3 modified files.
+
+---
+
+## 📍 Milestone 104: UI/UX Fixes - Currency Dropdowns, Bulk Deletion Success Modals & Mobile Centering
+
+**Status**: Completed
+**Date**: August 23, 2026
+
+### Summary of Changes
+
+- **Currency Dropdown Selector Fix**:
+  - Removed `overflow-hidden` from the input wrappers inside [add-customer-modal.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/shared/modals/add-customer-modal.tsx) and [create-subscription-modal.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/shared/modals/create-subscription-modal.tsx).
+  - Added `rounded-l-2xl` to the currency button inside the wrapper to prevent background color clipping on hover.
+  - This allows the absolutely positioned currency dropdown menus to overflow the input container correctly and remain visible.
+
+- **Bulk Deletion Success Modals**:
+  - Integrated `StatusModal` into [customer-table.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/customers/customer-table.tsx) and [subscription-table.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/subscriptions/subscription-table.tsx).
+  - Added state management and logic within the `handleBulkAction` function in both table components to trigger the success/error pop-up modal when performing bulk operations (delete, activate, deactivate, pause, cancel).
+
+- **Mobile CTA Button Centering**:
+  - Centered the primary CTA buttons at the top of the Customers ([page.tsx](file:///c:/FRONT-END/REACT/recura/src/app/dashboard/customers/page.tsx)), Subscriptions ([page.tsx](file:///c:/FRONT-END/REACT/recura/src/app/dashboard/subscriptions/page.tsx)), and Billing ([page.tsx](file:///c:/FRONT-END/REACT/recura/src/app/dashboard/billing/page.tsx)) pages on mobile viewport sizes by adding the `self-center md:self-start` class.
+
+- **Verification & Test Results**:
+  - TypeScript: Verified that type-check passes successfully via `npx tsc --noEmit`.
+  - ESLint: Verified that linter checks pass with zero errors and warnings across all modified components.
+
+---
+
+## 📍 Milestone 105: Invoice Generator Improvements & Full-Width Mobile CTA Buttons
+
+**Status**: Completed
+**Date**: August 23, 2026
+
+### Summary of Changes
+
+- **Invoice Generator Phone Prefix Selector & Validation**:
+  - Restructured the phone number input under the "Choose Profile" tab in [create-invoice-modal.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/shared/modals/create-invoice-modal.tsx) to match the "Create New Customer" tab layout.
+  - Added the country flag/phone prefix badge trigger dropdown and mapped inputs for choose tab.
+  - Extracted the country-specific phone regex validation logic in the `validate()` function to apply globally on both tabs whenever a phone number override or value is entered.
+  - Restrained Nigeria mobile number input in `PHONE_COUNTRIES` to exactly 10 digits (`maxLength: 10` and `/^\d{10}$/` regex) as requested.
+
+- **Dynamic Auto-Fill Billing Period & Package Items**:
+  - Added subscriptions state and fetched `/api/v1/subscriptions` sequentially alongside customers on tab load in [create-invoice-modal.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/shared/modals/create-invoice-modal.tsx).
+  - Updated the auto-fill `useEffect` to dynamically populate billing period dates (`rangeStart` as sub creation/payment date, `rangeEnd` as next billing date), currency (matching symbol), and package line items description and price from active subscription or customer CRM plan.
+
+- **Full-Width Mobile CTA Buttons**:
+  - Modified the primary CTA button layouts in `/dashboard/customers` ([page.tsx](file:///c:/FRONT-END/REACT/recura/src/app/dashboard/customers/page.tsx)), `/dashboard/subscriptions` ([page.tsx](file:///c:/FRONT-END/REACT/recura/src/app/dashboard/subscriptions/page.tsx)), and `/dashboard/billing` ([page.tsx](file:///c:/FRONT-END/REACT/recura/src/app/dashboard/billing/page.tsx)) to use `w-full md:w-auto justify-center`.
+  - Buttons now expand to span full width on mobile viewports with centered text, while returning to standard width on desktop.
+
+- **Verification & Test Results**:
+  - TypeScript: passed with zero type errors.
+  - ESLint: passed with zero errors or warnings on all modified files.
+
+---
+
+## 📍 Milestone 106: Dynamic settings/profile page, database session tracking, and onboarding audit
+
+**Status**: Completed
+**Date**: August 23, 2026
+
+### Summary of Changes
+
+- **Profiles Schema & Field Updates**:
+  - Expanded [profiles.ts](file:///c:/FRONT-END/REACT/recura/src/db/schema/profiles.ts) to include `phone`, `jobTitle`, `timezone`, and `language` columns.
+  - Connected the new fields to `/api/v1/auth/me` to propagate state to the global user session context.
+  - Restructured the settings sub-navigation to expose the "Profile" link at the top.
+
+- **Profile Update Endpoint**:
+  - Created `/api/v1/auth/profile/route.ts` [profile route](file:///c:/FRONT-END/REACT/recura/src/app/api/v1/auth/profile/route.ts) supporting profile modification and password resets using bcrypt hashing. Supports OAuth accounts setting up passwords.
+  - Implemented dynamic Job Title dropdown choices depending on the workspace niche (e.g. SaaS vs. Agency job titles).
+  - Hooked up file uploads using the Cloudinary `/api/v1/upload` endpoint to dynamically update avatar settings.
+
+- **Database-Backed Session System**:
+  - Created [sessions.ts](file:///c:/FRONT-END/REACT/recura/src/db/schema/sessions.ts) schema.
+  - Modified [session.ts](file:///c:/FRONT-END/REACT/recura/src/lib/session.ts) to write session tokens to the database alongside User Agent and X-Forwarded-For IP address details.
+  - Added `/api/v1/auth/sessions/route.ts` [sessions route](file:///c:/FRONT-END/REACT/recura/src/app/api/v1/auth/sessions/route.ts) to fetch active logins and invalidate specific or other devices.
+
+- **Danger Zone / Account Deletion**:
+  - Connected DELETE `/api/v1/auth/profile` to wipe user profile records entirely and redirect to `/sign-in` after cascade deletion.
+
+- **Verification & Test Results**:
+  - TypeScript: passed with zero type errors.
+  - ESLint: passed with zero errors or warnings on all modified files.
+
+---
+
+## 📍 Milestone 107: Admin Profile layout adjustments, Workspace company details modal upgrades, and database persistence
+
+**Status**: Completed
+**Date**: August 24, 2026
+
+### Summary of Changes
+
+- **Admin Profile Layout Alignment**:
+  - Removed the briefcase icon and company name from the bottom of the Profile Overview section in [admin-profile-form.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/settings/admin-profile-form.tsx) to isolate user profile settings from workspace settings.
+  - Removed the Job Title field from the personal information card and positioned Timezone and Language fields side-by-side.
+  - Added a dedicated "Save Changes" button at the bottom of the Personal Information card.
+
+- **Workspace Settings & Company Details Upgrades**:
+  - Dynamically bound card information displays (Industry, Phone No, Website, and Address) in [workspace-overview.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/settings/workspace-overview.tsx) directly to the active `workspace` context.
+  - Implemented form state initialization on the "Manage" button click handler to load details from the active workspace context, eliminating synchronous setState useEffect calls to comply with React linter rules.
+  - Integrated a PUT API request inside `handleSave` to persist settings modifications to the database and trigger global user context updates.
+
+- **Workspace Modal Profile Elements**:
+  - Implemented a modern Drag-and-Drop file uploader inside the Company Profile modal in [workspace-settings-modals.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/shared/modals/workspace-settings-modals.tsx). Supports dragging files into a dashed container, highlighting active drop zones, rendering uploading indicators (`Loader2`), and allowing file removal.
+  - Added a searchable country dropdown select list and flag/prefix dropdown picker using the `PHONE_COUNTRIES` catalog.
+  - Aligned fields side-by-side: CAC Registration No & Country, Phone Number & Email, Address & Website.
+
+- **Company Profile Persistence API**:
+  - Built `/api/v1/workspaces/profile/route.ts` [workspace profile API](file:///c:/FRONT-END/REACT/recura/src/app/api/v1/workspaces/profile/route.ts) PUT handler to validate and save company settings (`name`, `niche` / industry, and JSONB metadata properties) to the workspace record.
+
+- **Verification & Test Results**:
+  - Next.js Production Build: succeeded with 0 warnings/errors.
+  - TypeScript: passed with zero type errors.
+  - ESLint: passed with zero errors or warnings on all modified files.
+
+---
+
+## 📍 Milestone 108: Dynamic onboarding statistics mapping, payment gateway configurations, and validation enforcements
+
+**Status**: Completed
+**Date**: August 24, 2026
+
+### Summary of Changes
+
+- **Industry Field Read-Only Restriction**:
+  - Replaced the interactive button and dropdown industry niches list inside the Company Profile modal in [workspace-settings-modals.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/shared/modals/workspace-settings-modals.tsx) with a styled, read-only disabled input field.
+  - Dynamically bound the input value to the selected business niche (`selectedIndustry`) associated with the active workspace to prevent modification post-onboarding.
+
+- **Prefix-Aware Phone Validation**:
+  - Implemented suffix format validation inside `handleSave` in [workspace-overview.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/settings/workspace-overview.tsx) mapping dynamic country prefixes (e.g. `+234`, `+1`, `+44`) to custom regular expressions.
+
+- **Dynamic Users & Permissions Integration**:
+  - Bound Company Details members counts and Users list item length to the onboarding `teamSize` and `activeCustomers` workspace properties.
+  - Initialized the default team member list to contain only the currently logged-in user profile as the Owner/Admin, allowing the user to add team members manually and updating active user and role totals dynamically in the UI.
+  - Managed list modifications reactively in `localUsers` state to comply with React hook rules.
+
+- **Payment Gateways, Brand Logos & Warning Instructions**:
+  - Restricted payment tabs in [workspace-settings-modals.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/shared/modals/workspace-settings-modals.tsx) and [workspace-overview.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/settings/workspace-overview.tsx) to **Flutterwave**, **Paystack**, and **Monnify** (removing Stripe and PayPal).
+  - Replaced the settings gear icon in the credentials config header inside the payment settings modal with the active provider's official brand logo image (Flutterwave, Paystack, or Monnify).
+  - Added a descriptive warning and caution paragraph directly below the Credentials Update button to instruct the user to verify keys/secrets.
+  - Designed interactive benefits cards displaying dynamic descriptions/advantages for the currently selected gateway inside the modal.
+  - Removed the "+ Add New Payment Method" button.
+
+- **Dynamic Billing Preview & Currency**:
+  - Configured the Billing Preview card to format pricing dynamically with the workspace's registration currency (e.g. `₦` for NGN, `$` for USD).
+  - Made subtotal and total billing preview amounts dynamic (showing `0.00` if no gateway is actively enabled/connected).
+
+- **Interactive Active Channels Toggle**:
+  - Replaced static channel indicator circles in the Notifications card with a fully toggleable switch state variable (`activeChannelsEnabled`).
+
+- **Dynamic Activity Logs**:
+  - Connected the Activity Logs table to a derived state that outputs mock logs matching the current active provider and connection status.
+
+- **Next.js Static Prerendering Safety**:
+  - Exported `dynamic = 'force-dynamic'` in [page.tsx](file:///c:/FRONT-END/REACT/recura/src/app/dashboard/settings/page.tsx) to prevent Next.js from attempting static prerendering on pages referencing global workspace context hook.
+
+- **Verification & Test Results**:
+  - Next.js Production Build: succeeded with 0 warnings/errors.
+  - TypeScript: passed with zero type errors.
+  - ESLint: passed with zero errors or warnings on all modified files.
+
+---
+
+## 📍 Milestone 108: Marketing Integrations Logo Cloudinary Assets Update & Dark Mode Optimization
+
+**Status**: Completed  
+**Date**: September 1, 2026
+
+### Summary of Changes
+
+- **Integration Component Logos Update**:
+  - Replaced Stripe with **WhatsApp** (`whatsapp-svgrepo-com_jcfgnm.svg`).
+  - Updated Zapier logo with the latest Cloudinary SVG asset (`zapier-svgrepo-com_rad8jo.svg`).
+  - Updated QuickBooks logo with the official Cloudinary SVG (`brand-quickbooks-svgrepo-com_l5gwnx.svg`) and applied `dark:invert` for seamless contrast in dark mode.
+  - Updated Slack logo with the official Cloudinary SVG asset (`slack-svgrepo-com_cqbzpx.svg`).
+  - Replaced broken local HubSpot asset with high-quality Cloudinary SVG for **Gmail** (`gmail-svgrepo-com_fgzzci.svg`).
+  - Replaced Salesforce with **Instagram** (`instagram-2-1-logo-svgrepo-com_cvstiw.svg`).
+  - Replaced Xero with **Trello** (`trello-color-svgrepo-com_fmyeb8.svg`).
+  - Replaced Intercom with **Shopify** (`shopify-color-svgrepo-com_jjqkrn.svg`).
+  - Replaced PayPal with **Meta** (`meta-3_wgbzmj.svg`).
+  - Replaced Analytics with **LinkedIn** (`linkedin-svgrepo-com_hmvm7e.svg`).
+  - Updated **Mailchimp** with the proper official Cloudinary SVG (`mailchimp-svgrepo-com_kla57c.svg`).
+  - Replaced Webhooks with **Notion** (`notion-svgrepo-com_jc7luj.svg`) and configured `dark:invert` styling on monochrome assets like Notion so they adapt seamlessly across both light and dark mode themes.
+
+- **System Directives Updated**:
+  - Added Rule 10 to [.agents/AGENTS.md](file:///c:/FRONT-END/REACT/recura/.agents/AGENTS.md) and Section 8 to [.agents/rules/cloudinary.md](file:///c:/FRONT-END/REACT/recura/.agents/rules/cloudinary.md) mandating theme adaptability checks (`dark:invert` for dark/monochrome SVG icons) on all future SVG icon updates.
+
+- **Verification & Test Results**:
+  - TypeScript: `npx tsc --noEmit` passed with 0 errors.
+  - ESLint: `npx eslint src/components/marketing/integration.tsx --max-warnings 0` passed with 0 warnings and 0 errors.
+
+---
+
 ## 📍 Future Milestones Log Format Template
 
 _The following template will be populated as new features are built out:_
@@ -3126,3 +3347,6 @@ _The following template will be populated as new features are built out:_
 - Step 2: ...
 - Verification & Test Results: ...
 ```
+
+
+

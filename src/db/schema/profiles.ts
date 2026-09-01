@@ -10,6 +10,10 @@ export const profiles = pgTable('profiles', {
   emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
   role: text('role').default('owner').notNull(),
   selectedNiches: jsonb('selected_niches').$type<string[]>().default([]),
+  phone: text('phone'),
+  jobTitle: text('job_title'),
+  timezone: text('timezone').default('America/New_York'),
+  language: text('language').default('English'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });

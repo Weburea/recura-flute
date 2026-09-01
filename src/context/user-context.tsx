@@ -7,6 +7,12 @@ export interface User {
   email: string;
   fullName: string;
   avatarUrl: string | null;
+  phone: string | null;
+  jobTitle: string | null;
+  timezone: string | null;
+  language: string | null;
+  hasPassword: boolean;
+  providers: string[];
 }
 
 export interface Workspace {

@@ -495,7 +495,10 @@ export function BillingTable({
       </div>
 
       {/* Table */}
-      <div className="table-container border-t border-slate-50 dark:border-white/5">
+      <div className={cn(
+        "table-container border-t border-slate-50 dark:border-white/5",
+        activeMenuId !== null ? "!overflow-visible" : ""
+      )}>
         <table className="w-full">
           <thead>
             <tr>
@@ -516,9 +519,9 @@ export function BillingTable({
               </th>
               <th className="table-header-cell">Invoice</th>
               <th className="table-header-cell">Customer</th>
-              <th className="table-header-cell hidden lg:table-cell">{planColHeader}</th>
+              <th className="table-header-cell">{planColHeader}</th>
               <th className="table-header-cell">Amount</th>
-              <th className="table-header-cell hidden md:table-cell">Due Date</th>
+              <th className="table-header-cell">Due Date</th>
               <th className="table-header-cell">Status</th>
               <th className="table-header-cell">Actions</th>
             </tr>
@@ -586,13 +589,13 @@ export function BillingTable({
                       </div>
                     </div>
                   </td>
-                  <td className="table-data-cell font-bold text-slate-600 dark:text-slate-300 hidden lg:table-cell max-w-[240px]">
+                  <td className="table-data-cell font-bold text-slate-600 dark:text-slate-300 max-w-[240px]">
                     <div className="truncate font-bold" title={invoice.plan}>
                       {invoice.plan}
                     </div>
                   </td>
                   <td className="table-data-cell font-bold text-slate-900 dark:text-white">{invoice.amount}</td>
-                  <td className="table-data-cell font-bold text-slate-500 dark:text-slate-400 hidden md:table-cell">{invoice.dueDate}</td>
+                  <td className="table-data-cell font-bold text-slate-500 dark:text-slate-400">{invoice.dueDate}</td>
                   <td className="table-data-cell">
                     <span className={cn("status-badge", statusStyles[invoice.status as keyof typeof statusStyles])}>
                       {invoice.status}

@@ -1,19 +1,25 @@
 import React from 'react';
 import Image from 'next/image';
 
-const integrations = [
-  { name: 'Stripe', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571946/Stripe.svg' },
-  { name: 'Zapier', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571966/Zapier.svg' },
-  { name: 'QuickBooks', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571793/QuickBooks.svg' },
-  { name: 'Slack', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571937/Slack.svg' },
-  { name: 'HubSpot', src: '/images/landing/integration/Group 1000001643.png' },
-  { name: 'Salesforce', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571922/Salesforce.svg' },
-  { name: 'Xero', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571959/Xero.svg' },
-  { name: 'Intercom', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571782/Intercom.svg' },
-  { name: 'PayPal', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571788/PayPal.svg' },
-  { name: 'Analytics', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571765/Analytics.svg' },
-  { name: 'Mailchimp', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571783/Mailchimp.svg' },
-  { name: 'Webhooks', src: 'https://res.cloudinary.com/weburea/image/upload/v1783571956/Webhooks.svg' },
+interface IntegrationItem {
+  name: string;
+  src: string;
+  className?: string;
+}
+
+const integrations: IntegrationItem[] = [
+  { name: 'WhatsApp', src: 'https://res.cloudinary.com/weburea/image/upload/v1788257091/whatsapp-svgrepo-com_jcfgnm.svg' },
+  { name: 'Zapier', src: 'https://res.cloudinary.com/weburea/image/upload/v1788257095/zapier-svgrepo-com_rad8jo.svg' },
+  { name: 'QuickBooks', src: 'https://res.cloudinary.com/weburea/image/upload/v1788257094/brand-quickbooks-svgrepo-com_l5gwnx.svg', className: 'dark:invert' },
+  { name: 'Slack', src: 'https://res.cloudinary.com/weburea/image/upload/v1788257096/slack-svgrepo-com_cqbzpx.svg' },
+  { name: 'Gmail', src: 'https://res.cloudinary.com/weburea/image/upload/v1788257086/gmail-svgrepo-com_fgzzci.svg' },
+  { name: 'Instagram', src: 'https://res.cloudinary.com/weburea/image/upload/v1788257086/instagram-2-1-logo-svgrepo-com_cvstiw.svg' },
+  { name: 'Trello', src: 'https://res.cloudinary.com/weburea/image/upload/v1788257086/trello-color-svgrepo-com_fmyeb8.svg' },
+  { name: 'Shopify', src: 'https://res.cloudinary.com/weburea/image/upload/v1788257091/shopify-color-svgrepo-com_jjqkrn.svg' },
+  { name: 'Meta', src: 'https://res.cloudinary.com/weburea/image/upload/v1788257093/meta-3_wgbzmj.svg' },
+  { name: 'LinkedIn', src: 'https://res.cloudinary.com/weburea/image/upload/v1788257092/linkedin-svgrepo-com_hmvm7e.svg' },
+  { name: 'Mailchimp', src: 'https://res.cloudinary.com/weburea/image/upload/v1788257089/mailchimp-svgrepo-com_kla57c.svg' },
+  { name: 'Notion', src: 'https://res.cloudinary.com/weburea/image/upload/v1788257088/notion-svgrepo-com_jc7luj.svg', className: 'dark:invert' },
 ];
 
 export function Integration() {
@@ -46,7 +52,7 @@ export function Integration() {
                   src={app.src}
                   alt={`${app.name} logo`}
                   fill
-                  className="object-contain"
+                  className={`object-contain ${app.className || ''}`}
                   sizes="56px"
                 />
               </div>

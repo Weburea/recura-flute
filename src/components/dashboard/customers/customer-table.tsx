@@ -18,6 +18,7 @@ import {
   ChevronDown
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { StatusModal } from "@/components/dashboard/shared/modals/status-modal"
 
 const MOCK_CUSTOMERS = [
   { id: 1, name: "Sarah johnson", email: "sharaJ2@gmail.com", status: "Active", plan: "Enterprise Corp", spent: "$299.00", lastActivity: "Jan 28, 2026", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571691/24%201.png" },
@@ -94,6 +95,17 @@ export function CustomerTable({
   const itemsPerPage = 8
 
   const [isBulkLoading, setIsBulkLoading] = React.useState(false)
+  const [statusModal, setStatusModal] = React.useState<{
+    isOpen: boolean
+    type: "success" | "error"
+    title: string
+    message: string
+  }>({
+    isOpen: false,
+    type: "success",
+    title: "",
+    message: "",
+  })
 
   const handleBulkAction = async (action: string) => {
     if (selectedIds.length === 0) return
@@ -112,9 +124,45 @@ export function CustomerTable({
       if (res.ok) {
         setSelectedIds([])
         refreshData?.()
+        if (action === 'delete') {
+          setStatusModal({
+            isOpen: true,
+            type: "success",
+            title: "Delete Successful",
+            message: `Selected ${entityLabel.toLowerCase()} records have been deleted successfully.`
+          })
+        } else if (action === 'activate') {
+          setStatusModal({
+            isOpen: true,
+            type: "success",
+            title: "Activation Successful",
+            message: `Selected ${entityLabel.toLowerCase()} records have been activated successfully.`
+          })
+        } else if (action === 'deactivate') {
+          setStatusModal({
+            isOpen: true,
+            type: "success",
+            title: "Deactivation Successful",
+            message: `Selected ${entityLabel.toLowerCase()} records have been deactivated successfully.`
+          })
+        }
+      } else {
+        const json = await res.json()
+        setStatusModal({
+          isOpen: true,
+          type: "error",
+          title: "Action Failed",
+          message: json.error || `Failed to perform action on selected records.`
+        })
       }
     } catch (err) {
       console.error('[BULK ACTION ERROR]', err)
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Action Failed",
+        message: "An internal server error occurred."
+      })
     } finally {
       setIsBulkLoading(false)
     }
@@ -769,6 +817,14 @@ export function CustomerTable({
           </div>
         );
       })()}
+
+      <StatusModal
+        isOpen={statusModal.isOpen}
+        onClose={() => setStatusModal(prev => ({ ...prev, isOpen: false }))}
+        type={statusModal.type}
+        title={statusModal.title}
+        message={statusModal.message}
+      />
     </div>
   )
 }

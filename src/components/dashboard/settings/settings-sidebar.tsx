@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { 
+  User,
   Building2, 
   Palette, 
   CreditCard, 
@@ -12,6 +13,7 @@ import {
 import { cn } from "@/lib/utils"
 
 const settingsNav = [
+  { icon: User, label: "Profile", href: "/dashboard/settings/profile" },
   { icon: Building2, label: "Workspace", href: "/dashboard/settings" },
   { icon: Palette, label: "Branding", href: "/dashboard/settings/branding" },
   { icon: CreditCard, label: "Payment Settings", href: "/dashboard/settings/payments" },

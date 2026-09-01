@@ -19,6 +19,7 @@ import {
   ChevronDown
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { StatusModal } from "@/components/dashboard/shared/modals/status-modal"
 
 const MOCK_SUBSCRIPTIONS = [
   { id: 1, name: "Mark Luck", avatar: "https://res.cloudinary.com/weburea/image/upload/v1783571687/11%201.png", plan: "Enterprise Corp", status: "Active", billingCycle: "$299.00/ month", lastPayment: "Jan 17, 2023", nextBillingDate: "Jan 28, 2023" },
@@ -101,6 +102,17 @@ export function SubscriptionTable({
   const itemsPerPage = 8
 
   const [isBulkLoading, setIsBulkLoading] = React.useState(false)
+  const [statusModal, setStatusModal] = React.useState<{
+    isOpen: boolean
+    type: "success" | "error"
+    title: string
+    message: string
+  }>({
+    isOpen: false,
+    type: "success",
+    title: "",
+    message: "",
+  })
 
   const handleBulkAction = async (action: string) => {
     if (selectedIds.length === 0) return
@@ -119,9 +131,52 @@ export function SubscriptionTable({
       if (res.ok) {
         setSelectedIds([])
         refreshData?.()
+        if (action === 'delete') {
+          setStatusModal({
+            isOpen: true,
+            type: "success",
+            title: "Delete Successful",
+            message: `Selected billing contract records have been deleted successfully.`
+          })
+        } else if (action === 'pause') {
+          setStatusModal({
+            isOpen: true,
+            type: "success",
+            title: "Contracts Paused",
+            message: `Selected billing contract records have been paused successfully.`
+          })
+        } else if (action === 'cancel') {
+          setStatusModal({
+            isOpen: true,
+            type: "success",
+            title: "Contracts Cancelled",
+            message: `Selected billing contract records have been cancelled successfully.`
+          })
+        } else if (action === 'activate') {
+          setStatusModal({
+            isOpen: true,
+            type: "success",
+            title: "Activation Successful",
+            message: `Selected billing contract records have been activated successfully.`
+          })
+        }
+      } else {
+        const json = await res.json()
+        setStatusModal({
+          isOpen: true,
+          type: "error",
+          title: "Action Failed",
+          message: json.error || `Failed to perform action on selected records.`
+        })
       }
     } catch (err) {
       console.error('[BULK ACTION ERROR]', err)
+      setStatusModal({
+        isOpen: true,
+        type: "error",
+        title: "Action Failed",
+        message: "An internal server error occurred."
+      })
     } finally {
       setIsBulkLoading(false)
     }
@@ -833,6 +888,14 @@ export function SubscriptionTable({
           </div>
         );
       })()}
+
+      <StatusModal
+        isOpen={statusModal.isOpen}
+        onClose={() => setStatusModal(prev => ({ ...prev, isOpen: false }))}
+        type={statusModal.type}
+        title={statusModal.title}
+        message={statusModal.message}
+      />
     </div>
   )
 }

@@ -50,7 +50,10 @@ export default function ModalsDocPage() {
     email: 'contact@business.com',
     phone: '+1 (555) 123-4567',
     address: '123 Business Street, Suite 100, New York, NY 10001',
-    website: 'www.business.com'
+    website: 'www.business.com',
+    logoUrl: '',
+    registrationNumber: '',
+    country: ''
   });
 
   // Security & Billing Config State (Mock Data)
@@ -81,8 +84,7 @@ export default function ModalsDocPage() {
   const [newMember, setNewMember] = React.useState<{ name?: string; role?: string }>({ name: '', role: '' });
   const [editingUser, setEditingUser] = React.useState<{ id: number; name: string; role: string; img: string; active: boolean } | null>(null);
 
-  const [selectedIndustry, setSelectedIndustry] = React.useState("SaaS & Software");
-  const [isIndustryOpen, setIsIndustryOpen] = React.useState(false);
+  const [selectedIndustry] = React.useState("SaaS & Software");
 
   // Handlers
   const toggle2FA = () => setTwoFactorEnabled(!twoFactorEnabled);
@@ -343,9 +345,6 @@ export default function ModalsDocPage() {
         profileData={profileData}
         setProfileData={setProfileData}
         selectedIndustry={selectedIndustry}
-        setSelectedIndustry={setSelectedIndustry}
-        isIndustryOpen={isIndustryOpen}
-        setIsIndustryOpen={setIsIndustryOpen}
         users={users}
         activeSessions={activeSessions}
         revokeSession={revokeSession}

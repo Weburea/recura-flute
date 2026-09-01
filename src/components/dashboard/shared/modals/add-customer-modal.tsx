@@ -280,13 +280,18 @@ export function AddCustomerModal({
                         {field.label.replace(/\s*\(\$\)\s*/g, "")} {field.required && <span className="text-rose-500">*</span>}
                       </label>
                       
-                      <div className="flex gap-3 relative">
+                      <div className={cn(
+                        "flex w-full rounded-2xl border bg-slate-50/50 dark:bg-white/5 transition-all focus-within:ring-2 focus-within:ring-purple-500/20",
+                        hasError 
+                          ? "border-rose-200 dark:border-rose-500/30 bg-rose-50/30 dark:bg-rose-500/5" 
+                          : "border-slate-100 dark:border-white/5"
+                      )}>
                         {/* Currency Selector Dropdown */}
-                        <div className="relative" ref={currencyDropdownRef}>
+                        <div className="relative border-r border-slate-100 dark:border-white/5 shrink-0" ref={currencyDropdownRef}>
                           <button
                             type="button"
                             onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
-                            className="h-full px-4 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5 transition-all hover:bg-slate-100/50 dark:hover:bg-white/10"
+                            className="h-full px-4 text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5 transition-all hover:bg-slate-100/50 dark:hover:bg-white/10 cursor-pointer rounded-l-2xl"
                           >
                             <span className="text-lg">{selectedCurrency.symbol}</span>
                             <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
@@ -324,10 +329,10 @@ export function AddCustomerModal({
                           onChange={(e) => setFormData(prev => ({ ...prev, [field.id]: e.target.value }))}
                           placeholder={field.placeholder || "0.00"}
                           className={cn(
-                            "flex-1 px-5 py-3.5 rounded-2xl border bg-slate-50/50 dark:bg-white/5 text-sm font-bold transition-all focus:outline-none focus:ring-2 focus:ring-purple-500/20 dark:placeholder-slate-600",
+                            "flex-1 min-w-0 px-4 py-3.5 bg-transparent text-sm font-bold focus:outline-none dark:placeholder-slate-600",
                             hasError 
-                              ? "border-rose-200 dark:border-rose-500/30 bg-rose-50/30 dark:bg-rose-500/5 text-rose-900 dark:text-rose-400" 
-                              : "border-slate-100 dark:border-white/5 text-slate-900 dark:text-white"
+                              ? "text-rose-900 dark:text-rose-400" 
+                              : "text-slate-900 dark:text-white"
                           )}
                         />
                       </div>

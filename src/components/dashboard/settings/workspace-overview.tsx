@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
+import { useUser } from "@/context/user-context"
 import { cn } from "@/lib/utils"
 import {
   Building2,
@@ -29,7 +30,19 @@ interface User {
   active: boolean;
 }
 
+
+const getCurrencySymbol = (currency: string) => {
+  switch (currency?.toUpperCase()) {
+    case 'NGN': return '₦';
+    case 'EUR': return '€';
+    case 'GBP': return '£';
+    case 'USDC': return 'USDC ';
+    default: return '$';
+  }
+};
+
 export function WorkspaceOverview() {
+  const { user, workspace, refreshUser } = useUser()
   // Navigation State
   const [activeModal, setActiveModal] = useState<SettingsModalType | null>(null);
 
@@ -51,25 +64,56 @@ export function WorkspaceOverview() {
 
   // Security & Billing Config State
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
-  const [activeProvider, setActiveProvider] = useState<string>('stripe');
+  const [activeProvider, setActiveProvider] = useState<string>('flutterwave');
   const [providersConfig, setProvidersConfig] = useState<Record<string, { enabled: boolean; apiKey: string; secretKey?: string }>>({
-    stripe: { enabled: true, apiKey: 'sk_live_••••••••••••••••' },
-    flutterwave: { enabled: false, apiKey: '' },
+    flutterwave: { enabled: true, apiKey: 'flw_live_••••••••••••••••' },
     paystack: { enabled: false, apiKey: '' },
-    paypal: { enabled: false, apiKey: '' },
+    monnify: { enabled: false, apiKey: '' },
   });
 
   const isAutobillingEnabled = Object.values(providersConfig).some(p => p.enabled);
 
   // User Management State
-  const [users, setUsers] = useState<User[]>([
-    { id: 1, name: 'Admin User', role: 'Owner', img: 'https://res.cloudinary.com/weburea/image/upload/v1783571700/9%201.png', active: true },
-    { id: 2, name: 'Sarah Wilson', role: 'Admin', img: 'https://res.cloudinary.com/weburea/image/upload/v1783571687/11%201.png', active: true },
-    { id: 3, name: 'John Doe', role: 'Editor', img: 'https://res.cloudinary.com/weburea/image/upload/v1783571691/24%201.png', active: true },
-    { id: 4, name: 'Emily Chen', role: 'Manager', img: 'https://res.cloudinary.com/weburea/image/upload/v1783571691/59%201.png', active: false },
-    { id: 5, name: 'Alex Rivera', role: 'Developer', img: 'https://res.cloudinary.com/weburea/image/upload/v1783571692/60%201.png', active: false },
-    { id: 6, name: 'Mark Zuckerberg', role: 'CEO', img: 'https://res.cloudinary.com/weburea/image/upload/v1783571696/61%201.png', active: true },
-  ]);
+  const [localUsers, setLocalUsers] = useState<User[] | null>(null);
+
+  const teamSize = Number(workspace?.metadata?.teamSize || workspace?.metadata?.team_size || 6);
+  const activeCustomers = Number(workspace?.metadata?.activeClients || workspace?.metadata?.activeCustomers || workspace?.metadata?.payingCustomers || 150);
+
+  const usersList = useMemo(() => {
+    if (localUsers !== null) return localUsers;
+    const primaryUser: User = {
+      id: 1,
+      name: user?.fullName || "Admin User",
+      role: "Owner",
+      img: user?.avatarUrl || 'https://res.cloudinary.com/weburea/image/upload/v1783571700/9%201.png',
+      active: true
+    };
+    return [primaryUser];
+  }, [localUsers, user]);
+
+  const activityLogs = useMemo(() => {
+    const isEnabled = providersConfig[activeProvider]?.enabled;
+    if (activeProvider === 'paystack') {
+      return [
+        { type: isEnabled ? 'success' : 'error', title: isEnabled ? 'Paystack Charge succeeded - Acme Inc. ($549.00)' : 'Paystack API Connection inactive', time: '5 min ago', details: '192.168.1.100' },
+        { type: 'success', title: 'Paystack webhook received successfully', time: '30 mins ago', details: '192.168.1.112' },
+        { type: 'error', title: 'Paystack Charge failed - Insufficient funds', time: '1 hour ago', details: '192.168.1.17' },
+      ];
+    } else if (activeProvider === 'flutterwave') {
+      return [
+        { type: isEnabled ? 'success' : 'error', title: isEnabled ? 'Flutterwave Charge succeeded - Acme Inc. ($549.00)' : 'Flutterwave API Connection inactive', time: '2 min ago', details: '192.168.1.102' },
+        { type: 'success', title: 'Flutterwave webhook received successfully', time: '15 mins ago', details: '192.168.1.112' },
+        { type: 'error', title: 'Flutterwave Card validation failed', time: '2 hours ago', details: '192.168.1.15' },
+      ];
+    } else {
+      return [
+        { type: isEnabled ? 'success' : 'error', title: isEnabled ? 'Monnify Virtual Account Transfer received ($549.00)' : 'Monnify API Connection inactive', time: '10 min ago', details: '192.168.1.105' },
+        { type: 'success', title: 'Monnify webhook received successfully', time: '45 mins ago', details: '192.168.1.112' },
+        { type: 'error', title: 'Monnify virtual account creation failed', time: '3 hours ago', details: '192.168.1.20' },
+      ];
+    }
+  }, [activeProvider, providersConfig]);
+
   const [userFilter, setUserFilter] = useState<'active' | 'inactive'>('active');
   const [isAddingMember, setIsAddingMember] = useState(false);
   const [newMember, setNewMember] = useState<{name?: string, role?: string}>({ name: '', role: '' });
@@ -77,10 +121,10 @@ export function WorkspaceOverview() {
 
   // Creation State
   const [isCreatingProvider, setIsCreatingProvider] = useState(false);
+  const [activeChannelsEnabled, setActiveChannelsEnabled] = useState(true);
 
-  // Industry State
-  const [selectedIndustry, setSelectedIndustry] = useState("SaaS & Software");
-  const [isIndustryOpen, setIsIndustryOpen] = useState(false);
+  // Industry (derived from workspace)
+  const selectedIndustry = workspace?.niche || "SaaS & Software";
 
   const [activeSessions, setActiveSessions] = useState([
     { id: 1, name: 'Chrome on macOS', ip: '192.168.1.1' },
@@ -89,16 +133,19 @@ export function WorkspaceOverview() {
 
   // Company Profile State
   const [profileData, setProfileData] = useState({
-    name: 'Business Owner Inc.',
-    email: 'contact@business.com',
-    phone: '+1 (555) 123-4567',
-    address: '123 Business Street, Suite 100, New York, NY 10001',
-    website: 'www.business.com'
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    website: '',
+    logoUrl: '',
+    registrationNumber: '',
+    country: ''
   });
   const [profileErrors, setProfileErrors] = useState<Record<string, string>>({});
 
   // Handlers
-  const handleSave = () => {
+  const handleSave = async () => {
     // Validation for Company Profile
     if (activeModal === 'profile') {
       const newErrors: Record<string, string> = {};
@@ -109,11 +156,42 @@ export function WorkspaceOverview() {
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileData.email)) {
         newErrors.email = "Invalid email format";
       }
+      
+      const PHONE_COUNTRIES_VAL = [
+        { prefix: "+1", regex: /^\d{10}$/, format: "10 digits: 202 555 0199" },
+        { prefix: "+234", regex: /^\d{10}$/, format: "10 digits: 803 123 4567" },
+        { prefix: "+44", regex: /^\d{10}$/, format: "10 digits: 7911 123456" },
+        { prefix: "+49", regex: /^\d{10,11}$/, format: "10 or 11 digits: 170 1234567" },
+        { prefix: "+41", regex: /^\d{9}$/, format: "9 digits: 79 123 45 67" },
+        { prefix: "+33", regex: /^\d{9}$/, format: "9 digits: 6 1234 5678" },
+        { prefix: "+61", regex: /^\d{9}$/, format: "9 digits: 412 345 678" },
+        { prefix: "+91", regex: /^\d{10}$/, format: "10 digits: 98765 43210" },
+        { prefix: "+27", regex: /^\d{9}$/, format: "9 digits: 82 123 4567" },
+        { prefix: "+254", regex: /^\d{9,10}$/, format: "9 or 10 digits: 712 345 678" },
+        { prefix: "+233", regex: /^\d{9}$/, format: "9 digits: 24 123 4567" },
+        { prefix: "+55", regex: /^\d{11}$/, format: "11 digits: 11 91234 5678" },
+        { prefix: "+86", regex: /^\d{11}$/, format: "11 digits: 139 1234 5678" },
+        { prefix: "+81", regex: /^\d{10}$/, format: "10 digits: 90 1234 5678" },
+        { prefix: "+52", regex: /^\d{10}$/, format: "10 digits: 55 1234 5678" },
+        { prefix: "+34", regex: /^\d{9}$/, format: "9 digits: 612 345 678" },
+        { prefix: "+39", regex: /^\d{10}$/, format: "10 digits: 312 345 6789" },
+        { prefix: "+31", regex: /^\d{9}$/, format: "9 digits: 6 1234 5678" },
+        { prefix: "+65", regex: /^\d{8}$/, format: "8 digits: 8123 4567" },
+        { prefix: "+971", regex: /^\d{9}$/, format: "9 digits: 50 123 4567" },
+      ];
+
       if (!profileData.phone.trim()) {
         newErrors.phone = "Phone number is required";
-      } else if (!/^[+\d\s()-]+$/.test(profileData.phone)) {
-        newErrors.phone = "Invalid phone format";
+      } else {
+        const country = PHONE_COUNTRIES_VAL.find(c => profileData.phone.startsWith(c.prefix));
+        if (country) {
+          const suffix = profileData.phone.slice(country.prefix.length).replace(/[^0-9]/g, "");
+          if (!country.regex.test(suffix)) {
+            newErrors.phone = `Invalid number. Expected: ${country.format}`;
+          }
+        }
       }
+
       if (!profileData.address.trim()) newErrors.address = "Address is required";
       if (!profileData.website.trim()) newErrors.website = "Website is required";
 
@@ -126,29 +204,80 @@ export function WorkspaceOverview() {
         return;
       }
       setProfileErrors({});
+
+      try {
+        const res = await fetch("/api/v1/workspaces/profile", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: profileData.name,
+            industry: selectedIndustry,
+            email: profileData.email,
+            phone: profileData.phone,
+            address: profileData.address,
+            website: profileData.website,
+            logoUrl: profileData.logoUrl,
+            registrationNumber: profileData.registrationNumber,
+            country: profileData.country,
+          }),
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          refreshUser();
+          setStatusType("success");
+          setStatusTitle("Profile Updated");
+          setStatusMessage("Your company information has been successfully updated and saved.");
+        } else {
+          setStatusType("error");
+          setStatusTitle("Update Failed");
+          setStatusMessage(data.error || "An error occurred while saving your company settings.");
+          setShowStatus(true);
+          return;
+        }
+      } catch (err) {
+        console.error(err);
+        setStatusType("error");
+        setStatusTitle("System Error");
+        setStatusMessage("Could not connect to update servers.");
+        setShowStatus(true);
+        return;
+      }
+    } else {
+      // Dynamic messaging based on current active modal
+      let successTitle = "Changes Saved";
+      let successMessage = "Your workspace settings have been updated successfully.";
+
+      if (activeModal === 'users') {
+        if (newMember?.name) {
+          const newUser: User = {
+            id: usersList.length + 1,
+            name: newMember.name,
+            role: newMember.role || "Member",
+            img: `https://res.cloudinary.com/weburea/image/upload/v1783571692/${60 + (usersList.length % 5)}%201.png`,
+            active: true
+          };
+          setLocalUsers([...usersList, newUser]);
+          setNewMember({ name: '', role: '' });
+        }
+        successTitle = "Team Updated";
+        successMessage = "Team member configuration has been saved successfully.";
+      } else if (activeModal === 'roles') {
+        successTitle = "Roles Updated";
+        successMessage = "Workspace roles and permissions have been updated.";
+      } else if (activeModal === 'security') {
+        successTitle = "Security Updated";
+        successMessage = "Workspace security protocols have been reinforced.";
+      } else if (activeModal === 'billing') {
+        successTitle = "Billing Updated";
+        successMessage = "Payment provider and billing controls updated.";
+      }
+
+      setStatusType("success");
+      setStatusTitle(successTitle);
+      setStatusMessage(successMessage);
     }
 
-    // Dynamic messaging based on current active modal
-    let successTitle = "Changes Saved";
-    let successMessage = "Your workspace settings have been updated successfully.";
-
-    if (activeModal === 'users') {
-      successTitle = "Team Updated";
-      successMessage = "Team member configuration has been saved successfully.";
-    } else if (activeModal === 'roles') {
-      successTitle = "Roles Updated";
-      successMessage = "Workspace roles and permissions have been updated.";
-    } else if (activeModal === 'security') {
-      successTitle = "Security Updated";
-      successMessage = "Workspace security protocols have been reinforced.";
-    } else if (activeModal === 'billing') {
-      successTitle = "Billing Updated";
-      successMessage = "Payment provider and billing controls updated.";
-    }
-
-    setStatusType("success");
-    setStatusTitle(successTitle);
-    setStatusMessage(successMessage);
     setShowStatus(true);
     setActiveModal(null);
     setEditingUser(null);
@@ -247,9 +376,15 @@ export function WorkspaceOverview() {
   };
 
   const deleteUser = (id: number) => {
-    setUsers(prev => prev.filter(u => u.id !== id));
+    setLocalUsers(usersList.filter(u => u.id !== id));
     handleSave();
   };
+
+  const adminCount = usersList.filter(u => u.role.toLowerCase() === 'owner' || u.role.toLowerCase() === 'admin').length;
+  const managerCount = usersList.filter(u => u.role.toLowerCase() === 'manager' || u.role.toLowerCase() === 'editor' || u.role.toLowerCase() === 'developer' || u.role.toLowerCase() === 'member').length;
+
+  const activeCurrency = (workspace?.metadata?.currency as string) || "USD";
+  const currencySymbol = getCurrencySymbol(activeCurrency);
 
   return (
     <div className="space-y-6 md:space-y-8 pb-10">
@@ -267,29 +402,47 @@ export function WorkspaceOverview() {
           <div className="space-y-4 flex-1">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Industry</span>
-              <span className="text-sm font-bold text-slate-900 dark:text-white">{selectedIndustry}</span>
+              <span className="text-sm font-bold text-slate-900 dark:text-white">{workspace?.niche || "SaaS & Software"}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Phone No</span>
-              <span className="text-xs font-bold text-slate-900 dark:text-white">+1 (555) 123-4567</span>
+              <span className="text-xs font-bold text-slate-900 dark:text-white">{(workspace?.metadata?.phone as string) || "+1 (555) 123-4567"}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Website</span>
-              <span className="text-xs font-bold text-slate-900 dark:text-white tracking-tight">{profileData.website}</span>
+              <span className="text-xs font-bold text-slate-900 dark:text-white tracking-tight">{(workspace?.metadata?.website as string) || "www.business.com"}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Address</span>
               <span className="text-[10px] font-bold text-slate-900 dark:text-white text-right leading-tight max-w-[140px]">
-                {profileData.address}
+                {(workspace?.metadata?.address as string) || "123 Business Street, Suite 100, New York, NY 10001"}
               </span>
             </div>
             <div className="flex items-center justify-between pt-2 border-t border-slate-50 dark:border-white/5">
+              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Customers</span>
+              <span className="text-sm font-bold text-slate-900 dark:text-white">{activeCustomers} customers</span>
+            </div>
+            <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Members</span>
-              <span className="text-sm font-bold text-slate-900 dark:text-white">8 members</span>
+              <span className="text-sm font-bold text-slate-900 dark:text-white">{usersList.length} member{usersList.length !== 1 ? 's' : ''}</span>
             </div>
           </div>
           <button 
-            onClick={() => setActiveModal('profile')}
+            onClick={() => {
+              if (workspace) {
+                setProfileData({
+                  name: workspace.name || "",
+                  email: (workspace.metadata?.email as string) || "",
+                  phone: (workspace.metadata?.phone as string) || "",
+                  address: (workspace.metadata?.address as string) || "",
+                  website: (workspace.metadata?.website as string) || "",
+                  logoUrl: (workspace.metadata?.logoUrl as string) || "",
+                  registrationNumber: (workspace.metadata?.registrationNumber as string) || "",
+                  country: (workspace.metadata?.country as string) || "",
+                });
+              }
+              setActiveModal('profile');
+            }}
             className="w-full mt-6 py-2.5 rounded-xl bg-purple-600 text-white border border-gray-100 font-bold text-sm tracking-tight hover:bg-purple-700 transition-colors"
           >
             Manage
@@ -398,16 +551,16 @@ export function WorkspaceOverview() {
             <h3 className="font-bold text-slate-900 dark:text-white">Users & Permissions</h3>
           </div>
           <div className="flex-1">
-            <h4 className="text-xl font-black text-slate-900 dark:text-white">{users.filter(u => u.active).length} Active Users</h4>
-            <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-1">{users.filter(u => !u.active).length} Inactive</p>
+            <h4 className="text-xl font-black text-slate-900 dark:text-white">{usersList.filter(u => u.active).length} Active Users</h4>
+            <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mt-1">{usersList.filter(u => !u.active).length} Inactive</p>
           </div>
           <div className="flex items-center gap-2 mt-6">
             <div className="flex -space-x-2">
-              {users.slice(0, 3).map((user) => (
+              {usersList.slice(0, 3).map((user) => (
                 <NextImage key={user.id} src={user.img} width={32} height={32} className="w-8 h-8 rounded-full border-2 border-white dark:border-[#150a2e] object-cover" alt={user.name} />
               ))}
-              {users.length > 3 && (
-                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/10 border-2 border-white dark:border-[#150a2e] flex items-center justify-center text-[10px] font-black text-slate-400 dark:text-slate-500">+{users.length - 3}</div>
+              {usersList.length > 3 && (
+                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/10 border-2 border-white dark:border-[#150a2e] flex items-center justify-center text-[10px] font-black text-slate-400 dark:text-slate-500">+{usersList.length - 3}</div>
               )}
             </div>
           <button 
@@ -429,9 +582,9 @@ export function WorkspaceOverview() {
           </div>
           <div className="flex-1">
             <div className="flex items-baseline gap-2">
-              <h4 className="text-xl font-black text-slate-900 dark:text-white">4 Admins</h4>
-              <span className="text-slate-400 dark:text-slate-500 font-medium">/</span>
-              <span className="text-lg font-bold text-slate-500 dark:text-slate-400">2 Mgrs</span>
+               <h4 className="text-xl font-black text-slate-900 dark:text-white">{adminCount} Admin{adminCount !== 1 ? 's' : ''}</h4>
+               <span className="text-slate-400 dark:text-slate-500 font-medium">/</span>
+               <span className="text-lg font-bold text-slate-500 dark:text-slate-400">{managerCount} Mgr{managerCount !== 1 ? 's' : ''}</span>
             </div>
           </div>
           <div className="mt-6">
@@ -462,10 +615,18 @@ export function WorkspaceOverview() {
                  <Settings2 className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                </div>
                <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Active Channels</span>
-               <div className="flex -space-x-1 ml-auto">
-                 <div className="w-4 h-4 rounded-full bg-emerald-400 border border-white dark:border-[#150a2e]" />
-                 <div className="w-4 h-4 rounded-full bg-slate-200 dark:bg-white/20 border border-white dark:border-[#150a2e]" />
-               </div>
+               <button 
+                  onClick={() => setActiveChannelsEnabled(!activeChannelsEnabled)}
+                  className={cn(
+                    "w-10 h-5 rounded-full transition-colors relative flex items-center px-0.5 ml-auto shrink-0",
+                    activeChannelsEnabled ? "bg-[#10b981]" : "bg-slate-200 dark:bg-white/10"
+                  )}
+               >
+                 <div className={cn(
+                   "w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200",
+                   activeChannelsEnabled ? "translate-x-5" : "translate-x-0"
+                 )} />
+               </button>
             </div>
           </div>
         </div>
@@ -481,11 +642,7 @@ export function WorkspaceOverview() {
             <button className="text-purple-600 dark:text-purple-400 text-sm font-bold hover:underline">View All</button>
           </div>
           <div className="space-y-4">
-            {[ 
-              { type: 'error', title: 'Payment failed for Invoice #INV-00342', time: '5 min ago', details: '192.168.1.1 0' },
-              { type: 'success', title: 'Payment succeeded - Acme Inc. ($549.00)', time: '30 mins', details: '192.168.1.112' },
-              { type: 'error', title: 'Payment failed for Invoice #INV-00341', time: '1 hour ago', details: '192.168.1.17' },
-            ].map((log, idx) => (
+            {activityLogs.map((log, idx) => (
               <div key={idx} className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50/50 dark:bg-white/5 border border-slate-50 dark:border-white/5 group hover:border-gray-100 dark:hover:border-white/10 transition-all">
                 <div className={cn(
                   "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border",
@@ -528,22 +685,22 @@ export function WorkspaceOverview() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-[10px] font-bold text-slate-900 dark:text-slate-200">Invoice</span>
-                <span className="text-[10px] font-bold text-slate-900 dark:text-slate-200">$120.00</span>
+                <span className="text-[10px] font-bold text-slate-900 dark:text-slate-200">{currencySymbol}{isAutobillingEnabled ? "120.00" : "0.00"}</span>
               </div>
             </div>
 
             <div className="pt-2 space-y-1.5 border-t border-gray-200 dark:border-white/10">
               <div className="flex justify-between text-[9px] font-medium text-slate-400 dark:text-slate-500">
                 <span>Subtotal (7.5%)</span>
-                <span className="text-slate-900 dark:text-white font-bold">$120.00</span>
+                <span className="text-slate-900 dark:text-white font-bold">{currencySymbol}{isAutobillingEnabled ? "120.00" : "0.00"}</span>
               </div>
               <div className="flex justify-between text-[9px] font-medium text-slate-400 dark:text-slate-500">
                 <span>Tax (8.5%)</span>
-                <span className="text-slate-900 dark:text-white font-bold">$9.00</span>
+                <span className="text-slate-900 dark:text-white font-bold">{currencySymbol}{isAutobillingEnabled ? "9.00" : "0.00"}</span>
               </div>
               <div className="flex justify-between text-xs font-black text-slate-900 dark:text-white pt-1">
                 <span>Total</span>
-                <span>$129.00 USD</span>
+                <span>{currencySymbol}{isAutobillingEnabled ? "129.00" : "0.00"} {activeCurrency}</span>
               </div>
             </div>
 
@@ -582,7 +739,7 @@ export function WorkspaceOverview() {
           <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-8">Payment Providers</h3>
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {['stripe', 'flutterwave', 'paystack', 'paypal'].map((key) => {
+              {['flutterwave', 'paystack', 'monnify'].map((key) => {
                 const config = providersConfig[key];
                 return (
                   <div 
@@ -702,10 +859,7 @@ export function WorkspaceOverview() {
         setProfileData={setProfileData}
         profileErrors={profileErrors}
         selectedIndustry={selectedIndustry}
-        setSelectedIndustry={setSelectedIndustry}
-        isIndustryOpen={isIndustryOpen}
-        setIsIndustryOpen={setIsIndustryOpen}
-        users={users}
+        users={usersList}
         deleteUser={deleteUser}
         activeSessions={activeSessions}
         revokeSession={revokeSession}
@@ -743,7 +897,7 @@ export function WorkspaceOverview() {
         companyDetails={{
           name: profileData.name,
           industry: selectedIndustry,
-          members: "8 Active Members",
+          members: `${teamSize} Active Members`,
           phone: profileData.phone,
           website: profileData.website,
           address: profileData.address

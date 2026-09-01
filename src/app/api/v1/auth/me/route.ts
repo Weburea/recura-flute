@@ -24,6 +24,11 @@ export async function GET() {
         email: schema.profiles.email,
         fullName: schema.profiles.fullName,
         avatarUrl: schema.profiles.avatarUrl,
+        phone: schema.profiles.phone,
+        jobTitle: schema.profiles.jobTitle,
+        timezone: schema.profiles.timezone,
+        language: schema.profiles.language,
+        passwordHash: schema.profiles.passwordHash,
       })
       .from(schema.profiles)
       .where(eq(schema.profiles.id, session.userId))
@@ -36,7 +41,28 @@ export async function GET() {
       );
     }
 
-    const user = profiles[0];
+    const rawUser = profiles[0];
+
+    // Check connected providers
+    const connectedAccounts = await db
+      .select({
+        provider: schema.accounts.provider,
+      })
+      .from(schema.accounts)
+      .where(eq(schema.accounts.userId, session.userId));
+
+    const user = {
+      id: rawUser.id,
+      email: rawUser.email,
+      fullName: rawUser.fullName,
+      avatarUrl: rawUser.avatarUrl,
+      phone: rawUser.phone,
+      jobTitle: rawUser.jobTitle,
+      timezone: rawUser.timezone,
+      language: rawUser.language,
+      hasPassword: rawUser.passwordHash !== null,
+      providers: connectedAccounts.map(a => a.provider),
+    };
 
     // 3. Query user's active workspace
     let workspace = null;
