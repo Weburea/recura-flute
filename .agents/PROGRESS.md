@@ -3405,6 +3405,25 @@ npm run db:generate: Production SQL migration generator.
 
 ---
 
+## 📍 Milestone 112: Drizzle Studio Windows Compatibility & Dual Environment Configuration
+
+**Status**: Completed  
+**Date**: September 12, 2026
+
+### Summary of Changes
+
+- **Drizzle Configuration Dual Environment Loading ([drizzle.config.ts](file:///c:/FRONT-END/REACT/recura/drizzle.config.ts))**:
+  - Configured `dotenv` to explicitly load both `.env.local` and `.env` so `DATABASE_URL` is discovered properly when running Drizzle CLI tools.
+
+- **Esbuild Binary Compatibility on Windows x64**:
+  - Replaced problematic esbuild 0.28.1 native binary with stable `0.25.0` (`@esbuild/win32-x64@0.25.0`) to resolve Windows Access Violation (`0xC0000005` / status `3221225477`) when transpiling TypeScript schema.
+  - Verified `npm run db:studio` successfully starts and connects to `https://local.drizzle.studio`.
+
+- **Verification & Quality Checks**:
+  - TypeScript: `npx tsc --noEmit` passed with 0 errors.
+
+---
+
 ## 📍 Future Milestones Log Format Template
 
 _The following template will be populated as new features are built out:_
