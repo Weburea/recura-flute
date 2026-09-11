@@ -35,11 +35,11 @@ export async function POST(request: Request) {
 
     const profile = profiles[0];
 
-    // Check if password hash exists (OAuth-only users might not have a password hash)
+    // Check if password hash exists (OAuth-only users do not have a password hash)
     if (!profile.passwordHash) {
       return NextResponse.json(
-        { success: false, error: 'Please sign in using Google or GitHub for this account' },
-        { status: 400 }
+        { success: false, error: 'Invalid email or password' },
+        { status: 401 }
       );
     }
 

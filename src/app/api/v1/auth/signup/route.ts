@@ -83,9 +83,15 @@ export async function POST(request: Request) {
       email: cleanEmail,
     });
   } catch (err) {
-    console.error('Signup error:', err);
+    console.error('[AUTH ERROR] Signup failure:', err);
+    const isEmailError = err instanceof Error && err.message.includes('Email delivery failed');
     return NextResponse.json(
-      { success: false, error: String(err) },
+      { 
+        success: false, 
+        error: isEmailError 
+          ? 'Unable to send verification email. Please verify your email address or try again shortly.' 
+          : 'Unable to complete registration. Please try again later.' 
+      },
       { status: 500 }
     );
   }

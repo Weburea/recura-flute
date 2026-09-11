@@ -1,16 +1,25 @@
 import nodemailer from 'nodemailer';
 
 function getTransporter() {
-  const user = process.env.GMAIL_USER || 'webureaagency@gmail.com';
-  const pass = process.env.GMAIL_APP_PASSWORD;
+  const host = process.env.SMTP_HOST || 'mail.weburea.com';
+  const port = Number(process.env.SMTP_PORT) || 465;
+  const secure = process.env.SMTP_SECURE !== undefined ? process.env.SMTP_SECURE === 'true' : port === 465;
+
+  const rawUser = process.env.SMTP_USER || process.env.GMAIL_USER || 'recura_support@weburea.com';
+  const rawPass = process.env.SMTP_PASSWORD || process.env.GMAIL_APP_PASSWORD || '';
+
+  const user = rawUser.trim().replace(/^["']|["']$/g, '');
+  const pass = rawPass.trim().replace(/^["']|["']$/g, '');
 
   if (!pass) {
-    console.warn('[EMAIL SERVICE WARNING] GMAIL_APP_PASSWORD is missing from Vercel Environment Variables!');
+    console.warn('[EMAIL SERVICE WARNING] SMTP_PASSWORD is missing or not configured in environment variables.');
   }
 
   return {
     transporter: nodemailer.createTransport({
-      service: 'gmail',
+      host,
+      port,
+      secure,
       auth: {
         user,
         pass,

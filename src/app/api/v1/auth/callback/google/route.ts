@@ -15,6 +15,19 @@ function getBaseUrl(request: Request) {
   return process.env.NEXTAUTH_URL || 'http://localhost:4000';
 }
 
+function decodeJwtPayload(token: string) {
+  try {
+    const base64Url = token.split('.')[1];
+    if (!base64Url) return null;
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = Buffer.from(base64, 'base64').toString('utf-8');
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error('Failed to decode JWT payload:', e);
+    return null;
+  }
+}
+
 export async function GET(request: Request) {
   const baseUrl = getBaseUrl(request);
   const { searchParams } = new URL(request.url);
@@ -51,27 +64,49 @@ export async function GET(request: Request) {
 
     const tokens = await tokenResponse.json();
 
-    if (!tokenResponse.ok || !tokens.access_token) {
+    if (!tokenResponse.ok || (!tokens.access_token && !tokens.id_token)) {
       console.error('Failed to obtain Google access token:', tokens);
       return NextResponse.redirect(`${baseUrl}/sign-in?error=google_token_failed`);
     }
 
-    // 2. Fetch Google user profile
-    const userResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-      headers: { Authorization: `Bearer ${tokens.access_token}` },
-    });
+    // 2. Fetch Google user profile with fallback to decoded id_token
+    type GoogleUserInfo = {
+      email?: string;
+      sub?: string;
+      id?: string;
+      name?: string;
+      picture?: string;
+    };
 
-    const googleUser = await userResponse.json();
+    let googleUser: GoogleUserInfo = {};
 
-    if (!userResponse.ok || !googleUser.email) {
-      console.error('Failed to fetch Google user profile:', googleUser);
+    if (tokens.access_token) {
+      try {
+        const userResponse = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
+          headers: { Authorization: `Bearer ${tokens.access_token}` },
+        });
+        if (userResponse.ok) {
+          googleUser = await userResponse.json();
+        }
+      } catch (userinfoErr) {
+        console.warn('OIDC userinfo fetch error, falling back to id_token:', userinfoErr);
+      }
+    }
+
+    // Fallback or augment with id_token payload
+    const idTokenPayload = tokens.id_token ? decodeJwtPayload(tokens.id_token) : null;
+
+    const email = googleUser.email || idTokenPayload?.email;
+    const googleAccountId = String(googleUser.sub || googleUser.id || idTokenPayload?.sub || '');
+    const fullName = googleUser.name || idTokenPayload?.name || (email ? email.split('@')[0] : 'User');
+    const avatarUrl = googleUser.picture || idTokenPayload?.picture || null;
+
+    if (!email || !googleAccountId) {
+      console.error('Failed to extract Google user profile:', { googleUser, idTokenPayload });
       return NextResponse.redirect(`${baseUrl}/sign-in?error=google_profile_failed`);
     }
 
-    const cleanEmail = googleUser.email.trim().toLowerCase();
-    const fullName = googleUser.name || cleanEmail.split('@')[0];
-    const avatarUrl = googleUser.picture || null;
-    const googleAccountId = String(googleUser.id);
+    const cleanEmail = email.trim().toLowerCase();
 
     // 3. Database operations (Profiles & Accounts)
     let profile: schema.Profile;
@@ -141,13 +176,22 @@ export async function GET(request: Request) {
     }
 
     // 4. Check workspace status
-    const existingWorkspaces = await db
+    const userWorkspaces = await db
       .select()
-      .from(schema.workspaces)
-      .where(eq(schema.workspaces.ownerId, profile.id))
+      .from(schema.userWorkspaces)
+      .where(eq(schema.userWorkspaces.userId, profile.id))
       .limit(1);
 
-    const activeWorkspace = existingWorkspaces.length > 0 ? existingWorkspaces[0] : null;
+    let activeWorkspaceId = userWorkspaces[0]?.workspaceId;
+
+    if (!activeWorkspaceId) {
+      const ownedWorkspaces = await db
+        .select()
+        .from(schema.workspaces)
+        .where(eq(schema.workspaces.ownerId, profile.id))
+        .limit(1);
+      activeWorkspaceId = ownedWorkspaces[0]?.id;
+    }
 
     // 5. Establish session cookie
     await createSession({
@@ -155,11 +199,11 @@ export async function GET(request: Request) {
       email: profile.email,
       fullName: profile.fullName,
       role: profile.role,
-      activeWorkspaceId: activeWorkspace?.id,
+      activeWorkspaceId,
     });
 
-    // 6. Redirect to dashboard if existing user with an active workspace, otherwise to choose-business
-    if (isNewUser || !activeWorkspace) {
+    // 6. Redirect to dashboard for existing users, or choose-business for new registrations without a workspace
+    if (isNewUser && !activeWorkspaceId) {
       return NextResponse.redirect(`${baseUrl}/choose-business`);
     }
 

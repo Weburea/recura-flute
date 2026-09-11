@@ -3331,6 +3331,80 @@ npm run db:generate: Production SQL migration generator.
 
 ---
 
+## 📍 Milestone 109: Google OAuth OIDC Token Extraction, Secure Sign-In Logic & SMTP Credentials Sanitization
+
+**Status**: Completed  
+**Date**: September 11, 2026
+
+### Summary of Changes
+
+- **Google OAuth Callback Resilience ([src/app/api/v1/auth/callback/google/route.ts](file:///c:/FRONT-END/REACT/recura/src/app/api/v1/auth/callback/google/route.ts))**:
+  - Implemented OpenID Connect `id_token` JWT payload decoding directly from token response alongside OIDC `https://openidconnect.googleapis.com/v1/userinfo` fallback.
+  - Resolved `401 UNAUTHENTICATED` Google userinfo profile failure by ensuring profile attributes (`sub`, `email`, `name`, `picture`) are extracted reliably regardless of Google v2 userinfo restrictions.
+  - Aligned user workspace checks and direct `/dashboard` redirection for returning OAuth users.
+
+- **OAuth-Only Account Security & Anti-Enumeration ([src/app/api/v1/auth/signin/route.ts](file:///c:/FRONT-END/REACT/recura/src/app/api/v1/auth/signin/route.ts))**:
+  - Replaced provider-revealing error message (`Please sign in using Google or GitHub for this account`) with standard generic response (`Invalid email or password`, HTTP 401).
+  - Protects against user email and OAuth provider enumeration by external malicious actors.
+
+- **Sign-In UI OAuth Error Feedback ([src/components/authentication/sign-in.tsx](file:///c:/FRONT-END/REACT/recura/src/components/authentication/sign-in.tsx))**:
+  - Added URL search parameter error parsing via `useMemo` so that OAuth redirects (e.g., `?error=google_auth_failed`) display clear, contextual user notifications.
+
+- **Gmail SMTP Credentials Sanitization ([src/lib/email.ts](file:///c:/FRONT-END/REACT/recura/src/lib/email.ts))**:
+  - Sanitized `GMAIL_APP_PASSWORD` and `GMAIL_USER` by trimming whitespace, stripping quotes, and removing spaces within the 16-character Google App Password string to prevent `535 5.7.8 Username and Password not accepted` errors.
+
+- **Verification & Quality Checks**:
+  - TypeScript: `npx tsc --noEmit` passed with 0 errors.
+  - ESLint: `npx eslint` on all touched files passed with 0 errors and 0 warnings (`--max-warnings 0`).
+
+---
+
+## 📍 Milestone 110: Weburea Custom cPanel SMTP Email Service Integration
+
+**Status**: Completed  
+**Date**: September 11, 2026
+
+### Summary of Changes
+
+- **Custom SMTP Transport ([src/lib/email.ts](file:///c:/FRONT-END/REACT/recura/src/lib/email.ts))**:
+  - Replaced Gmail service dependency with dynamic standard SMTP configuration supporting `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, and `SMTP_PASSWORD`.
+  - Configured default connection parameters to `mail.weburea.com` on secure SSL/TLS port 465 with sender identity `"Recura" <recura_support@weburea.com>`.
+  - Preserved fallback support for legacy environment variables to maintain resilience across deployment environments.
+
+- **Local Environment Configuration ([.env.local](file:///c:/FRONT-END/REACT/recura/.env.local))**:
+  - Added SMTP variables (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`) for local development and testing.
+
+- **Verification & Quality Checks**:
+  - TypeScript: `npx tsc --noEmit` passed with 0 errors.
+  - ESLint: `npx eslint src/lib/email.ts --max-warnings 0` passed with 0 errors and 0 warnings.
+
+---
+
+## 📍 Milestone 111: OWASP Information Disclosure Prevention, Zero DB Leakage & UI Option Pills Single-Line Alignment
+
+**Status**: Completed  
+**Date**: September 11, 2026
+
+### Summary of Changes
+
+- **OWASP Information Disclosure Protection ([src/app/api/v1/auth/](file:///c:/FRONT-END/REACT/recura/src/app/api/v1/auth/))**:
+  - Sanitized all authentication API error catch blocks across `verify-email`, `signup`, `resend-verification`, and `forgot-password`.
+  - Replaced raw `String(err)` and database query leaks with user-friendly, secure generic messages.
+  - Ensured detailed database stack traces are logged exclusively to server logs (`console.error`) and never sent across HTTP responses to the frontend.
+
+- **Security Directives Updated ([.agents/AGENTS.md](file:///c:/FRONT-END/REACT/recura/.agents/AGENTS.md))**:
+  - Added Rule 11 mandating strict sanitization of all API response errors to prevent database schema and query parameter leakage.
+
+- **Single-Line Select & Toggle Option Pills ([src/components/authentication/business-details.tsx](file:///c:/FRONT-END/REACT/recura/src/components/authentication/business-details.tsx))**:
+  - Added `whitespace-nowrap` and responsive flex wrapping with `min-w-fit` to select and toggle option buttons.
+  - Eliminated word wrapping across lines for multi-word choices (such as *"Per project or job"* and *"One-time payments"*).
+
+- **Verification & Quality Checks**:
+  - TypeScript: `npx tsc --noEmit` passed with 0 errors.
+  - ESLint: `npx eslint` passed with 0 errors and 0 warnings on all touched files.
+
+---
+
 ## 📍 Future Milestones Log Format Template
 
 _The following template will be populated as new features are built out:_

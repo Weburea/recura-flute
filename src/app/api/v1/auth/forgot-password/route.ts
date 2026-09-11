@@ -65,9 +65,9 @@ export async function POST(request: Request) {
       email: cleanEmail,
     });
   } catch (err) {
-    console.error('Forgot password error:', err);
+    console.error('[AUTH ERROR] Forgot password failure:', err);
     return NextResponse.json(
-      { success: false, error: String(err) },
+      { success: false, error: 'Unable to process password reset request. Please try again later.' },
       { status: 500 }
     );
   }

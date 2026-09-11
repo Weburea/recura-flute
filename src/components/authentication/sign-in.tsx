@@ -273,6 +273,19 @@ function SignInContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState('');
 
+  const urlError = searchParams.get('error');
+  const displayError = React.useMemo(() => {
+    if (apiError) return apiError;
+    if (!urlError) return '';
+    if (urlError.startsWith('google')) {
+      return 'Google sign in was unsuccessful. Please try again or sign in with your email.';
+    }
+    if (urlError.startsWith('github')) {
+      return 'GitHub sign in was unsuccessful. Please try again or sign in with your email.';
+    }
+    return 'Authentication failed. Please try again.';
+  }, [apiError, urlError]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setApiError('');
@@ -591,10 +604,10 @@ function SignInContent() {
               </Link>
             </div>
 
-            {/* API Error Notification */}
-            {apiError && (
+            {/* API / OAuth Error Notification */}
+            {displayError && (
               <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-xs font-bold">
-                {apiError}
+                {displayError}
               </div>
             )}
 

@@ -175,13 +175,22 @@ export async function GET(request: Request) {
     }
 
     // 4. Check workspace status
-    const existingWorkspaces = await db
+    const userWorkspaces = await db
       .select()
-      .from(schema.workspaces)
-      .where(eq(schema.workspaces.ownerId, profile.id))
+      .from(schema.userWorkspaces)
+      .where(eq(schema.userWorkspaces.userId, profile.id))
       .limit(1);
 
-    const activeWorkspace = existingWorkspaces.length > 0 ? existingWorkspaces[0] : null;
+    let activeWorkspaceId = userWorkspaces[0]?.workspaceId;
+
+    if (!activeWorkspaceId) {
+      const ownedWorkspaces = await db
+        .select()
+        .from(schema.workspaces)
+        .where(eq(schema.workspaces.ownerId, profile.id))
+        .limit(1);
+      activeWorkspaceId = ownedWorkspaces[0]?.id;
+    }
 
     // 5. Establish session cookie
     await createSession({
@@ -189,11 +198,11 @@ export async function GET(request: Request) {
       email: profile.email,
       fullName: profile.fullName,
       role: profile.role,
-      activeWorkspaceId: activeWorkspace?.id,
+      activeWorkspaceId,
     });
 
-    // 6. Redirect to dashboard if existing user with an active workspace, otherwise to choose-business
-    if (isNewUser || !activeWorkspace) {
+    // 6. Redirect to dashboard for existing users, or choose-business for new registrations without a workspace
+    if (isNewUser && !activeWorkspaceId) {
       return NextResponse.redirect(`${baseUrl}/choose-business`);
     }
 

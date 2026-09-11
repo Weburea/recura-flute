@@ -65,9 +65,9 @@ export async function POST(request: Request) {
       email: cleanEmail,
     });
   } catch (err) {
-    console.error('Resend verification error:', err);
+    console.error('[AUTH ERROR] Resend verification failure:', err);
     return NextResponse.json(
-      { success: false, error: String(err) },
+      { success: false, error: 'Unable to resend verification code. Please try again later.' },
       { status: 500 }
     );
   }

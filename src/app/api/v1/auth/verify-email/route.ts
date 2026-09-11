@@ -107,9 +107,9 @@ export async function POST(request: Request) {
       redirectUrl: '/choose-business',
     });
   } catch (err) {
-    console.error('Verify email error:', err);
+    console.error('[AUTH ERROR] Verify email failure:', err);
     return NextResponse.json(
-      { success: false, error: String(err) },
+      { success: false, error: 'Verification failed. Please check your code and try again, or request a new code.' },
       { status: 500 }
     );
   }
