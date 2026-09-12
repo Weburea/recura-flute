@@ -8,7 +8,8 @@ import {
   Palette, 
   CreditCard, 
   Users, 
-  Bell
+  Bell,
+  ShieldAlert
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -19,6 +20,7 @@ const settingsNav = [
   { icon: CreditCard, label: "Payment Settings", href: "/dashboard/settings/payments", matchExact: true },
   { icon: Users, label: "Team Members", href: "/dashboard/settings/team", matchExact: true },
   { icon: Bell, label: "Notifications", href: "/dashboard/settings/notifications", matchExact: true },
+  { icon: ShieldAlert, label: "Account", href: "/dashboard/settings/account", matchExact: true },
 ]
 
 export function SettingsSidebar() {

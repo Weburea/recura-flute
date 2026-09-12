@@ -3565,7 +3565,29 @@ npm run db:generate: Production SQL migration generator.
 - **API Documentation & Quality Checks**:
   - Updated [.agents/api-tests.md](file:///c:/FRONT-END/REACT/recura/.agents/api-tests.md) with `POST /api/v1/workspaces/transfer` specifications.
   - TypeScript: `npx tsc --noEmit` passed with 0 errors.
-  - ESLint: `npx eslint --max-warnings 0` passed with 0 warnings.
+## 📍 Milestone 47: Dedicated Account Settings Tab, Niche Badge Alignment & Emoji-Free UI Compliance
+
+**Status**: Completed  
+**Date**: September 12, 2026
+
+### Summary of Changes
+
+- **Dedicated Account Settings Tab ([src/app/dashboard/settings/account/page.tsx](file:///c:/FRONT-END/REACT/recura/src/app/dashboard/settings/account/page.tsx) & [src/components/dashboard/settings/account-settings-form.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/settings/account-settings-form.tsx))**:
+  - Relocated Transfer Workspace Ownership and Delete Account cards from the Profile page to a dedicated **Account (`/dashboard/settings/account`)** page.
+  - Added Account navigation link with `ShieldAlert` icon to the Settings sidebar ([src/components/dashboard/settings/settings-sidebar.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/settings/settings-sidebar.tsx)).
+  - Streamlined Admin Profile view ([src/components/dashboard/settings/admin-profile-form.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/settings/admin-profile-form.tsx)) by removing the bottom Danger Zone box.
+
+- **Dynamic Niche Badge Resolution**:
+  - Fixed niche badge fallback in `AdminProfileForm` and `AccountSettingsForm` to evaluate `workspace?.businessType || workspace?.niche || 'other'`.
+  - Accurately renders niche tags (*Agency & Retainers*, *Social Media Marketing*, *High-Growth Startup*, *E-Commerce*, *SaaS Business*, *Custom Business*) matching the workspace's onboarded business type.
+
+- **Strict Emoji-Free UI Compliance (Rule 6)**:
+  - Removed all raw emojis (e.g., `⚠️`) across all confirmation modals and alerts.
+  - Replaced with professional Lucide icons (`<AlertTriangle />`, `<ShieldAlert />`, `<Briefcase />`).
+
+- **Verification & Quality Checks**:
+  - TypeScript: `npx tsc --noEmit` passed with 0 errors.
+  - ESLint: `npx eslint --max-warnings 0` passed with 0 warnings across all modified files.
 
 ---
 

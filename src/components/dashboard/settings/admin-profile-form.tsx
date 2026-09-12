@@ -12,12 +12,10 @@ import {
   Laptop, 
   Tablet,
   CheckCircle2,
-  Trash2,
   Eye,
   EyeOff,
   Shield,
   Briefcase,
-  AlertTriangle,
   Mail,
   Phone,
   Lock,
@@ -25,16 +23,13 @@ import {
   ExternalLink,
   ChevronDown,
   Check,
-  Building2,
-  X,
-  Loader2
+  Building2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import Link from "next/link"
 import { useUser } from "@/context/user-context"
 import { StatusModal, StatusType } from "@/components/dashboard/shared/modals/status-modal"
-import { useRouter } from "next/navigation"
 
 interface UserSession {
   id: string;
@@ -51,7 +46,6 @@ interface UserSession {
 
 export function AdminProfileForm() {
   const { user, workspace, refreshUser, loading } = useUser()
-  const router = useRouter()
 
   const [showStatus, setShowStatus] = useState(false)
   const [statusType, setStatusType] = useState<StatusType>("success")
@@ -81,16 +75,6 @@ export function AdminProfileForm() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-
-  // Danger Zone Modals State
-  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false)
-  const [transferEmail, setTransferEmail] = useState("")
-  const [confirmWorkspaceInput, setConfirmWorkspaceInput] = useState("")
-  const [isTransferring, setIsTransferring] = useState(false)
-
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [deleteConfirmInput, setDeleteConfirmInput] = useState("")
-  const [isDeleting, setIsDeleting] = useState(false)
 
   // Active Sessions States
   const [activeSessions, setActiveSessions] = useState<UserSession[]>([])
@@ -182,16 +166,16 @@ export function AdminProfileForm() {
     return Math.min(score, 100)
   }, [profileImage, fullName, email, phoneVal, timezone, language, jobTitle, workspace?.name])
 
-  // Niche-Adaptive Profile Title & Badge
+  // Niche-Adaptive Profile Title & Badge (Dynamically checks businessType and niche)
   const nicheRole = useMemo(() => {
-    const niche = (workspace?.niche || 'saas').toLowerCase()
-    if (niche.includes('saas')) return { roleTitle: 'SaaS Founder', badge: 'SaaS Business' }
-    if (niche.includes('agenc')) return { roleTitle: 'Agency Principal', badge: 'Agency & Retainers' }
-    if (niche.includes('social')) return { roleTitle: 'Marketing Lead', badge: 'Social Media' }
-    if (niche.includes('startup')) return { roleTitle: 'Startup Founder', badge: 'High-Growth Startup' }
-    if (niche.includes('market') || niche.includes('commerce')) return { roleTitle: 'Store Owner', badge: 'E-Commerce' }
+    const rawNiche = (workspace?.businessType || workspace?.niche || 'other').toLowerCase()
+    if (rawNiche.includes('agenc')) return { roleTitle: 'Agency Principal', badge: 'Agency & Retainers' }
+    if (rawNiche.includes('social')) return { roleTitle: 'Marketing Lead', badge: 'Social Media' }
+    if (rawNiche.includes('startup')) return { roleTitle: 'Startup Founder', badge: 'High-Growth Startup' }
+    if (rawNiche.includes('market') || rawNiche.includes('commerce')) return { roleTitle: 'Store Owner', badge: 'E-Commerce' }
+    if (rawNiche.includes('saas') || rawNiche.includes('software')) return { roleTitle: 'SaaS Founder', badge: 'SaaS Business' }
     return { roleTitle: 'Business Owner', badge: 'Custom Business' }
-  }, [workspace?.niche])
+  }, [workspace?.businessType, workspace?.niche])
 
   const renderSessionIcon = (session: UserSession) => {
     if (session.deviceType === 'tablet' || session.browser?.toLowerCase().includes('ipad') || session.browser?.toLowerCase().includes('tablet')) {
@@ -381,83 +365,6 @@ export function AdminProfileForm() {
     }
   }
 
-  // Workspace Ownership Transfer Handler
-  const handleTransferOwnership = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!transferEmail || !confirmWorkspaceInput) return
-
-    setIsTransferring(true)
-    try {
-      const res = await fetch("/api/v1/workspaces/transfer", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          targetEmail: transferEmail,
-          confirmWorkspaceName: confirmWorkspaceInput,
-        }),
-      })
-
-      const data = await res.json()
-      if (res.ok && data.success) {
-        setIsTransferModalOpen(false)
-        setTransferEmail("")
-        setConfirmWorkspaceInput("")
-        await refreshUser()
-        setStatusType("success")
-        setStatusTitle("Ownership Transferred")
-        setStatusMessage(data.message || "Workspace ownership has been successfully updated.")
-      } else {
-        setStatusType("error")
-        setStatusTitle("Transfer Failed")
-        setStatusMessage(data.error || "Could not transfer ownership.")
-      }
-    } catch (err) {
-      console.error("Transfer error:", err)
-      setStatusType("error")
-      setStatusTitle("System Error")
-      setStatusMessage("Failed to connect to transfer service.")
-    } finally {
-      setIsTransferring(false)
-      setShowStatus(true)
-    }
-  }
-
-  // Irreversible Delete Account Action
-  const handleDeleteAccount = async () => {
-    if (deleteConfirmInput !== "DELETE") return
-
-    setIsDeleting(true)
-    try {
-      const res = await fetch("/api/v1/auth/profile", {
-        method: "DELETE",
-      })
-
-      if (res.ok) {
-        setIsDeleteModalOpen(false)
-        setStatusType("success")
-        setStatusTitle("Account Deleted")
-        setStatusMessage("Your account and all personal credentials have been deleted. Redirecting...")
-        setShowStatus(true)
-        setTimeout(() => {
-          router.push("/sign-in")
-        }, 2000)
-      } else {
-        setStatusType("error")
-        setStatusTitle("Deletion Failed")
-        setStatusMessage("Unable to delete account at this time.")
-        setShowStatus(true)
-      }
-    } catch (err) {
-      console.error(err)
-      setStatusType("error")
-      setStatusTitle("System Error")
-      setStatusMessage("Failed to delete account.")
-      setShowStatus(true)
-    } finally {
-      setIsDeleting(false)
-    }
-  }
-
   if (loading) {
     return (
       <div className="space-y-6 md:space-y-8 pb-10 animate-pulse">
@@ -488,7 +395,7 @@ export function AdminProfileForm() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-        {/* Left Column (Profile Overview, Personal Info, Danger Zone) */}
+        {/* Left Column (Profile Overview, Personal Info) */}
         <div className="lg:col-span-2 space-y-6 lg:space-y-8">
           
           {/* Profile Overview */}
@@ -761,56 +668,6 @@ export function AdminProfileForm() {
             </div>
           </div>
 
-          {/* Danger Zone */}
-          <div className="bg-rose-50/40 dark:bg-rose-950/20 p-6 md:p-8 rounded-2xl border border-rose-200 dark:border-rose-900/30 shadow-sm">
-            <div className="flex items-center gap-2 mb-6">
-              <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400" />
-              <h3 className="text-lg font-bold text-rose-700 dark:text-rose-400 tracking-tight">
-                Danger Zone
-              </h3>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl border border-rose-100 dark:border-rose-900/30 bg-white dark:bg-[#150a2e]">
-                <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-rose-50 dark:bg-rose-950/40 flex items-center justify-center shrink-0 text-rose-600 dark:text-rose-400">
-                    <Briefcase className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-white">Transfer Workspace Ownership</h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Transfer primary billing, workspace rights, and ownership to another user.</p>
-                  </div>
-                </div>
-                <button 
-                  type="button"
-                  onClick={() => setIsTransferModalOpen(true)}
-                  className="px-4 py-2 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-bold transition-colors cursor-pointer shrink-0"
-                >
-                  Transfer
-                </button>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl border border-rose-100 dark:border-rose-900/30 bg-white dark:bg-[#150a2e]">
-                <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-rose-50 dark:bg-rose-950/40 flex items-center justify-center shrink-0 text-rose-600 dark:text-rose-400">
-                    <Trash2 className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-rose-700 dark:text-rose-400">Delete Account</h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Permanently delete your profile credentials and personal access data.</p>
-                  </div>
-                </div>
-                <button 
-                  type="button"
-                  onClick={() => setIsDeleteModalOpen(true)}
-                  className="px-4 py-2 bg-rose-100 hover:bg-rose-200 dark:bg-rose-900/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 rounded-lg text-xs font-bold transition-colors cursor-pointer shrink-0"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-
         </div>
 
         {/* Right Column (Security & Active Sessions) */}
@@ -975,135 +832,6 @@ export function AdminProfileForm() {
 
         </div>
       </div>
-
-      {/* Transfer Ownership Modal */}
-      {isTransferModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#150a2e] rounded-2xl max-w-md w-full p-6 border border-gray-100 dark:border-white/10 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center">
-                  <Briefcase className="w-4 h-4" />
-                </div>
-                <h3 className="font-extrabold text-slate-900 dark:text-white text-base">Transfer Workspace Ownership</h3>
-              </div>
-              <button onClick={() => setIsTransferModalOpen(false)} className="text-slate-400 hover:text-slate-600 p-1">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="p-3 bg-rose-50/60 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/40 rounded-xl text-xs text-rose-700 dark:text-rose-300 space-y-1">
-              <p className="font-bold">⚠️ Warning: Ownership Transfer is Permanent</p>
-              <p>The new owner will gain full control over billing, plan management, and admin access for <strong>{workspace?.name || "this workspace"}</strong>.</p>
-            </div>
-
-            <form onSubmit={handleTransferOwnership} className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">New Owner Email Address</label>
-                <input 
-                  type="email"
-                  required
-                  value={transferEmail}
-                  onChange={(e) => setTransferEmail(e.target.value)}
-                  placeholder="admin@colleague.com"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-600/20 focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Type <span className="font-black text-rose-600 select-all">{workspace?.name || "Workspace"}</span> to confirm:
-                </label>
-                <input 
-                  type="text"
-                  required
-                  value={confirmWorkspaceInput}
-                  onChange={(e) => setConfirmWorkspaceInput(e.target.value)}
-                  placeholder={workspace?.name || "Workspace name"}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-600/20 focus:outline-none"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-white/10">
-                <button
-                  type="button"
-                  onClick={() => setIsTransferModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/20 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-50 dark:hover:bg-white/5"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isTransferring || confirmWorkspaceInput.trim().toLowerCase() !== (workspace?.name || "").trim().toLowerCase() || !transferEmail}
-                  className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
-                >
-                  {isTransferring && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>Confirm & Transfer</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Account Modal */}
-      {isDeleteModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#150a2e] rounded-2xl max-w-md w-full p-6 border border-gray-100 dark:border-white/10 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center">
-                  <Trash2 className="w-4 h-4" />
-                </div>
-                <h3 className="font-extrabold text-slate-900 dark:text-white text-base">Delete Account</h3>
-              </div>
-              <button onClick={() => setIsDeleteModalOpen(false)} className="text-slate-400 hover:text-slate-600 p-1">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="p-3 bg-rose-50/60 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/40 rounded-xl text-xs text-rose-700 dark:text-rose-300 space-y-1">
-              <p className="font-bold">⚠️ Irreversible Action</p>
-              <p>This will permanently delete your account, access credentials, and personal profile data across all connected workspaces.</p>
-            </div>
-
-            <div className="space-y-3">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Type <span className="font-black text-rose-600">DELETE</span> to confirm:
-                </label>
-                <input 
-                  type="text"
-                  required
-                  value={deleteConfirmInput}
-                  onChange={(e) => setDeleteConfirmInput(e.target.value)}
-                  placeholder="DELETE"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-rose-600/20 focus:outline-none font-bold"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-white/10">
-                <button
-                  type="button"
-                  onClick={() => setIsDeleteModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/20 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-50 dark:hover:bg-white/5"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDeleteAccount}
-                  disabled={isDeleting || deleteConfirmInput !== "DELETE"}
-                  className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
-                >
-                  {isDeleting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>Delete My Account</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       <StatusModal 
         isOpen={showStatus}
