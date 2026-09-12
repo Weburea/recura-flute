@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { 
   Camera, 
   MapPin, 
@@ -13,7 +13,6 @@ import {
   Tablet,
   CheckCircle2,
   Trash2,
-  ChevronRight,
   Eye,
   EyeOff,
   Shield,
@@ -21,7 +20,14 @@ import {
   AlertTriangle,
   Mail,
   Phone,
-  Lock
+  Lock,
+  Sparkles,
+  ExternalLink,
+  ChevronDown,
+  Check,
+  Building2,
+  X,
+  Loader2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
@@ -29,6 +35,19 @@ import Link from "next/link"
 import { useUser } from "@/context/user-context"
 import { StatusModal, StatusType } from "@/components/dashboard/shared/modals/status-modal"
 import { useRouter } from "next/navigation"
+
+interface UserSession {
+  id: string;
+  browser: string;
+  browserName?: string;
+  os?: string;
+  deviceType?: 'laptop' | 'mobile' | 'tablet';
+  name?: string;
+  location: string;
+  ip?: string;
+  time: string;
+  isActive: boolean;
+}
 
 export function AdminProfileForm() {
   const { user, workspace, refreshUser, loading } = useUser()
@@ -43,6 +62,7 @@ export function AdminProfileForm() {
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
   const [phoneVal, setPhoneVal] = useState("")
+  const [jobTitle, setJobTitle] = useState("")
   const [timezone, setTimezone] = useState("America/New_York")
   const [language, setLanguage] = useState("English")
   const [profileImage, setProfileImage] = useState<string | null>(null)
@@ -62,28 +82,15 @@ export function AdminProfileForm() {
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  interface UserSession {
-    id: string;
-    browser: string;
-    browserName?: string;
-    os?: string;
-    deviceType?: 'laptop' | 'mobile' | 'tablet';
-    name?: string;
-    location: string;
-    ip?: string;
-    time: string;
-    isActive: boolean;
-  }
+  // Danger Zone Modals State
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false)
+  const [transferEmail, setTransferEmail] = useState("")
+  const [confirmWorkspaceInput, setConfirmWorkspaceInput] = useState("")
+  const [isTransferring, setIsTransferring] = useState(false)
 
-  const renderSessionIcon = (session: UserSession) => {
-    if (session.deviceType === 'tablet' || session.browser?.toLowerCase().includes('ipad') || session.browser?.toLowerCase().includes('tablet')) {
-      return <Tablet className="w-5 h-5 text-slate-500 dark:text-slate-400" />;
-    }
-    if (session.deviceType === 'mobile' || session.browser?.toLowerCase().includes('iphone') || session.browser?.toLowerCase().includes('android')) {
-      return <Smartphone className="w-5 h-5 text-slate-500 dark:text-slate-400" />;
-    }
-    return <Laptop className="w-5 h-5 text-slate-500 dark:text-slate-400" />;
-  };
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [deleteConfirmInput, setDeleteConfirmInput] = useState("")
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // Active Sessions States
   const [activeSessions, setActiveSessions] = useState<UserSession[]>([])
@@ -93,9 +100,37 @@ export function AdminProfileForm() {
   const [isTimezoneOpen, setIsTimezoneOpen] = useState(false)
   const [isLanguageOpen, setIsLanguageOpen] = useState(false)
 
+  const timezoneRef = useRef<HTMLDivElement>(null)
+  const languageRef = useRef<HTMLDivElement>(null)
+
   // Constant list collections
-  const timezones = ["Africa/Lagos", "America/New_York", "Europe/London", "Asia/Tokyo"]
-  const languages = ["English", "French", "Spanish", "German"]
+  const timezones = [
+    "Africa/Lagos", 
+    "America/New_York", 
+    "America/Los_Angeles", 
+    "America/Chicago", 
+    "Europe/London", 
+    "Europe/Paris", 
+    "Asia/Tokyo", 
+    "Asia/Dubai", 
+    "Asia/Singapore", 
+    "Australia/Sydney"
+  ]
+  const languages = ["English", "French", "Spanish", "German", "Portuguese", "Japanese"]
+
+  // Close dropdowns on click outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (timezoneRef.current && !timezoneRef.current.contains(e.target as Node)) {
+        setIsTimezoneOpen(false)
+      }
+      if (languageRef.current && !languageRef.current.contains(e.target as Node)) {
+        setIsLanguageOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   // Populate form fields once user context is loaded
   useEffect(() => {
@@ -103,6 +138,7 @@ export function AdminProfileForm() {
       setFullName(user.fullName || "")
       setEmail(user.email || "")
       setPhoneVal(user.phone || "")
+      setJobTitle(user.jobTitle || "")
       setTimezone(user.timezone || "America/New_York")
       setLanguage(user.language || "English")
       setProfileImage(user.avatarUrl)
@@ -110,10 +146,10 @@ export function AdminProfileForm() {
   }, [user])
 
   // Fetch active database sessions
-  const fetchSessions = React.useCallback(async () => {
+  const fetchSessions = useCallback(async () => {
     setIsLoadingSessions(true)
     try {
-      const res = await fetch("/api/v1/auth/sessions")
+      const res = await fetch("/api/v1/auth/sessions?limit=4")
       if (res.ok) {
         const json = await res.json()
         if (json.success) {
@@ -132,6 +168,40 @@ export function AdminProfileForm() {
       fetchSessions()
     }
   }, [user, fetchSessions])
+
+  // Dynamic Profile Completion Calculation
+  const completionScore = useMemo(() => {
+    let score = 0
+    if (profileImage) score += 15
+    if (fullName.trim()) score += 15
+    if (email.trim()) score += 20
+    if (phoneVal.trim()) score += 15
+    if (timezone) score += 10
+    if (language) score += 10
+    if (jobTitle.trim() || workspace?.name) score += 15
+    return Math.min(score, 100)
+  }, [profileImage, fullName, email, phoneVal, timezone, language, jobTitle, workspace?.name])
+
+  // Niche-Adaptive Profile Title & Badge
+  const nicheRole = useMemo(() => {
+    const niche = (workspace?.niche || 'saas').toLowerCase()
+    if (niche.includes('saas')) return { roleTitle: 'SaaS Founder', badge: 'SaaS Business' }
+    if (niche.includes('agenc')) return { roleTitle: 'Agency Principal', badge: 'Agency & Retainers' }
+    if (niche.includes('social')) return { roleTitle: 'Marketing Lead', badge: 'Social Media' }
+    if (niche.includes('startup')) return { roleTitle: 'Startup Founder', badge: 'High-Growth Startup' }
+    if (niche.includes('market') || niche.includes('commerce')) return { roleTitle: 'Store Owner', badge: 'E-Commerce' }
+    return { roleTitle: 'Business Owner', badge: 'Custom Business' }
+  }, [workspace?.niche])
+
+  const renderSessionIcon = (session: UserSession) => {
+    if (session.deviceType === 'tablet' || session.browser?.toLowerCase().includes('ipad') || session.browser?.toLowerCase().includes('tablet')) {
+      return <Tablet className="w-5 h-5 text-slate-500 dark:text-slate-400" />;
+    }
+    if (session.deviceType === 'mobile' || session.browser?.toLowerCase().includes('iphone') || session.browser?.toLowerCase().includes('android')) {
+      return <Smartphone className="w-5 h-5 text-slate-500 dark:text-slate-400" />;
+    }
+    return <Laptop className="w-5 h-5 text-slate-500 dark:text-slate-400" />;
+  };
 
   // Handles updating the profile fields (PUT)
   const handleSaveProfile = async () => {
@@ -152,7 +222,7 @@ export function AdminProfileForm() {
           fullName,
           email,
           phone: phoneVal,
-          jobTitle: user?.jobTitle || "",
+          jobTitle,
           timezone,
           language,
           avatarUrl: profileImage,
@@ -162,7 +232,7 @@ export function AdminProfileForm() {
       const data = await res.json()
 
       if (res.ok && data.success) {
-        await refreshUser() // Refresh global user context
+        await refreshUser()
         setStatusType("success")
         setStatusTitle("Profile Updated")
         setStatusMessage("Your personal account settings have been successfully updated.")
@@ -182,13 +252,21 @@ export function AdminProfileForm() {
     }
   }
 
-  // Handles updating the password (PUT)
+  // Handles changing or adding password
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    if (!newPassword) {
+      setStatusType("error")
+      setStatusTitle("Validation Error")
+      setStatusMessage("Please enter a new password.")
+      setShowStatus(true)
+      return
+    }
+
     if (newPassword.length < 8) {
       setStatusType("error")
-      setStatusTitle("Password Constraint")
+      setStatusTitle("Weak Password")
       setStatusMessage("New password must be at least 8 characters long.")
       setShowStatus(true)
       return
@@ -196,7 +274,7 @@ export function AdminProfileForm() {
 
     if (newPassword !== confirmPassword) {
       setStatusType("error")
-      setStatusTitle("Matching Error")
+      setStatusTitle("Password Mismatch")
       setStatusMessage("New password and confirm password fields do not match.")
       setShowStatus(true)
       return
@@ -281,7 +359,6 @@ export function AdminProfileForm() {
         if (data.success && data.secure_url) {
           setProfileImage(data.secure_url)
           
-          // Auto-save the updated avatar directly to DB for instant feedback
           await fetch("/api/v1/auth/profile", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -291,7 +368,7 @@ export function AdminProfileForm() {
 
           setStatusType("success")
           setStatusTitle("Photo Uploaded")
-          setStatusMessage("Your profile picture has been successfully uploaded to Cloudinary.")
+          setStatusMessage("Your profile picture has been successfully updated.")
           setShowStatus(true)
         }
       } else {
@@ -304,21 +381,62 @@ export function AdminProfileForm() {
     }
   }
 
+  // Workspace Ownership Transfer Handler
+  const handleTransferOwnership = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!transferEmail || !confirmWorkspaceInput) return
+
+    setIsTransferring(true)
+    try {
+      const res = await fetch("/api/v1/workspaces/transfer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          targetEmail: transferEmail,
+          confirmWorkspaceName: confirmWorkspaceInput,
+        }),
+      })
+
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setIsTransferModalOpen(false)
+        setTransferEmail("")
+        setConfirmWorkspaceInput("")
+        await refreshUser()
+        setStatusType("success")
+        setStatusTitle("Ownership Transferred")
+        setStatusMessage(data.message || "Workspace ownership has been successfully updated.")
+      } else {
+        setStatusType("error")
+        setStatusTitle("Transfer Failed")
+        setStatusMessage(data.error || "Could not transfer ownership.")
+      }
+    } catch (err) {
+      console.error("Transfer error:", err)
+      setStatusType("error")
+      setStatusTitle("System Error")
+      setStatusMessage("Failed to connect to transfer service.")
+    } finally {
+      setIsTransferring(false)
+      setShowStatus(true)
+    }
+  }
+
   // Irreversible Delete Account Action
   const handleDeleteAccount = async () => {
-    if (!confirm("Are you absolutely sure you want to delete your account? This action is irreversible.")) {
-      return
-    }
+    if (deleteConfirmInput !== "DELETE") return
 
+    setIsDeleting(true)
     try {
       const res = await fetch("/api/v1/auth/profile", {
         method: "DELETE",
       })
 
       if (res.ok) {
+        setIsDeleteModalOpen(false)
         setStatusType("success")
         setStatusTitle("Account Deleted")
-        setStatusMessage("Your account has been deleted. Redirecting...")
+        setStatusMessage("Your account and all personal credentials have been deleted. Redirecting...")
         setShowStatus(true)
         setTimeout(() => {
           router.push("/sign-in")
@@ -331,6 +449,12 @@ export function AdminProfileForm() {
       }
     } catch (err) {
       console.error(err)
+      setStatusType("error")
+      setStatusTitle("System Error")
+      setStatusMessage("Failed to delete account.")
+      setShowStatus(true)
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -354,37 +478,41 @@ export function AdminProfileForm() {
 
   return (
     <div className="space-y-6 md:space-y-8 pb-10">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-2">
         <div>
           <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
             Admin Profile
           </h2>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">Manage your personal account settings</p>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5">Manage your personal account settings and credentials</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-        {/* Left Column (Profile & Personal Info) */}
+        {/* Left Column (Profile Overview, Personal Info, Danger Zone) */}
         <div className="lg:col-span-2 space-y-6 lg:space-y-8">
           
           {/* Profile Overview */}
           <div className="bg-white dark:bg-[#150a2e] p-6 md:p-8 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-50/50 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-50/50 dark:bg-purple-500/5 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2" />
             
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
                 Profile Overview
               </h3>
+              <span className="px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 text-xs font-bold border border-purple-100/50 dark:border-purple-500/20 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                {nicheRole.badge}
+              </span>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-8 items-start">
+            <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start">
               {/* Avatar Section */}
-              <div className="flex flex-col items-center gap-4 shrink-0">
-                <div className="relative w-28 h-28 rounded-full bg-purple-100 flex items-center justify-center border-4 border-white dark:border-white/10 shadow-lg overflow-hidden group">
+              <div className="flex flex-col items-center gap-3 shrink-0">
+                <div className="relative w-24 h-24 rounded-full bg-purple-100 dark:bg-purple-950/40 flex items-center justify-center border-4 border-white dark:border-white/10 shadow-md overflow-hidden group">
                   {profileImage ? (
                     <Image src={profileImage} alt="Profile" fill className="object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-500 to-indigo-600 text-white text-3xl font-black">
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-500 to-indigo-600 text-white text-2xl font-black">
                       {fullName ? fullName.slice(0, 2).toUpperCase() : "AU"}
                     </div>
                   )}
@@ -393,218 +521,311 @@ export function AdminProfileForm() {
                       <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     </div>
                   )}
-                  <button className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm cursor-pointer">
-                    <Camera className="w-8 h-8 text-white" />
+                  <label className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm cursor-pointer">
+                    <Camera className="w-6 h-6 text-white" />
                     <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={handleImageUpload} disabled={isUploading} />
-                  </button>
+                  </label>
                 </div>
-                <label className="px-4 py-1.5 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/20 rounded-lg text-xs font-bold transition-colors w-full shadow-sm cursor-pointer text-center relative overflow-hidden">
+                <label className="px-3 py-1.5 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/20 rounded-lg text-xs font-bold transition-colors shadow-sm cursor-pointer text-center relative overflow-hidden">
                   <span>Upload Photo</span>
                   <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={handleImageUpload} disabled={isUploading} />
                 </label>
               </div>
 
               {/* Basic Info */}
-              <div className="flex-1 space-y-5 w-full">
+              <div className="flex-1 space-y-3 w-full">
                 <div>
                   <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{fullName || "Admin User"}</h4>
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex flex-wrap items-center gap-2 mt-1.5">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400 text-[11px] font-black border border-purple-100 dark:border-purple-900/30 uppercase tracking-widest">
-                      <Shield className="w-3 h-3" /> Owner
+                      <Shield className="w-3 h-3" /> OWNER
+                    </span>
+                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                      • {jobTitle || nicheRole.roleTitle}
                     </span>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3 text-sm">
-                    <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500" />
-                    <span className="font-medium text-slate-600 dark:text-slate-300">{email}</span>
+                <div className="space-y-1.5 pt-1 text-xs">
+                  <div className="flex items-center gap-2.5 text-slate-600 dark:text-slate-300 font-medium">
+                    <Mail className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                    <span>{email}</span>
                   </div>
+                  {workspace?.name && (
+                    <div className="flex items-center gap-2.5 text-slate-600 dark:text-slate-300 font-medium">
+                      <Building2 className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                      <span>{workspace.name}</span>
+                      {Boolean((workspace?.metadata as Record<string, unknown> | null)?.website) && (
+                        <a 
+                          href={String((workspace?.metadata as Record<string, unknown> | null)?.website).startsWith('http') ? String((workspace?.metadata as Record<string, unknown> | null)?.website) : `https://${(workspace?.metadata as Record<string, unknown> | null)?.website}`} 
+                          target="_blank" 
+                          rel="noreferrer" 
+                          className="text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-0.5 font-bold"
+                        >
+                          <span>Website</span>
+                          <ExternalLink className="w-2.5 h-2.5" />
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Status & Verification */}
-              <div className="flex-1 w-full bg-slate-50 dark:bg-white/5 p-5 rounded-2xl border border-slate-100 dark:border-white/10">
-                <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-100 dark:border-white/10">
-                  <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Account Status:</span>
-                  <span className="flex items-center gap-1.5 text-xs font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 px-2.5 py-1 rounded-lg">
+              {/* Status & Dynamic Completion */}
+              <div className="flex-1 w-full bg-slate-50 dark:bg-white/5 p-4 rounded-xl border border-slate-100 dark:border-white/10 space-y-3">
+                <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-white/10">
+                  <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Account Status:</span>
+                  <span className="flex items-center gap-1.5 text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-lg">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active
                   </span>
                 </div>
-                <div className="flex items-center justify-between mb-6">
-                  <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Auth Method:</span>
-                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400 capitalize">
+                <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-white/10">
+                  <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Auth Method:</span>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 capitalize">
                     {user?.providers && user.providers.length > 0 
                       ? user.providers.join(", ") 
-                      : "Password Credentials"
+                      : "Password"
                     }
                   </span>
                 </div>
                 
                 <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Profile Completion: <span className="text-slate-900 dark:text-white">90%</span></span>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Profile Completion:</span>
+                    <span className="text-xs font-black text-purple-600 dark:text-purple-400">{completionScore}%</span>
                   </div>
-                  <div className="h-2 w-full bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-purple-500 w-[90%] rounded-full relative">
-                      <div className="absolute inset-0 bg-white/20 w-full h-full animate-[shimmer_2s_infinite] -translate-x-full" />
+                  <div className="h-2 w-full bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-purple-600 rounded-full transition-all duration-500 relative"
+                      style={{ width: `${completionScore}%` }}
+                    >
+                      <div className="absolute inset-0 bg-white/20 w-full h-full animate-pulse" />
                     </div>
                   </div>
                 </div>
-                
-                <div className="mt-5 flex justify-end">
-                  <button 
-                    onClick={handleSaveProfile}
-                    disabled={isSaving}
-                    className="flex items-center gap-2 px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-black transition-all border border-emerald-100 shadow-sm cursor-pointer disabled:opacity-55"
-                  >
-                    {isSaving ? (
-                      <div className="w-4 h-4 border-2 border-emerald-700 border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <CheckCircle2 className="w-4 h-4" />
-                    )}
-                    Save Changes
-                  </button>
-                </div>
+
+                <button 
+                  onClick={handleSaveProfile}
+                  disabled={isSaving}
+                  className="w-full py-2 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-400 rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>{isSaving ? "Saving..." : "Save Changes"}</span>
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Personal Information */}
-          <div className="bg-white dark:bg-[#150a2e] p-6 md:p-8 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2 tracking-tight">
+          {/* Personal Information Form */}
+          <div className="bg-white dark:bg-[#150a2e] p-6 md:p-8 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm space-y-6">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
               Personal Information
             </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-1.5 sm:space-y-2 md:col-span-2">
-                <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-tight ml-1">Full Name</label>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">FULL NAME</label>
                 <input 
                   type="text" 
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-xl border bg-white dark:bg-[#150a2e] focus:outline-none focus:ring-2 focus:ring-purple-600/20 transition-all text-sm sm:text-base text-slate-900 dark:text-white font-medium border-gray-200 dark:border-white/10 focus:border-purple-600"
+                  placeholder="e.g. Harmony Timenyin"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 focus:bg-white dark:focus:bg-[#150a2e] focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 transition-all font-medium text-slate-900 dark:text-white shadow-sm text-sm"
                 />
               </div>
 
-              <div className="space-y-1.5 sm:space-y-2 md:col-span-2">
-                <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-tight ml-1">Email Address</label>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">EMAIL ADDRESS</label>
                 <input 
                   type="email" 
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-xl border bg-white dark:bg-[#150a2e] focus:outline-none focus:ring-2 focus:ring-purple-600/20 transition-all text-sm sm:text-base text-slate-900 dark:text-white font-medium border-gray-200 dark:border-white/10 focus:border-purple-600"
+                  disabled
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 font-medium text-slate-500 dark:text-slate-400 cursor-not-allowed text-sm"
                 />
               </div>
 
-              <div className="space-y-1.5 sm:space-y-2 md:col-span-2">
-                <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-tight ml-1 flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Phone Number</label>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Phone className="w-3.5 h-3.5 text-slate-400" />
+                  <span>PHONE NUMBER</span>
+                </label>
+                <input 
+                  type="tel" 
+                  value={phoneVal}
+                  onChange={(e) => setPhoneVal(e.target.value)}
+                  placeholder="+234 810 097 4728"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 focus:bg-white dark:focus:bg-[#150a2e] focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 transition-all font-medium text-slate-900 dark:text-white shadow-sm text-sm"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Briefcase className="w-3.5 h-3.5 text-slate-400" />
+                  <span>JOB TITLE / DESIGNATION</span>
+                </label>
                 <input 
                   type="text" 
-                  placeholder="e.g. 803 123 4567"
-                  value={phoneVal}
-                  onChange={(e) => setPhoneVal(e.target.value.replace(/[^0-9+]/g, ""))}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-xl border bg-white dark:bg-[#150a2e] focus:outline-none focus:ring-2 focus:ring-purple-600/20 transition-all text-sm sm:text-base text-slate-900 dark:text-white font-medium border-gray-200 dark:border-white/10 focus:border-purple-600"
+                  value={jobTitle}
+                  onChange={(e) => setJobTitle(e.target.value)}
+                  placeholder={nicheRole.roleTitle}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 focus:bg-white dark:focus:bg-[#150a2e] focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 transition-all font-medium text-slate-900 dark:text-white shadow-sm text-sm"
                 />
               </div>
 
-              <div className="space-y-1.5 sm:space-y-2 relative">
-                 <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-tight ml-1 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> Timezone</label>
-                 <button 
-                   type="button"
-                   onClick={() => setIsTimezoneOpen(!isTimezoneOpen)}
-                   className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-gray-200 dark:border-white/10 focus:outline-none focus:border-purple-600 bg-white dark:bg-[#150a2e] text-sm sm:text-base text-slate-900 dark:text-white font-medium flex items-center justify-between group h-[40px] sm:h-[48px] cursor-pointer"
-                 >
-                    <span className="truncate">{timezone}</span>
-                    <ChevronRight className={cn("w-4 h-4 text-slate-400 transition-transform shrink-0", isTimezoneOpen ? "rotate-90" : "")} />
-                 </button>
-                 {isTimezoneOpen && (
-                   <div className="absolute top-[calc(100%+4px)] left-0 w-full bg-white dark:bg-[#150a2e] border border-gray-100 dark:border-white/10 rounded-xl shadow-xl z-20 py-2 animate-in fade-in zoom-in-95 duration-200">
-                      {timezones.map((tz) => (
-                        <button
-                          key={tz}
-                          type="button"
-                          onClick={() => {
-                            setTimezone(tz);
-                            setIsTimezoneOpen(false);
-                          }}
-                          className={cn(
-                            "w-full px-4 py-2.5 text-left text-sm font-medium transition-colors hover:bg-slate-50 dark:hover:bg-white/5 cursor-pointer",
-                            timezone === tz ? "text-purple-600 bg-purple-50/50" : "text-slate-600 dark:text-slate-300"
-                          )}
-                        >
-                          {tz}
-                        </button>
-                      ))}
-                   </div>
-                 )}
+              {/* Timezone Custom Dropdown */}
+              <div className="space-y-2 relative" ref={timezoneRef}>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                  <span>TIMEZONE</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsTimezoneOpen(!isTimezoneOpen)}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 hover:border-purple-300 text-left flex items-center justify-between transition-all font-medium text-slate-900 dark:text-white shadow-sm text-sm"
+                >
+                  <span>{timezone}</span>
+                  <ChevronDown className={cn("w-4 h-4 text-slate-400 transition-transform duration-200", isTimezoneOpen && "rotate-180")} />
+                </button>
+
+                {isTimezoneOpen && (
+                  <div className="absolute top-full left-0 w-full mt-1.5 bg-white dark:bg-[#150a2e] border border-gray-100 dark:border-white/10 rounded-xl shadow-xl z-50 max-h-52 overflow-y-auto py-1">
+                    {timezones.map((tz) => (
+                      <button
+                        key={tz}
+                        type="button"
+                        onClick={() => {
+                          setTimezone(tz)
+                          setIsTimezoneOpen(false)
+                        }}
+                        className={cn(
+                          "w-full text-left px-4 py-2 text-xs font-bold flex items-center justify-between hover:bg-slate-50 dark:hover:bg-white/5 transition-colors",
+                          timezone === tz ? "text-purple-600 bg-purple-50/50 dark:bg-purple-950/30" : "text-slate-700 dark:text-slate-300"
+                        )}
+                      >
+                        <span>{tz}</span>
+                        {timezone === tz && <Check className="w-3.5 h-3.5 text-purple-600" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div className="space-y-1.5 sm:space-y-2 relative">
-                 <label className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-tight ml-1 flex items-center gap-1.5"><Globe className="w-3.5 h-3.5" /> Language</label>
-                 <button 
-                   type="button"
-                   onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-                   className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-gray-200 dark:border-white/10 focus:outline-none focus:border-purple-600 bg-white dark:bg-[#150a2e] text-sm sm:text-base text-slate-900 dark:text-white font-medium flex items-center justify-between group h-[40px] sm:h-[48px] cursor-pointer"
-                 >
-                    <span className="truncate">{language}</span>
-                    <ChevronRight className={cn("w-4 h-4 text-slate-400 transition-transform shrink-0", isLanguageOpen ? "rotate-90" : "")} />
-                 </button>
-                 {isLanguageOpen && (
-                   <div className="absolute top-[calc(100%+4px)] left-0 w-full bg-white dark:bg-[#150a2e] border border-gray-100 dark:border-white/10 rounded-xl shadow-xl z-20 py-2 animate-in fade-in zoom-in-95 duration-200">
-                      {languages.map((lang) => (
-                        <button
-                          key={lang}
-                          type="button"
-                          onClick={() => {
-                            setLanguage(lang);
-                            setIsLanguageOpen(false);
-                          }}
-                          className={cn(
-                            "w-full px-4 py-2.5 text-left text-sm font-medium transition-colors hover:bg-slate-50 dark:hover:bg-white/5 cursor-pointer",
-                            language === lang ? "text-purple-600 bg-purple-50/50" : "text-slate-600 dark:text-slate-300"
-                          )}
-                        >
-                          {lang}
-                        </button>
-                      ))}
-                   </div>
-                 )}
+              {/* Language Custom Dropdown */}
+              <div className="space-y-2 relative" ref={languageRef}>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-slate-400" />
+                  <span>LANGUAGE</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 hover:border-purple-300 text-left flex items-center justify-between transition-all font-medium text-slate-900 dark:text-white shadow-sm text-sm"
+                >
+                  <span>{language}</span>
+                  <ChevronDown className={cn("w-4 h-4 text-slate-400 transition-transform duration-200", isLanguageOpen && "rotate-180")} />
+                </button>
+
+                {isLanguageOpen && (
+                  <div className="absolute top-full left-0 w-full mt-1.5 bg-white dark:bg-[#150a2e] border border-gray-100 dark:border-white/10 rounded-xl shadow-xl z-50 max-h-52 overflow-y-auto py-1">
+                    {languages.map((lang) => (
+                      <button
+                        key={lang}
+                        type="button"
+                        onClick={() => {
+                          setLanguage(lang)
+                          setIsLanguageOpen(false)
+                        }}
+                        className={cn(
+                          "w-full text-left px-4 py-2 text-xs font-bold flex items-center justify-between hover:bg-slate-50 dark:hover:bg-white/5 transition-colors",
+                          language === lang ? "text-purple-600 bg-purple-50/50 dark:bg-purple-950/30" : "text-slate-700 dark:text-slate-300"
+                        )}
+                      >
+                        <span>{lang}</span>
+                        {language === lang && <Check className="w-3.5 h-3.5 text-purple-600" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="flex justify-end pt-4 mt-6 border-t border-slate-100 dark:border-white/10">
-              <button 
+            <div className="pt-4 flex justify-end">
+              <button
                 type="button"
                 onClick={handleSaveProfile}
                 disabled={isSaving}
-                className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-black transition-all shadow-sm cursor-pointer disabled:opacity-55"
+                className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-purple-600/20 cursor-pointer disabled:opacity-50"
               >
-                {isSaving ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <CheckCircle2 className="w-4 h-4" />
-                )}
-                Save Changes
+                {isSaving ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>
+
+          {/* Danger Zone */}
+          <div className="bg-rose-50/40 dark:bg-rose-950/20 p-6 md:p-8 rounded-2xl border border-rose-200 dark:border-rose-900/30 shadow-sm">
+            <div className="flex items-center gap-2 mb-6">
+              <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400" />
+              <h3 className="text-lg font-bold text-rose-700 dark:text-rose-400 tracking-tight">
+                Danger Zone
+              </h3>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl border border-rose-100 dark:border-rose-900/30 bg-white dark:bg-[#150a2e]">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-rose-50 dark:bg-rose-950/40 flex items-center justify-center shrink-0 text-rose-600 dark:text-rose-400">
+                    <Briefcase className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white">Transfer Workspace Ownership</h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Transfer primary billing, workspace rights, and ownership to another user.</p>
+                  </div>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setIsTransferModalOpen(true)}
+                  className="px-4 py-2 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-bold transition-colors cursor-pointer shrink-0"
+                >
+                  Transfer
+                </button>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl border border-rose-100 dark:border-rose-900/30 bg-white dark:bg-[#150a2e]">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-rose-50 dark:bg-rose-950/40 flex items-center justify-center shrink-0 text-rose-600 dark:text-rose-400">
+                    <Trash2 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-rose-700 dark:text-rose-400">Delete Account</h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Permanently delete your profile credentials and personal access data.</p>
+                  </div>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setIsDeleteModalOpen(true)}
+                  className="px-4 py-2 bg-rose-100 hover:bg-rose-200 dark:bg-rose-900/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 rounded-lg text-xs font-bold transition-colors cursor-pointer shrink-0"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        {/* Right Column (Security & Auth) */}
+        {/* Right Column (Security & Active Sessions) */}
         <div className="lg:col-span-1 space-y-6 lg:space-y-8">
           
           {/* Security & Authentication */}
-          <div className="bg-white dark:bg-[#150a2e] p-6 md:p-8 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-50 rounded-full blur-2xl -z-10" />
+          <div className="bg-white dark:bg-[#150a2e] p-6 md:p-8 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2 tracking-tight">
               Security & Authentication
             </h3>
 
-            <form onSubmit={handleUpdatePassword} className="space-y-5">
+            <form onSubmit={handleUpdatePassword} className="space-y-4">
               {/* Show Current Password field only if they already set a password hash */}
               {user?.hasPassword ? (
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <div className="flex items-center justify-between ml-1">
                     <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Current Password</label>
                     <Link href="/forgot-password" className="text-xs font-bold text-purple-600 dark:text-purple-400 hover:underline">
@@ -619,24 +840,24 @@ export function AdminProfileForm() {
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       placeholder="••••••••••••"
                       required
-                      className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 focus:bg-white dark:bg-[#150a2e] focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 transition-all font-medium text-slate-900 dark:text-white shadow-sm text-sm"
+                      className="w-full pl-9 pr-9 py-2.5 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 focus:bg-white dark:focus:bg-[#150a2e] focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 transition-all font-medium text-slate-900 dark:text-white text-xs"
                     />
                     <button 
                       type="button"
                       onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-0.5"
                     >
-                      {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showCurrentPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="p-4 rounded-xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/30 text-xs font-medium text-purple-700 dark:text-purple-400">
-                  You signed in via OAuth. Create a password below to allow direct email sign-in.
+                <div className="p-3.5 rounded-xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/30 text-xs font-medium text-purple-700 dark:text-purple-400">
+                  You signed in via OAuth. Create a master password below to enable direct email login.
                 </div>
               )}
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 ml-1">New Password</label>
                 <div className="relative group">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-purple-500 transition-colors" />
@@ -646,19 +867,19 @@ export function AdminProfileForm() {
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="••••••••••••"
                     required
-                    className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 focus:bg-white dark:bg-[#150a2e] focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 transition-all font-medium text-slate-900 dark:text-white shadow-sm text-sm"
+                    className="w-full pl-9 pr-9 py-2.5 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 focus:bg-white dark:focus:bg-[#150a2e] focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 transition-all font-medium text-slate-900 dark:text-white text-xs"
                   />
                   <button 
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-0.5"
                   >
-                    {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                   </button>
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 ml-1">Confirm New Password</label>
                 <div className="relative group">
                   <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-purple-500 transition-colors" />
@@ -668,19 +889,19 @@ export function AdminProfileForm() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••••••"
                     required
-                    className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 focus:bg-white dark:bg-[#150a2e] focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 transition-all font-medium text-slate-900 dark:text-white shadow-sm text-sm"
+                    className="w-full pl-9 pr-9 py-2.5 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 focus:bg-white dark:focus:bg-[#150a2e] focus:outline-none focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600 transition-all font-medium text-slate-900 dark:text-white text-xs"
                   />
                   <button 
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-0.5"
                   >
-                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                   </button>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 dark:border-white/10 mt-6 flex items-center justify-between">
+              <div className="pt-3 border-t border-slate-100 dark:border-white/10 mt-4 flex items-center justify-between">
                 {user?.hasPassword ? (
                   <Link href="/forgot-password" className="text-[11px] font-bold text-slate-500 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-400 transition-colors">
                     Reset via email code →
@@ -689,7 +910,7 @@ export function AdminProfileForm() {
                 <button
                   type="submit"
                   disabled={isUpdatingPassword}
-                  className="px-4 py-2.5 bg-purple-600 hover:bg-purple-750 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer disabled:opacity-55"
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer disabled:opacity-55"
                 >
                   {isUpdatingPassword ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -709,21 +930,21 @@ export function AdminProfileForm() {
               Active Sessions
             </h3>
 
-            <div className="space-y-4">
+            <div className="space-y-3.5">
               {activeSessions.slice(0, 4).map((session, i) => (
-                <div key={session.id || i} className="flex items-start gap-3 p-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                  <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#150a2e] border border-slate-200 dark:border-white/20 flex items-center justify-center shrink-0">
+                <div key={session.id || i} className="flex items-start gap-3 p-3.5 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50/60 dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 transition-colors">
+                  <div className="w-9 h-9 rounded-lg bg-white dark:bg-[#150a2e] border border-slate-200 dark:border-white/20 flex items-center justify-center shrink-0">
                     {renderSessionIcon(session)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">{session.browser || session.name}</h4>
+                    <div className="flex items-center justify-between gap-1">
+                      <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">{session.browser || session.name}</h4>
                       <span className="text-[10px] font-medium text-slate-400 whitespace-nowrap">{session.time}</span>
                     </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-slate-500 dark:text-slate-400 truncate">{session.location || session.ip}</span>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{session.location || session.ip}</span>
                       {session.isActive && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase tracking-wider">
                           Current
                         </span>
                       )}
@@ -732,12 +953,12 @@ export function AdminProfileForm() {
                 </div>
               ))}
               {activeSessions.length === 0 && !isLoadingSessions && (
-                <div className="text-center py-6 text-sm text-slate-500 font-medium bg-slate-50 dark:bg-white/5 rounded-xl border border-dashed border-slate-200 dark:border-white/20">
+                <div className="text-center py-6 text-xs text-slate-500 font-medium bg-slate-50 dark:bg-white/5 rounded-xl border border-dashed border-slate-200 dark:border-white/20">
                   No other active sessions.
                 </div>
               )}
               {isLoadingSessions && (
-                <div className="text-center py-6 text-sm text-slate-400 font-medium">
+                <div className="text-center py-6 text-xs text-slate-400 font-medium">
                   Loading sessions...
                 </div>
               )}
@@ -746,59 +967,143 @@ export function AdminProfileForm() {
             <button 
               onClick={handleLogoutAllOtherSessions}
               disabled={activeSessions.length <= 1}
-              className="w-full mt-6 py-3 px-4 bg-slate-50 dark:bg-white/5 hover:bg-purple-50 text-slate-700 dark:text-slate-300 hover:text-purple-600 border border-slate-200 dark:border-white/20 hover:border-purple-200 rounded-xl text-sm font-bold transition-all shadow-sm cursor-pointer border-dashed disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full mt-5 py-2.5 px-4 bg-slate-50 dark:bg-white/5 hover:bg-purple-50 dark:hover:bg-purple-950/30 text-slate-700 dark:text-slate-300 hover:text-purple-600 border border-slate-200 dark:border-white/20 hover:border-purple-200 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer border-dashed disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Log Out All Other Sessions
             </button>
           </div>
 
-          {/* Danger Zone */}
-          <div className="bg-rose-50/30 p-6 md:p-8 rounded-2xl border border-rose-100 shadow-sm">
-            <div className="flex items-center gap-2 mb-6">
-              <AlertTriangle className="w-5 h-5 text-rose-500" />
-              <h3 className="text-lg font-bold text-rose-700 tracking-tight">
-                Danger Zone
-              </h3>
+        </div>
+      </div>
+
+      {/* Transfer Ownership Modal */}
+      {isTransferModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#150a2e] rounded-2xl max-w-md w-full p-6 border border-gray-100 dark:border-white/10 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center">
+                  <Briefcase className="w-4 h-4" />
+                </div>
+                <h3 className="font-extrabold text-slate-900 dark:text-white text-base">Transfer Workspace Ownership</h3>
+              </div>
+              <button onClick={() => setIsTransferModalOpen(false)} className="text-slate-400 hover:text-slate-600 p-1">
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 rounded-xl border border-rose-100 bg-white dark:bg-[#150a2e]">
-                <div className="flex items-center gap-3">
-                  <Briefcase className="w-4 h-4 text-slate-400" />
-                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Transfer Workspace Ownership</span>
-                </div>
-                <button 
-                  type="button"
-                  onClick={() => {
-                    setStatusType("success")
-                    setStatusTitle("Workspace Transfer Initiated")
-                    setStatusMessage("Instructions to transfer ownership have been sent to your email.")
-                    setShowStatus(true)
-                  }}
-                  className="px-3 py-1.5 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 text-slate-600 dark:text-slate-300 rounded-lg text-[11px] font-bold transition-colors cursor-pointer"
-                >
-                  Transfer
-                </button>
+            <div className="p-3 bg-rose-50/60 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/40 rounded-xl text-xs text-rose-700 dark:text-rose-300 space-y-1">
+              <p className="font-bold">⚠️ Warning: Ownership Transfer is Permanent</p>
+              <p>The new owner will gain full control over billing, plan management, and admin access for <strong>{workspace?.name || "this workspace"}</strong>.</p>
+            </div>
+
+            <form onSubmit={handleTransferOwnership} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">New Owner Email Address</label>
+                <input 
+                  type="email"
+                  required
+                  value={transferEmail}
+                  onChange={(e) => setTransferEmail(e.target.value)}
+                  placeholder="admin@colleague.com"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-600/20 focus:outline-none"
+                />
               </div>
 
-              <div className="flex items-center justify-between p-4 rounded-xl border border-rose-100 bg-white dark:bg-[#150a2e]">
-                <div className="flex items-center gap-3">
-                  <Trash2 className="w-4 h-4 text-rose-500" />
-                  <span className="text-sm font-bold text-rose-600">Delete Account</span>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Type <span className="font-black text-rose-600 select-all">{workspace?.name || "Workspace"}</span> to confirm:
+                </label>
+                <input 
+                  type="text"
+                  required
+                  value={confirmWorkspaceInput}
+                  onChange={(e) => setConfirmWorkspaceInput(e.target.value)}
+                  placeholder={workspace?.name || "Workspace name"}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-600/20 focus:outline-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setIsTransferModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/20 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-50 dark:hover:bg-white/5"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isTransferring || confirmWorkspaceInput.trim().toLowerCase() !== (workspace?.name || "").trim().toLowerCase() || !transferEmail}
+                  className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+                >
+                  {isTransferring && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>Confirm & Transfer</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Account Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#150a2e] rounded-2xl max-w-md w-full p-6 border border-gray-100 dark:border-white/10 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center">
+                  <Trash2 className="w-4 h-4" />
                 </div>
-                <button 
+                <h3 className="font-extrabold text-slate-900 dark:text-white text-base">Delete Account</h3>
+              </div>
+              <button onClick={() => setIsDeleteModalOpen(false)} className="text-slate-400 hover:text-slate-600 p-1">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-3 bg-rose-50/60 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/40 rounded-xl text-xs text-rose-700 dark:text-rose-300 space-y-1">
+              <p className="font-bold">⚠️ Irreversible Action</p>
+              <p>This will permanently delete your account, access credentials, and personal profile data across all connected workspaces.</p>
+            </div>
+
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Type <span className="font-black text-rose-600">DELETE</span> to confirm:
+                </label>
+                <input 
+                  type="text"
+                  required
+                  value={deleteConfirmInput}
+                  onChange={(e) => setDeleteConfirmInput(e.target.value)}
+                  placeholder="DELETE"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-rose-600/20 focus:outline-none font-bold"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/20 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-50 dark:hover:bg-white/5"
+                >
+                  Cancel
+                </button>
+                <button
                   type="button"
                   onClick={handleDeleteAccount}
-                  className="px-3 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg text-[11px] font-bold transition-colors cursor-pointer"
+                  disabled={isDeleting || deleteConfirmInput !== "DELETE"}
+                  className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
                 >
-                  Delete
+                  {isDeleting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>Delete My Account</span>
                 </button>
               </div>
             </div>
           </div>
-
         </div>
-      </div>
+      )}
 
       <StatusModal 
         isOpen={showStatus}
