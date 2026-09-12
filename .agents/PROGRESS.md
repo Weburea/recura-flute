@@ -3465,6 +3465,43 @@ npm run db:generate: Production SQL migration generator.
 
 ---
 
+## 📍 Milestone 44: Real Database Active Sessions, Multi-Device Detection & Forgot Password Integration
+
+**Status**: Completed  
+**Date**: September 12, 2026
+
+### Summary of Changes
+
+- **Sessions API Endpoint Upgrade ([src/app/api/v1/auth/sessions/route.ts](file:///c:/FRONT-END/REACT/recura/src/app/api/v1/auth/sessions/route.ts))**:
+  - Implemented device parsing for user agents (`deviceType: 'laptop' | 'mobile' | 'tablet'`, `os`, `browser`, `displayName`).
+  - Added query limit parameter support (`?limit=2`, `?limit=4`) ordered by `desc(schema.sessions.createdAt)` so the latest sessions appear first.
+  - Formatted timestamps to relative human-readable strings (e.g. "Active Now", "2 hours ago", "19 days ago").
+  - Included IP address and formatted location context.
+
+- **Security Settings Modal — Max 2 Active Sessions ([src/components/dashboard/shared/modals/workspace-settings-modals.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/shared/modals/workspace-settings-modals.tsx))**:
+  - Replaced hardcoded static session list with live database session data fetched from `/api/v1/auth/sessions?limit=2`.
+  - Enforced strict max 2 sessions display limit in the modal (`(activeSessions || []).slice(0, 2)`).
+  - Dynamic device icons (`Laptop`, `Smartphone`, `Tablet`) rendered according to device type.
+  - Connected "REVOKE" button to live API session revocation.
+
+- **Admin Profile Security Card — Forgot Password Link ([src/components/dashboard/settings/admin-profile-form.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/settings/admin-profile-form.tsx))**:
+  - Added a dedicated "Forgot password?" / "Reset via email code" link beside the Current Password label and at the footer of the password update card.
+  - Directs users seamlessly to `/forgot-password` to receive their 6-digit email code and reset their credentials without needing to remember their current password.
+
+- **Admin Profile Active Sessions Card — Max 4 Sessions & Dynamic Device Icons ([src/components/dashboard/settings/admin-profile-form.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/settings/admin-profile-form.tsx))**:
+  - Displayed live active sessions strictly capped at **max 4 sessions** (`activeSessions.slice(0, 4)`).
+  - Implemented dynamic icon helper `renderSessionIcon` rendering device-appropriate Lucide icons (`<Laptop />`, `<Smartphone />`, `<Tablet />`).
+  - Shows browser/OS name, location/IP, relative activity time, and green `CURRENT` badge for the active session.
+
+- **Workspace Overview Integration ([src/components/dashboard/settings/workspace-overview.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/settings/workspace-overview.tsx))**:
+  - Connected live sessions data and async `revokeSession` handler to `DELETE /api/v1/auth/sessions?sessionId=${id}`.
+
+- **Verification & Quality Checks**:
+  - TypeScript: `npx tsc --noEmit` passed with 0 errors.
+  - ESLint: `npx eslint --max-warnings 0` passed across all modified files.
+
+---
+
 ## 📍 Future Milestones Log Format Template
 
 _The following template will be populated as new features are built out:_

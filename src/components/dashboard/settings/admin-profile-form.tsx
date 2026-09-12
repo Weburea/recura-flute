@@ -10,6 +10,7 @@ import {
   Key, 
   Smartphone, 
   Laptop, 
+  Tablet,
   CheckCircle2,
   Trash2,
   ChevronRight,
@@ -24,6 +25,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
+import Link from "next/link"
 import { useUser } from "@/context/user-context"
 import { StatusModal, StatusType } from "@/components/dashboard/shared/modals/status-modal"
 import { useRouter } from "next/navigation"
@@ -63,10 +65,25 @@ export function AdminProfileForm() {
   interface UserSession {
     id: string;
     browser: string;
+    browserName?: string;
+    os?: string;
+    deviceType?: 'laptop' | 'mobile' | 'tablet';
+    name?: string;
     location: string;
+    ip?: string;
     time: string;
     isActive: boolean;
   }
+
+  const renderSessionIcon = (session: UserSession) => {
+    if (session.deviceType === 'tablet' || session.browser?.toLowerCase().includes('ipad') || session.browser?.toLowerCase().includes('tablet')) {
+      return <Tablet className="w-5 h-5 text-slate-500 dark:text-slate-400" />;
+    }
+    if (session.deviceType === 'mobile' || session.browser?.toLowerCase().includes('iphone') || session.browser?.toLowerCase().includes('android')) {
+      return <Smartphone className="w-5 h-5 text-slate-500 dark:text-slate-400" />;
+    }
+    return <Laptop className="w-5 h-5 text-slate-500 dark:text-slate-400" />;
+  };
 
   // Active Sessions States
   const [activeSessions, setActiveSessions] = useState<UserSession[]>([])
@@ -588,7 +605,12 @@ export function AdminProfileForm() {
               {/* Show Current Password field only if they already set a password hash */}
               {user?.hasPassword ? (
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 ml-1">Current Password</label>
+                  <div className="flex items-center justify-between ml-1">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Current Password</label>
+                    <Link href="/forgot-password" className="text-xs font-bold text-purple-600 dark:text-purple-400 hover:underline">
+                      Forgot password?
+                    </Link>
+                  </div>
                   <div className="relative group">
                     <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-purple-500 transition-colors" />
                     <input 
@@ -658,7 +680,12 @@ export function AdminProfileForm() {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 dark:border-white/10 mt-6 flex justify-end">
+              <div className="pt-4 border-t border-slate-100 dark:border-white/10 mt-6 flex items-center justify-between">
+                {user?.hasPassword ? (
+                  <Link href="/forgot-password" className="text-[11px] font-bold text-slate-500 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-400 transition-colors">
+                    Reset via email code →
+                  </Link>
+                ) : <div />}
                 <button
                   type="submit"
                   disabled={isUpdatingPassword}
@@ -683,22 +710,18 @@ export function AdminProfileForm() {
             </h3>
 
             <div className="space-y-4">
-              {activeSessions.map((session, i) => (
+              {activeSessions.slice(0, 4).map((session, i) => (
                 <div key={session.id || i} className="flex items-start gap-3 p-4 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                   <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#150a2e] border border-slate-200 dark:border-white/20 flex items-center justify-center shrink-0">
-                    {session.browser.includes("iPhone") || session.browser.includes("Android") ? (
-                      <Smartphone className="w-5 h-5 text-slate-500 dark:text-slate-400" />
-                    ) : (
-                      <Laptop className="w-5 h-5 text-slate-500 dark:text-slate-400" />
-                    )}
+                    {renderSessionIcon(session)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">{session.browser}</h4>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate">{session.browser || session.name}</h4>
                       <span className="text-[10px] font-medium text-slate-400 whitespace-nowrap">{session.time}</span>
                     </div>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-slate-500 dark:text-slate-400 truncate">{session.location}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 truncate">{session.location || session.ip}</span>
                       {session.isActive && (
                         <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider">
                           Current

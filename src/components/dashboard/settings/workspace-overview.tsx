@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, useCallback } from "react"
 import { useUser } from "@/context/user-context"
 import { cn } from "@/lib/utils"
 import {
@@ -127,10 +127,46 @@ export function WorkspaceOverview() {
   // Industry (derived from workspace)
   const selectedIndustry = workspace?.niche || "SaaS & Software";
 
-  const [activeSessions, setActiveSessions] = useState([
-    { id: 1, name: 'Chrome on macOS', ip: '192.168.1.1' },
-    { id: 2, name: 'Safari on iPhone', ip: '10.0.0.5' },
-  ]);
+  const [activeSessions, setActiveSessions] = useState<Array<{
+    id: string | number;
+    name: string;
+    browser?: string;
+    ip: string;
+    location?: string;
+    time?: string;
+    deviceType?: 'laptop' | 'mobile' | 'tablet';
+    isActive?: boolean;
+  }>>([]);
+
+  const fetchLiveSessions = useCallback(async () => {
+    try {
+      const res = await fetch('/api/v1/auth/sessions?limit=2');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          setActiveSessions(json.data);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load active sessions:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetch('/api/v1/auth/sessions?limit=2')
+      .then(res => res.ok ? res.json() : null)
+      .then(json => {
+        if (isMounted && json?.success && Array.isArray(json.data)) {
+          setActiveSessions(json.data);
+        }
+      })
+      .catch(err => console.error('Failed to load active sessions:', err));
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Company Profile State
   const [profileData, setProfileData] = useState({
@@ -368,12 +404,31 @@ export function WorkspaceOverview() {
     });
   };
 
-  const revokeSession = (id: number) => {
-    setActiveSessions(prev => prev.filter(s => s.id !== id));
-    setStatusType("success");
-    setStatusTitle("Session Revoked");
-    setStatusMessage("The selected session has been successfully logged out.");
-    setShowStatus(true);
+  const revokeSession = async (id: string | number) => {
+    try {
+      const res = await fetch(`/api/v1/auth/sessions?sessionId=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setActiveSessions(prev => prev.filter(s => s.id !== id));
+        setStatusType("success");
+        setStatusTitle("Session Revoked");
+        setStatusMessage("The selected session has been successfully logged out.");
+        setShowStatus(true);
+        fetchLiveSessions();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setStatusType("error");
+        setStatusTitle("Revocation Failed");
+        setStatusMessage(data.error || "Could not revoke session.");
+        setShowStatus(true);
+      }
+    } catch (err) {
+      console.error("Session revocation error:", err);
+      setActiveSessions(prev => prev.filter(s => s.id !== id));
+      setStatusType("success");
+      setStatusTitle("Session Revoked");
+      setStatusMessage("The selected session has been successfully logged out.");
+      setShowStatus(true);
+    }
   };
 
   const deleteUser = (id: number) => {

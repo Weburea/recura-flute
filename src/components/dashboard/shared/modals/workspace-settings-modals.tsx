@@ -6,7 +6,6 @@ import {
   ChevronRight,
   ShieldCheck,
   Users,
-  Layout,
   Settings2,
   Plus,
   Trash2,
@@ -24,7 +23,10 @@ import {
   AlertCircle,
   ShieldAlert,
   ArrowLeft,
-  Key
+  Key,
+  Smartphone,
+  Laptop,
+  Tablet
 } from "lucide-react"
 import NextImage from "next/image"
 import { cn } from "@/lib/utils"
@@ -90,8 +92,17 @@ interface WorkspaceSettingsModalsProps {
   users?: User[]
   deleteUser?: (id: number) => void
 
-  activeSessions?: { id: number; name: string; ip: string }[]
-  revokeSession?: (id: number) => void
+  activeSessions?: {
+    id: number | string;
+    name?: string;
+    browser?: string;
+    ip?: string;
+    location?: string;
+    time?: string;
+    deviceType?: 'laptop' | 'mobile' | 'tablet';
+    isActive?: boolean;
+  }[]
+  revokeSession?: (id: number | string) => void
 
   twoFactorEnabled?: boolean
   toggle2FA?: () => void
@@ -1041,26 +1052,55 @@ export function WorkspaceSettingsModals({
               </div>
 
               <div className="space-y-4">
-                <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] px-2">Active Sessions</h4>
+                <div className="flex items-center justify-between px-2">
+                  <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Active Sessions (Recent 2)</h4>
+                  <span className="text-[10px] font-bold text-slate-400">Max 2 shown</span>
+                </div>
                 <div className="space-y-2">
-                  {activeSessions.map(session => (
-                    <div key={session.id} className="p-4 rounded-2xl border border-gray-100 dark:border-white/10 flex items-center justify-between bg-white dark:bg-white/5 hover:border-gray-200 dark:hover:border-white/20 transition-all">
-                      <div className="flex items-center gap-3">
-                        <Layout className="w-5 h-5 text-slate-400 dark:text-slate-500" />
-                        <div>
-                          <p className="text-sm font-bold text-slate-900 dark:text-white">{session.name}</p>
-                          <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500">{session.ip} • Active Now</p>
+                  {(activeSessions || []).slice(0, 2).map(session => {
+                    const str = `${session.browser || ''} ${session.name || ''}`.toLowerCase();
+                    const isTablet = session.deviceType === 'tablet' || str.includes('ipad') || str.includes('tablet');
+                    const isMobile = session.deviceType === 'mobile' || str.includes('iphone') || str.includes('android');
+
+                    return (
+                      <div key={session.id} className="p-4 rounded-2xl border border-gray-100 dark:border-white/10 flex items-center justify-between bg-white dark:bg-white/5 hover:border-gray-200 dark:hover:border-white/20 transition-all">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 flex items-center justify-center shrink-0">
+                            {isTablet ? (
+                              <Tablet className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                            ) : isMobile ? (
+                              <Smartphone className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                            ) : (
+                              <Laptop className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                            )}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{session.name || session.browser}</p>
+                              {session.isActive && (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase tracking-wider">
+                                  Current
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500">{session.ip || session.location || 'Localhost'} • {session.time || 'Active Now'}</p>
+                          </div>
                         </div>
+                        <button 
+                          type="button"
+                          onClick={() => revokeSession?.(session.id)}
+                          className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest px-3 py-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors cursor-pointer"
+                        >
+                          Revoke
+                        </button>
                       </div>
-                      <button 
-                        type="button"
-                        onClick={() => revokeSession?.(session.id)}
-                        className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest px-3 py-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors cursor-pointer"
-                      >
-                        Revoke
-                      </button>
+                    );
+                  })}
+                  {(!activeSessions || activeSessions.length === 0) && (
+                    <div className="p-4 text-center text-xs font-semibold text-slate-400 bg-white dark:bg-white/5 rounded-2xl border border-dashed border-gray-200 dark:border-white/10">
+                      No active sessions found.
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             </div>

@@ -89,7 +89,7 @@ export default function ModalsDocPage() {
   // Handlers
   const toggle2FA = () => setTwoFactorEnabled(!twoFactorEnabled);
   
-  const revokeSession = (id: number) => {
+  const revokeSession = (id: string | number) => {
     setActiveSessions(prev => prev.filter(s => s.id !== id));
     showStatus("success", "Session Revoked", "The selected session has been logged out.");
   };

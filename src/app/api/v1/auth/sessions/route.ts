@@ -2,45 +2,86 @@ import { NextResponse } from 'next/server';
 import { db } from '@/db';
 import * as schema from '@/db/schema';
 import { getSession } from '@/lib/session';
-import { eq, and, ne } from 'drizzle-orm';
+import { eq, and, ne, desc } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 
-function parseUserAgent(uaString: string) {
-  let browser = 'Unknown Browser';
-  let device = 'Desktop';
+export type DeviceType = 'laptop' | 'mobile' | 'tablet';
 
-  if (uaString.includes('Firefox')) browser = 'Firefox';
-  else if (uaString.includes('Chrome')) browser = 'Chrome';
-  else if (uaString.includes('Safari')) browser = 'Safari';
-  else if (uaString.includes('Edge')) browser = 'Edge';
-
-  if (uaString.includes('Windows')) device = 'Windows';
-  else if (uaString.includes('Macintosh') || uaString.includes('Mac OS')) device = 'Mac';
-  else if (uaString.includes('iPhone')) device = 'iPhone';
-  else if (uaString.includes('Android')) device = 'Android';
-  else if (uaString.includes('Linux')) device = 'Linux';
-
-  return `${browser} - ${device}`;
+export interface ParsedDeviceInfo {
+  browser: string;
+  os: string;
+  deviceType: DeviceType;
+  displayName: string;
 }
 
-export async function GET() {
+export function parseUserAgent(uaString: string): ParsedDeviceInfo {
+  let browser = 'Chrome';
+  let os = 'Windows';
+  let deviceType: DeviceType = 'laptop';
+
+  const ua = uaString || '';
+
+  // Browser detection
+  if (ua.includes('Edg/') || ua.includes('Edge/')) browser = 'Edge';
+  else if (ua.includes('OPR/') || ua.includes('Opera/')) browser = 'Opera';
+  else if (ua.includes('Firefox/')) browser = 'Firefox';
+  else if (ua.includes('Chrome/')) browser = 'Chrome';
+  else if (ua.includes('Safari/') && !ua.includes('Chrome/')) browser = 'Safari';
+
+  // Device & OS detection
+  if (ua.includes('iPad') || (ua.includes('Macintosh') && ua.includes('Touch'))) {
+    deviceType = 'tablet';
+    os = 'iPadOS';
+  } else if (ua.includes('Tablet') || (ua.includes('Android') && !ua.includes('Mobile'))) {
+    deviceType = 'tablet';
+    os = 'Android Tablet';
+  } else if (ua.includes('iPhone')) {
+    deviceType = 'mobile';
+    os = 'iPhone';
+  } else if (ua.includes('Android') && ua.includes('Mobile')) {
+    deviceType = 'mobile';
+    os = 'Android';
+  } else if (ua.includes('Windows')) {
+    deviceType = 'laptop';
+    os = 'Windows';
+  } else if (ua.includes('Macintosh') || ua.includes('Mac OS')) {
+    deviceType = 'laptop';
+    os = 'macOS';
+  } else if (ua.includes('Linux')) {
+    deviceType = 'laptop';
+    os = 'Linux';
+  }
+
+  const displayName = `${browser} on ${os}`;
+  return { browser, os, deviceType, displayName };
+}
+
+export async function GET(request: Request) {
   try {
     const session = await getSession();
     if (!session?.userId) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userSessions = await db
+    const { searchParams } = new URL(request.url);
+    const limitParam = searchParams.get('limit');
+    const limit = limitParam ? parseInt(limitParam, 10) : undefined;
+
+    const query = db
       .select()
       .from(schema.sessions)
       .where(eq(schema.sessions.userId, session.userId))
-      .orderBy(schema.sessions.createdAt);
+      .orderBy(desc(schema.sessions.createdAt));
+
+    const userSessions = limit ? await query.limit(limit) : await query;
 
     const formattedSessions = userSessions.map((s) => {
-      // Format timestamp to relative or friendly time
+      const parsed = parseUserAgent(s.userAgent || '');
+
+      // Format timestamp to relative friendly time
       const timeDiff = Date.now() - new Date(s.createdAt).getTime();
-      let timeStr = 'Just now';
+      let timeStr = 'Active Now';
       const mins = Math.floor(timeDiff / (1000 * 60));
       const hours = Math.floor(timeDiff / (1000 * 60 * 60));
       const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
@@ -49,15 +90,21 @@ export async function GET() {
         timeStr = days === 1 ? '1 day ago' : `${days} days ago`;
       } else if (hours > 0) {
         timeStr = hours === 1 ? '1 hour ago' : `${hours} hours ago`;
-      } else if (mins > 0) {
-        timeStr = mins === 1 ? '1 minute ago' : `${mins} minutes ago`;
+      } else if (mins > 1) {
+        timeStr = `${mins} mins ago`;
       }
 
       return {
         id: s.id,
-        browser: parseUserAgent(s.userAgent || ''),
+        browser: parsed.displayName,
+        browserName: parsed.browser,
+        os: parsed.os,
+        deviceType: parsed.deviceType,
+        name: parsed.displayName,
         location: s.ipAddress === '127.0.0.1' || s.ipAddress === '::1' ? 'Localhost' : 'Remote Access',
-        time: timeStr,
+        ip: s.ipAddress === '127.0.0.1' || s.ipAddress === '::1' ? '127.0.0.1' : s.ipAddress || 'Localhost',
+        time: s.id === session.sessionId ? 'Active Now' : timeStr,
+        createdAt: s.createdAt,
         isActive: s.id === session.sessionId,
       };
     });
