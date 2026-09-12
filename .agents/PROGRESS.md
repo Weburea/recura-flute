@@ -3591,4 +3591,41 @@ npm run db:generate: Production SQL migration generator.
 
 ---
 
+## 📍 Milestone 48: App-Wide Multi-Language Localization & Live Real-Time Timezone System
+
+**Status**: Completed  
+**Date**: September 12, 2026
+
+### Summary of Changes
+
+- **Centralized Multi-Language Localization Engine ([src/lib/i18n/](file:///c:/FRONT-END/REACT/recura/src/lib/i18n/) & [src/context/language-context.tsx](file:///c:/FRONT-END/REACT/recura/src/context/language-context.tsx))**:
+  - Built comprehensive, modular translation dictionaries for 6 core global languages:
+    - 🇺🇸 **English** (`en`)
+    - 🇫🇷 **French** (`fr`)
+    - 🇪🇸 **Spanish** (`es`)
+    - 🇩🇪 **German** (`de`)
+    - 🇵🇹 **Portuguese** (`pt`)
+    - 🇯🇵 **Japanese** (`ja`)
+  - Created global `LanguageProvider` and `useTranslation()` hook integrated at root layout level ([src/app/layout.tsx](file:///c:/FRONT-END/REACT/recura/src/app/layout.tsx)) with reactive DOM sync (`document.documentElement.lang`) and localStorage persistence.
+
+- **High-Resolution Flag Badges & Elevated Language Dropdown ([src/components/dashboard/settings/admin-profile-form.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/settings/admin-profile-form.tsx))**:
+  - Implemented CDN flag thumbnails (`flagcdn.com`) for all language items matching the onboarding design language.
+  - Resolved dropdown z-index/overflow clipping, displaying native name (e.g., *Français*, *Español*, *Deutsch*, *日本語*) with active selection checkmarks.
+
+- **Dynamic Live Timezone Clock & GMT Offset Calculation ([src/lib/utils/timezone.ts](file:///c:/FRONT-END/REACT/recura/src/lib/utils/timezone.ts))**:
+  - Created native `Intl.DateTimeFormat` live timezone calculation engine.
+  - Displays real-time local time and GMT offset pill (e.g. `America/New_York (08:15 AM • GMT-4)`) in the Profile Overview header.
+  - Enhanced Timezone dropdown with curated global hub cities, showing real-time live clock strings and GMT offsets for each location.
+
+- **Hydration Safety with `useSyncExternalStore` ([src/context/language-context.tsx](file:///c:/FRONT-END/REACT/recura/src/context/language-context.tsx))**:
+  - Replaced synchronous `localStorage` reading during initial render with React's native `useSyncExternalStore`.
+  - Guarantees 100% hydration consistency between server SSR and client browser storage without hydration mismatch errors.
+
+- **Verification & Quality Checks**:
+  - TypeScript: `npx tsc --noEmit` passed with 0 errors.
+  - ESLint: `npx eslint --max-warnings 0` passed with 0 warnings across all modified files.
+
+---
+
+
 

@@ -496,10 +496,10 @@ export function AdminProfileForm() {
                     </div>
                   )}
                   {/* Live Local Time Badge */}
-                  <div className="flex items-center gap-2.5 text-slate-600 dark:text-slate-300 font-medium">
+                  <div className="flex items-center gap-2.5 text-slate-600 dark:text-slate-300 font-medium" suppressHydrationWarning>
                     <Clock className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                     <span className="font-semibold">{timezone}</span>
-                    <span className="text-purple-600 dark:text-purple-400 font-bold">
+                    <span className="text-purple-600 dark:text-purple-400 font-bold" suppressHydrationWarning>
                       ({selectedTimezoneInfo.time} • {selectedTimezoneInfo.offset})
                     </span>
                   </div>
@@ -618,9 +618,9 @@ export function AdminProfileForm() {
                   onClick={() => setIsTimezoneOpen(!isTimezoneOpen)}
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 hover:border-purple-300 text-left flex items-center justify-between transition-all font-medium text-slate-900 dark:text-white shadow-sm text-sm"
                 >
-                  <div className="flex items-center gap-2 truncate">
+                  <div className="flex items-center gap-2 truncate" suppressHydrationWarning>
                     <span className="font-semibold">{timezone}</span>
-                    <span className="text-xs text-purple-600 dark:text-purple-400 font-bold">
+                    <span className="text-xs text-purple-600 dark:text-purple-400 font-bold" suppressHydrationWarning>
                       • {selectedTimezoneInfo.time} ({selectedTimezoneInfo.offset})
                     </span>
                   </div>
