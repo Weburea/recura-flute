@@ -460,9 +460,9 @@ export function AdminProfileForm() {
               </div>
 
               {/* Basic Info */}
-              <div className="flex-1 space-y-3 w-full">
+              <div className="flex-1 min-w-0 space-y-3 w-full">
                 <div>
-                  <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{fullName || "Admin User"}</h4>
+                  <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight truncate">{fullName || "Admin User"}</h4>
                   <div className="flex flex-wrap items-center gap-2 mt-1.5">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400 text-[11px] font-black border border-purple-100 dark:border-purple-900/30 uppercase tracking-widest">
                       <Shield className="w-3 h-3" /> {t("common.owner", "OWNER")}
@@ -473,21 +473,21 @@ export function AdminProfileForm() {
                   </div>
                 </div>
 
-                <div className="space-y-1.5 pt-1 text-xs">
+                <div className="space-y-2 pt-1 text-xs">
                   <div className="flex items-center gap-2.5 text-slate-600 dark:text-slate-300 font-medium">
-                    <Mail className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-                    <span>{email}</span>
+                    <Mail className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
+                    <span className="truncate">{email}</span>
                   </div>
                   {workspace?.name && (
                     <div className="flex items-center gap-2.5 text-slate-600 dark:text-slate-300 font-medium">
-                      <Building2 className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-                      <span>{workspace.name}</span>
+                      <Building2 className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
+                      <span className="truncate">{workspace.name}</span>
                       {Boolean((workspace?.metadata as Record<string, unknown> | null)?.website) && (
                         <a 
                           href={String((workspace?.metadata as Record<string, unknown> | null)?.website).startsWith('http') ? String((workspace?.metadata as Record<string, unknown> | null)?.website) : `https://${(workspace?.metadata as Record<string, unknown> | null)?.website}`} 
                           target="_blank" 
                           rel="noreferrer" 
-                          className="text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-0.5 font-bold"
+                          className="text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-0.5 font-bold shrink-0"
                         >
                           <span>{t("common.website", "Website")}</span>
                           <ExternalLink className="w-2.5 h-2.5" />
@@ -495,19 +495,32 @@ export function AdminProfileForm() {
                       )}
                     </div>
                   )}
-                  {/* Live Local Time Badge */}
-                  <div className="flex items-center gap-2.5 text-slate-600 dark:text-slate-300 font-medium" suppressHydrationWarning>
-                    <Clock className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-                    <span className="font-semibold">{timezone}</span>
-                    <span className="text-purple-600 dark:text-purple-400 font-bold" suppressHydrationWarning>
-                      ({selectedTimezoneInfo.time} • {selectedTimezoneInfo.offset})
-                    </span>
+
+                  {/* Clean Responsive Timezone & Live Clock Badge */}
+                  <div className="pt-0.5">
+                    <div 
+                      className="inline-flex flex-wrap sm:flex-nowrap items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-slate-300 text-xs shadow-xs max-w-full"
+                      suppressHydrationWarning
+                    >
+                      <div className="flex items-center gap-1.5 min-w-0 truncate">
+                        <Clock className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+                        <span className="font-semibold text-slate-900 dark:text-white truncate">
+                          {timezone.replace(/_/g, " ")}
+                        </span>
+                      </div>
+                      <span 
+                        className="text-[11px] font-mono text-purple-700 dark:text-purple-300 font-bold bg-purple-100/70 dark:bg-purple-950/60 border border-purple-200/60 dark:border-purple-800/40 px-2 py-0.5 rounded-md whitespace-nowrap ml-auto sm:ml-1 shrink-0"
+                        suppressHydrationWarning
+                      >
+                        {selectedTimezoneInfo.time} ({selectedTimezoneInfo.offset})
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Status & Dynamic Completion */}
-              <div className="flex-1 w-full bg-slate-50 dark:bg-white/5 p-4 rounded-xl border border-slate-100 dark:border-white/10 space-y-3">
+              <div className="w-full md:w-72 shrink-0 bg-slate-50 dark:bg-white/5 p-4 rounded-xl border border-slate-100 dark:border-white/10 space-y-3">
                 <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-white/10">
                   <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{t("settings.accountStatus", "Account Status")}:</span>
                   <span className="flex items-center gap-1.5 text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-lg">
