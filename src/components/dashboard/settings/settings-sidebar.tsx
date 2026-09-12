@@ -13,12 +13,12 @@ import {
 import { cn } from "@/lib/utils"
 
 const settingsNav = [
-  { icon: User, label: "Profile", href: "/dashboard/settings/profile" },
-  { icon: Building2, label: "Workspace", href: "/dashboard/settings" },
-  { icon: Palette, label: "Branding", href: "/dashboard/settings/branding" },
-  { icon: CreditCard, label: "Payment Settings", href: "/dashboard/settings/payments" },
-  { icon: Users, label: "Team Members", href: "/dashboard/settings/team" },
-  { icon: Bell, label: "Notifications", href: "/dashboard/settings/notifications" },
+  { icon: User, label: "Profile", href: "/dashboard/settings/profile", matchExact: false },
+  { icon: Building2, label: "Workspace", href: "/dashboard/settings/workspace", matchExact: true },
+  { icon: Palette, label: "Branding", href: "/dashboard/settings/branding", matchExact: true },
+  { icon: CreditCard, label: "Payment Settings", href: "/dashboard/settings/payments", matchExact: true },
+  { icon: Users, label: "Team Members", href: "/dashboard/settings/team", matchExact: true },
+  { icon: Bell, label: "Notifications", href: "/dashboard/settings/notifications", matchExact: true },
 ]
 
 export function SettingsSidebar() {
@@ -30,8 +30,9 @@ export function SettingsSidebar() {
       
       <nav className="space-y-1">
         {settingsNav.map((item) => {
-          // Exact match for the base settings page, or exact match for subpages
-          const isActive = pathname === item.href
+          const isActive = item.href === "/dashboard/settings/profile"
+            ? (pathname === "/dashboard/settings/profile" || pathname === "/dashboard/settings")
+            : pathname === item.href
           
           return (
             <Link

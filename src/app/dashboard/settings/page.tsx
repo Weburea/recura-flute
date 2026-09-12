@@ -1,16 +1,16 @@
-import { WorkspaceOverview } from "@/components/dashboard/settings/workspace-overview";
+import { AdminProfileForm } from "@/components/dashboard/settings/admin-profile-form";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Settings - Recura",
-  description: "Manage your Recura account and business settings",
+  title: "Profile Settings - Recura",
+  description: "Manage your personal profile and account credentials",
 };
 
 export default function SettingsPage() {
   return (
     <div className="h-full">
-       <WorkspaceOverview />
+      <AdminProfileForm />
     </div>
   );
 }

@@ -3502,12 +3502,40 @@ npm run db:generate: Production SQL migration generator.
 
 ---
 
-## 📍 Future Milestones Log Format Template
+## 📍 Milestone 45: Settings Architecture Restructuring & Niche-Adaptive Workspace
 
-_The following template will be populated as new features are built out:_
+**Status**: Completed  
+**Date**: September 12, 2026
 
-```markdown
-## 📍 Milestone X: [Feature Name]
+### Summary of Changes
+
+- **Base Settings Default to Profile ([src/app/dashboard/settings/page.tsx](file:///c:/FRONT-END/REACT/recura/src/app/dashboard/settings/page.tsx))**:
+  - Configured `/dashboard/settings` to default directly to the **Profile** view (`<AdminProfileForm />`), placing personal admin credentials and active sessions front and center.
+  - Created dedicated Workspace route at `/dashboard/settings/workspace` ([src/app/dashboard/settings/workspace/page.tsx](file:///c:/FRONT-END/REACT/recura/src/app/dashboard/settings/workspace/page.tsx)).
+
+- **Settings Sidebar Routing & Active Links ([src/components/dashboard/settings/settings-sidebar.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/settings/settings-sidebar.tsx))**:
+  - Updated navigation items: Profile (`/dashboard/settings/profile`), Workspace (`/dashboard/settings/workspace`), Branding (`/dashboard/settings/branding`), Payment Settings (`/dashboard/settings/payments`), Team Members (`/dashboard/settings/team`), and Notifications (`/dashboard/settings/notifications`).
+  - Active state detection cleanly highlights Profile when visiting `/dashboard/settings` or `/dashboard/settings/profile`.
+
+- **Niche-Adaptive Workspace Overview ([src/components/dashboard/settings/workspace-overview.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/settings/workspace-overview.tsx))**:
+  - Company Details card now displays dynamic operational metrics mapped from the user's onboarded niche:
+    - **SaaS**: Subscribers count, Billing Model (e.g. Per-User Tiered), and Average Customer Price ($/mo).
+    - **Agencies**: Active Retainer Clients, Contract Length, and Average Retainer Value ($/mo).
+    - **Social Media**: Active Client Brands, Billing Structure, and Average Monthly Fee ($/mo).
+    - **Startups**: Funding Stage, Paying Customers count, and Active Hiring Status.
+    - **E-Commerce**: Channels (Shopify/API), Product SKUs, and Monthly Orders or Marketplace Commission Take-Rate.
+    - **Custom**: Custom Business Description, Offerings, and Recurring/Project Payment Style.
+
+- **Clean Card Relocation & Clutter Removal**:
+  - Displaced cards (*Users & Permissions*, *Team Roles*, *System Alerts*, and *Billing Preview*) cleanly removed from Workspace Overview to their dedicated homes (**Team Members**, **Notifications**, and **Payment Settings**).
+  - Maintained 3 focused workspace cards: *Company Details (Niche-Adaptive)*, *Billing & Payments (Quick Gateway Status & Link)*, and *Security & Access (2FA & Active Sessions)*.
+  - Full-width Activity & Audit Log with transaction deep-links.
+
+- **Verification & Quality Checks**:
+  - TypeScript: `npx tsc --noEmit` passed with 0 errors.
+  - ESLint: `npx eslint --max-warnings 0` passed with 0 warnings across all modified files.
+
+---
 
 **Status**: In Progress / Completed
 **Date**: YYYY-MM-DD
