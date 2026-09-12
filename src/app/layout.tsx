@@ -9,6 +9,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 import type { Viewport } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SimulatorDetector } from "@/components/SimulatorDetector";
+import { LanguageProvider } from "@/context/language-context";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -27,7 +28,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           defaultTheme="system"
           enableSystem
         >
-          {children}
+          <LanguageProvider>
+            {children}
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

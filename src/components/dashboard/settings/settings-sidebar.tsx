@@ -12,23 +12,27 @@ import {
   ShieldAlert
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-const settingsNav = [
-  { icon: User, label: "Profile", href: "/dashboard/settings/profile", matchExact: false },
-  { icon: Building2, label: "Workspace", href: "/dashboard/settings/workspace", matchExact: true },
-  { icon: Palette, label: "Branding", href: "/dashboard/settings/branding", matchExact: true },
-  { icon: CreditCard, label: "Payment Settings", href: "/dashboard/settings/payments", matchExact: true },
-  { icon: Users, label: "Team Members", href: "/dashboard/settings/team", matchExact: true },
-  { icon: Bell, label: "Notifications", href: "/dashboard/settings/notifications", matchExact: true },
-  { icon: ShieldAlert, label: "Account", href: "/dashboard/settings/account", matchExact: true },
-]
+import { useTranslation } from "@/context/language-context"
 
 export function SettingsSidebar() {
   const pathname = usePathname()
+  const { t } = useTranslation()
+
+  const settingsNav = [
+    { icon: User, label: t("nav.profile", "Profile"), href: "/dashboard/settings/profile", matchExact: false },
+    { icon: Building2, label: t("nav.workspace", "Workspace"), href: "/dashboard/settings/workspace", matchExact: true },
+    { icon: Palette, label: t("nav.branding", "Branding"), href: "/dashboard/settings/branding", matchExact: true },
+    { icon: CreditCard, label: t("nav.payments", "Payment Settings"), href: "/dashboard/settings/payments", matchExact: true },
+    { icon: Users, label: t("nav.team", "Team Members"), href: "/dashboard/settings/team", matchExact: true },
+    { icon: Bell, label: t("nav.notifications", "Notifications"), href: "/dashboard/settings/notifications", matchExact: true },
+    { icon: ShieldAlert, label: t("nav.account", "Account"), href: "/dashboard/settings/account", matchExact: true },
+  ]
 
   return (
     <div className="bg-white dark:bg-[#150a2e] rounded-2xl border border-gray-100 dark:border-white/10 p-6">
-      <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4 px-2 tracking-tight">Settings</h2>
+      <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4 px-2 tracking-tight">
+        {t("nav.settings", "Settings")}
+      </h2>
       
       <nav className="space-y-1">
         {settingsNav.map((item) => {

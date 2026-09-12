@@ -13,11 +13,13 @@ import {
   Loader2
 } from "lucide-react"
 import { useUser } from "@/context/user-context"
+import { useTranslation } from "@/context/language-context"
 import { StatusModal, StatusType } from "@/components/dashboard/shared/modals/status-modal"
 import { useRouter } from "next/navigation"
 
 export function AccountSettingsForm() {
   const { user, workspace, refreshUser, loading } = useUser()
+  const { t } = useTranslation()
   const router = useRouter()
 
   const [showStatus, setShowStatus] = useState(false)
@@ -71,7 +73,7 @@ export function AccountSettingsForm() {
         setConfirmWorkspaceInput("")
         await refreshUser()
         setStatusType("success")
-        setStatusTitle("Ownership Transferred")
+        setStatusTitle(t("settings.transferOwnership", "Ownership Transferred"))
         setStatusMessage(data.message || "Workspace ownership has been successfully transferred.")
       } else {
         setStatusType("error")
@@ -102,7 +104,7 @@ export function AccountSettingsForm() {
       if (res.ok) {
         setIsDeleteModalOpen(false)
         setStatusType("success")
-        setStatusTitle("Account Deleted")
+        setStatusTitle(t("settings.deleteAccount", "Account Deleted"))
         setStatusMessage("Your account and all personal data have been deleted. Redirecting...")
         setShowStatus(true)
         setTimeout(() => {
@@ -141,10 +143,10 @@ export function AccountSettingsForm() {
     <div className="space-y-6 md:space-y-8 pb-10 max-w-4xl">
       <div>
         <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-          Account & Danger Zone
+          {t("settings.accountSubtitle", "Account & Danger Zone")}
         </h2>
         <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5">
-          Manage ownership transitions, authentication credentials, and critical account actions
+          {t("settings.accountSubtitle", "Manage ownership transitions, authentication credentials, and critical account actions")}
         </p>
       </div>
 
@@ -155,14 +157,14 @@ export function AccountSettingsForm() {
             <User className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-bold text-slate-900 dark:text-white">Account Details</h3>
+            <h3 className="font-bold text-slate-900 dark:text-white">{t("settings.accountDetails", "Account Details")}</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">Registered profile credentials</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           <div className="p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 space-y-1">
-            <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Primary Email</span>
+            <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">{t("settings.primaryEmail", "Primary Email")}</span>
             <p className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
               <Mail className="w-3.5 h-3.5 text-purple-600" />
               <span>{user?.email || "user@business.com"}</span>
@@ -170,7 +172,7 @@ export function AccountSettingsForm() {
           </div>
 
           <div className="p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 space-y-1">
-            <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Active Workspace</span>
+            <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">{t("settings.activeWorkspace", "Active Workspace")}</span>
             <p className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
               <Building2 className="w-3.5 h-3.5 text-purple-600" />
               <span>{workspace?.name || "Workspace"} ({nicheLabel})</span>
@@ -187,9 +189,9 @@ export function AccountSettingsForm() {
               <Briefcase className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900 dark:text-white text-base">Transfer Workspace Ownership</h3>
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">{t("settings.transferOwnership", "Transfer Workspace Ownership")}</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xl leading-relaxed">
-                Transfer primary billing, plan controls, and full administrative rights of <strong>{workspace?.name || "this workspace"}</strong> to another registered user or email address.
+                {t("settings.transferSubtitle", "Transfer primary billing, workspace rights, and ownership to another user.")}
               </p>
             </div>
           </div>
@@ -199,7 +201,7 @@ export function AccountSettingsForm() {
             disabled={!isWorkspaceOwner}
             className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer shrink-0 disabled:opacity-50"
           >
-            Transfer Ownership
+            {t("settings.transferOwnership", "Transfer Ownership")}
           </button>
         </div>
       </div>
@@ -209,15 +211,15 @@ export function AccountSettingsForm() {
         <div className="flex items-center gap-2">
           <ShieldAlert className="w-5 h-5 text-rose-600 dark:text-rose-400" />
           <h3 className="text-lg font-bold text-rose-700 dark:text-rose-400 tracking-tight">
-            Delete Account
+            {t("settings.deleteAccount", "Delete Account")}
           </h3>
         </div>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl bg-rose-50/40 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30">
           <div className="space-y-1">
-            <h4 className="text-sm font-bold text-rose-900 dark:text-rose-300">Permanently Delete Account</h4>
+            <h4 className="text-sm font-bold text-rose-900 dark:text-rose-300">{t("settings.deleteAccount", "Permanently Delete Account")}</h4>
             <p className="text-xs text-rose-700/80 dark:text-rose-400/80 leading-relaxed">
-              Once deleted, your profile, authentication credentials, and access to all workspaces will be permanently erased.
+              {t("settings.deleteAccountSubtitle", "Permanently delete your profile credentials and personal access data.")}
             </p>
           </div>
           <button 
@@ -225,7 +227,7 @@ export function AccountSettingsForm() {
             onClick={() => setIsDeleteModalOpen(true)}
             className="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer shrink-0"
           >
-            Delete Account
+            {t("common.delete", "Delete Account")}
           </button>
         </div>
       </div>
@@ -239,7 +241,7 @@ export function AccountSettingsForm() {
                 <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                   <Briefcase className="w-4 h-4" />
                 </div>
-                <h3 className="font-extrabold text-slate-900 dark:text-white text-base">Transfer Workspace Ownership</h3>
+                <h3 className="font-extrabold text-slate-900 dark:text-white text-base">{t("settings.transferOwnership", "Transfer Workspace Ownership")}</h3>
               </div>
               <button onClick={() => setIsTransferModalOpen(false)} className="text-slate-400 hover:text-slate-600 p-1">
                 <X className="w-4 h-4" />
@@ -249,14 +251,14 @@ export function AccountSettingsForm() {
             <div className="p-3 bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/40 rounded-xl text-xs text-amber-800 dark:text-amber-300 space-y-1">
               <p className="font-bold flex items-center gap-1.5">
                 <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                <span>Ownership Transfer is Permanent</span>
+                <span>{t("settings.transferWarning", "Ownership Transfer is Permanent")}</span>
               </p>
-              <p>The recipient will gain full control over billing, subscription plans, and admin access for <strong>{workspace?.name || "this workspace"}</strong>.</p>
+              <p>{t("settings.recipientGainControl", "The new owner will gain full control over billing, plan management, and admin access.")}</p>
             </div>
 
             <form onSubmit={handleTransferOwnership} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">New Owner Email Address</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("settings.newOwnerEmail", "New Owner Email Address")}</label>
                 <input 
                   type="email"
                   required
@@ -287,7 +289,7 @@ export function AccountSettingsForm() {
                   onClick={() => setIsTransferModalOpen(false)}
                   className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/20 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-50 dark:hover:bg-white/5"
                 >
-                  Cancel
+                  {t("common.cancel", "Cancel")}
                 </button>
                 <button
                   type="submit"
@@ -295,7 +297,7 @@ export function AccountSettingsForm() {
                   className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
                 >
                   {isTransferring && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>Confirm & Transfer</span>
+                  <span>{t("settings.confirmTransfer", "Confirm & Transfer")}</span>
                 </button>
               </div>
             </form>
@@ -312,7 +314,7 @@ export function AccountSettingsForm() {
                 <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 flex items-center justify-center">
                   <Trash2 className="w-4 h-4" />
                 </div>
-                <h3 className="font-extrabold text-slate-900 dark:text-white text-base">Delete Account</h3>
+                <h3 className="font-extrabold text-slate-900 dark:text-white text-base">{t("settings.deleteAccount", "Delete Account")}</h3>
               </div>
               <button onClick={() => setIsDeleteModalOpen(false)} className="text-slate-400 hover:text-slate-600 p-1">
                 <X className="w-4 h-4" />
@@ -322,15 +324,15 @@ export function AccountSettingsForm() {
             <div className="p-3 bg-rose-50/60 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/40 rounded-xl text-xs text-rose-700 dark:text-rose-300 space-y-1">
               <p className="font-bold flex items-center gap-1.5">
                 <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-                <span>Irreversible Action</span>
+                <span>{t("settings.permanentAction", "Irreversible Action")}</span>
               </p>
-              <p>This will permanently delete your user account and all personal credentials.</p>
+              <p>{t("settings.deleteAccountSubtitle", "This will permanently delete your user account and all personal credentials.")}</p>
             </div>
 
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Type <span className="font-black text-rose-600">DELETE</span> to confirm:
+                  {t("settings.typeDeleteToConfirm", "Type DELETE to confirm:")}
                 </label>
                 <input 
                   type="text"
@@ -348,7 +350,7 @@ export function AccountSettingsForm() {
                   onClick={() => setIsDeleteModalOpen(false)}
                   className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/20 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-50 dark:hover:bg-white/5"
                 >
-                  Cancel
+                  {t("common.cancel", "Cancel")}
                 </button>
                 <button
                   type="button"
@@ -357,7 +359,7 @@ export function AccountSettingsForm() {
                   className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
                 >
                   {isDeleting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>Delete My Account</span>
+                  <span>{t("settings.deleteAccount", "Delete My Account")}</span>
                 </button>
               </div>
             </div>

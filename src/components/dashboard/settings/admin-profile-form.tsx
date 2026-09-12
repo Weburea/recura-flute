@@ -23,13 +23,17 @@ import {
   ExternalLink,
   ChevronDown,
   Check,
-  Building2
+  Building2,
+  Clock
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import Link from "next/link"
 import { useUser } from "@/context/user-context"
+import { useTranslation } from "@/context/language-context"
 import { StatusModal, StatusType } from "@/components/dashboard/shared/modals/status-modal"
+import { TIMEZONES, getTimezoneInfo } from "@/lib/utils/timezone"
+import { SUPPORTED_LANGUAGES } from "@/lib/i18n/languages"
 
 interface UserSession {
   id: string;
@@ -46,6 +50,7 @@ interface UserSession {
 
 export function AdminProfileForm() {
   const { user, workspace, refreshUser, loading } = useUser()
+  const { t, language: currentLangCode, setLanguage: setGlobalLanguage } = useTranslation()
 
   const [showStatus, setShowStatus] = useState(false)
   const [statusType, setStatusType] = useState<StatusType>("success")
@@ -58,9 +63,19 @@ export function AdminProfileForm() {
   const [phoneVal, setPhoneVal] = useState("")
   const [jobTitle, setJobTitle] = useState("")
   const [timezone, setTimezone] = useState("America/New_York")
-  const [language, setLanguage] = useState("English")
+  const [language, setLanguageVal] = useState(currentLangCode || "en")
   const [profileImage, setProfileImage] = useState<string | null>(null)
   
+  // Real-time ticking clock for live timezone calculations
+  const [currentDate, setCurrentDate] = useState<Date>(new Date())
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDate(new Date())
+    }, 15000)
+    return () => clearInterval(timer)
+  }, [])
+
   // Save loading state
   const [isSaving, setIsSaving] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
@@ -87,21 +102,6 @@ export function AdminProfileForm() {
   const timezoneRef = useRef<HTMLDivElement>(null)
   const languageRef = useRef<HTMLDivElement>(null)
 
-  // Constant list collections
-  const timezones = [
-    "Africa/Lagos", 
-    "America/New_York", 
-    "America/Los_Angeles", 
-    "America/Chicago", 
-    "Europe/London", 
-    "Europe/Paris", 
-    "Asia/Tokyo", 
-    "Asia/Dubai", 
-    "Asia/Singapore", 
-    "Australia/Sydney"
-  ]
-  const languages = ["English", "French", "Spanish", "German", "Portuguese", "Japanese"]
-
   // Close dropdowns on click outside
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -124,10 +124,13 @@ export function AdminProfileForm() {
       setPhoneVal(user.phone || "")
       setJobTitle(user.jobTitle || "")
       setTimezone(user.timezone || "America/New_York")
-      setLanguage(user.language || "English")
+      if (user.language) {
+        setLanguageVal(user.language)
+        setGlobalLanguage(user.language)
+      }
       setProfileImage(user.avatarUrl)
     }
-  }, [user])
+  }, [user, setGlobalLanguage])
 
   // Fetch active database sessions
   const fetchSessions = useCallback(async () => {
@@ -177,6 +180,20 @@ export function AdminProfileForm() {
     return { roleTitle: 'Business Owner', badge: 'Custom Business' }
   }, [workspace?.businessType, workspace?.niche])
 
+  // Current active timezone details
+  const selectedTimezoneInfo = useMemo(() => {
+    return getTimezoneInfo(timezone, currentDate)
+  }, [timezone, currentDate])
+
+  // Current active language details
+  const selectedLanguageOption = useMemo(() => {
+    return (
+      SUPPORTED_LANGUAGES.find(
+        (l) => l.code.toLowerCase() === language.toLowerCase() || l.name.toLowerCase() === language.toLowerCase()
+      ) || SUPPORTED_LANGUAGES[0]
+    )
+  }, [language])
+
   const renderSessionIcon = (session: UserSession) => {
     if (session.deviceType === 'tablet' || session.browser?.toLowerCase().includes('ipad') || session.browser?.toLowerCase().includes('tablet')) {
       return <Tablet className="w-5 h-5 text-slate-500 dark:text-slate-400" />;
@@ -208,7 +225,7 @@ export function AdminProfileForm() {
           phone: phoneVal,
           jobTitle,
           timezone,
-          language,
+          language: selectedLanguageOption.code,
           avatarUrl: profileImage,
         }),
       })
@@ -217,9 +234,10 @@ export function AdminProfileForm() {
 
       if (res.ok && data.success) {
         await refreshUser()
+        setGlobalLanguage(selectedLanguageOption.code)
         setStatusType("success")
-        setStatusTitle("Profile Updated")
-        setStatusMessage("Your personal account settings have been successfully updated.")
+        setStatusTitle(t("common.success", "Success"))
+        setStatusMessage("Your personal account settings and preferences have been successfully updated.")
       } else {
         setStatusType("error")
         setStatusTitle("Update Failed")
@@ -388,9 +406,11 @@ export function AdminProfileForm() {
       <div className="flex items-center justify-between mb-2">
         <div>
           <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-            Admin Profile
+            {t("settings.adminProfile", "Admin Profile")}
           </h2>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5">Manage your personal account settings and credentials</p>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+            {t("settings.adminProfileSubtitle", "Manage your personal account settings and credentials")}
+          </p>
         </div>
       </div>
 
@@ -404,7 +424,7 @@ export function AdminProfileForm() {
             
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
-                Profile Overview
+                {t("settings.profileOverview", "Profile Overview")}
               </h3>
               <span className="px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 text-xs font-bold border border-purple-100/50 dark:border-purple-500/20 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
@@ -434,7 +454,7 @@ export function AdminProfileForm() {
                   </label>
                 </div>
                 <label className="px-3 py-1.5 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/20 rounded-lg text-xs font-bold transition-colors shadow-sm cursor-pointer text-center relative overflow-hidden">
-                  <span>Upload Photo</span>
+                  <span>{t("settings.uploadPhoto", "Upload Photo")}</span>
                   <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={handleImageUpload} disabled={isUploading} />
                 </label>
               </div>
@@ -445,7 +465,7 @@ export function AdminProfileForm() {
                   <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{fullName || "Admin User"}</h4>
                   <div className="flex flex-wrap items-center gap-2 mt-1.5">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400 text-[11px] font-black border border-purple-100 dark:border-purple-900/30 uppercase tracking-widest">
-                      <Shield className="w-3 h-3" /> OWNER
+                      <Shield className="w-3 h-3" /> {t("common.owner", "OWNER")}
                     </span>
                     <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
                       • {jobTitle || nicheRole.roleTitle}
@@ -469,25 +489,33 @@ export function AdminProfileForm() {
                           rel="noreferrer" 
                           className="text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-0.5 font-bold"
                         >
-                          <span>Website</span>
+                          <span>{t("common.website", "Website")}</span>
                           <ExternalLink className="w-2.5 h-2.5" />
                         </a>
                       )}
                     </div>
                   )}
+                  {/* Live Local Time Badge */}
+                  <div className="flex items-center gap-2.5 text-slate-600 dark:text-slate-300 font-medium">
+                    <Clock className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                    <span className="font-semibold">{timezone}</span>
+                    <span className="text-purple-600 dark:text-purple-400 font-bold">
+                      ({selectedTimezoneInfo.time} • {selectedTimezoneInfo.offset})
+                    </span>
+                  </div>
                 </div>
               </div>
 
               {/* Status & Dynamic Completion */}
               <div className="flex-1 w-full bg-slate-50 dark:bg-white/5 p-4 rounded-xl border border-slate-100 dark:border-white/10 space-y-3">
                 <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-white/10">
-                  <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Account Status:</span>
+                  <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{t("settings.accountStatus", "Account Status")}:</span>
                   <span className="flex items-center gap-1.5 text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-lg">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> {t("common.active", "Active")}
                   </span>
                 </div>
                 <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-white/10">
-                  <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Auth Method:</span>
+                  <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{t("settings.authMethod", "Auth Method")}:</span>
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-300 capitalize">
                     {user?.providers && user.providers.length > 0 
                       ? user.providers.join(", ") 
@@ -498,7 +526,7 @@ export function AdminProfileForm() {
                 
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Profile Completion:</span>
+                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400">{t("settings.profileCompletion", "Profile Completion")}:</span>
                     <span className="text-xs font-black text-purple-600 dark:text-purple-400">{completionScore}%</span>
                   </div>
                   <div className="h-2 w-full bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden">
@@ -517,7 +545,7 @@ export function AdminProfileForm() {
                   className="w-full py-2 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-400 rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>{isSaving ? "Saving..." : "Save Changes"}</span>
+                  <span>{isSaving ? t("common.saving", "Saving...") : t("common.save", "Save Changes")}</span>
                 </button>
               </div>
             </div>
@@ -526,12 +554,12 @@ export function AdminProfileForm() {
           {/* Personal Information Form */}
           <div className="bg-white dark:bg-[#150a2e] p-6 md:p-8 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm space-y-6">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
-              Personal Information
+              {t("settings.personalInformation", "Personal Information")}
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">FULL NAME</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("settings.fullName", "FULL NAME")}</label>
                 <input 
                   type="text" 
                   value={fullName}
@@ -542,7 +570,7 @@ export function AdminProfileForm() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">EMAIL ADDRESS</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("settings.emailAddress", "EMAIL ADDRESS")}</label>
                 <input 
                   type="email" 
                   value={email}
@@ -554,7 +582,7 @@ export function AdminProfileForm() {
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                   <Phone className="w-3.5 h-3.5 text-slate-400" />
-                  <span>PHONE NUMBER</span>
+                  <span>{t("settings.phoneNumber", "PHONE NUMBER")}</span>
                 </label>
                 <input 
                   type="tel" 
@@ -568,7 +596,7 @@ export function AdminProfileForm() {
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                   <Briefcase className="w-3.5 h-3.5 text-slate-400" />
-                  <span>JOB TITLE / DESIGNATION</span>
+                  <span>{t("settings.jobTitle", "JOB TITLE / DESIGNATION")}</span>
                 </label>
                 <input 
                   type="text" 
@@ -579,78 +607,119 @@ export function AdminProfileForm() {
                 />
               </div>
 
-              {/* Timezone Custom Dropdown */}
+              {/* Timezone Custom Dropdown with Real-Time Offset & Clock */}
               <div className="space-y-2 relative" ref={timezoneRef}>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                  <span>TIMEZONE</span>
+                  <span>{t("settings.timezone", "TIMEZONE")}</span>
                 </label>
                 <button
                   type="button"
                   onClick={() => setIsTimezoneOpen(!isTimezoneOpen)}
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 hover:border-purple-300 text-left flex items-center justify-between transition-all font-medium text-slate-900 dark:text-white shadow-sm text-sm"
                 >
-                  <span>{timezone}</span>
-                  <ChevronDown className={cn("w-4 h-4 text-slate-400 transition-transform duration-200", isTimezoneOpen && "rotate-180")} />
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="font-semibold">{timezone}</span>
+                    <span className="text-xs text-purple-600 dark:text-purple-400 font-bold">
+                      • {selectedTimezoneInfo.time} ({selectedTimezoneInfo.offset})
+                    </span>
+                  </div>
+                  <ChevronDown className={cn("w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0", isTimezoneOpen && "rotate-180")} />
                 </button>
 
                 {isTimezoneOpen && (
-                  <div className="absolute top-full left-0 w-full mt-1.5 bg-white dark:bg-[#150a2e] border border-gray-100 dark:border-white/10 rounded-xl shadow-xl z-50 max-h-52 overflow-y-auto py-1">
-                    {timezones.map((tz) => (
-                      <button
-                        key={tz}
-                        type="button"
-                        onClick={() => {
-                          setTimezone(tz)
-                          setIsTimezoneOpen(false)
-                        }}
-                        className={cn(
-                          "w-full text-left px-4 py-2 text-xs font-bold flex items-center justify-between hover:bg-slate-50 dark:hover:bg-white/5 transition-colors",
-                          timezone === tz ? "text-purple-600 bg-purple-50/50 dark:bg-purple-950/30" : "text-slate-700 dark:text-slate-300"
-                        )}
-                      >
-                        <span>{tz}</span>
-                        {timezone === tz && <Check className="w-3.5 h-3.5 text-purple-600" />}
-                      </button>
-                    ))}
+                  <div className="absolute top-full left-0 w-full mt-1.5 bg-white dark:bg-[#150a2e] border border-gray-100 dark:border-white/10 rounded-xl shadow-2xl z-50 max-h-64 overflow-y-auto py-1">
+                    {TIMEZONES.map((tz) => {
+                      const info = getTimezoneInfo(tz.value, currentDate);
+                      const isSelected = timezone === tz.value;
+                      return (
+                        <button
+                          key={tz.value}
+                          type="button"
+                          onClick={() => {
+                            setTimezone(tz.value)
+                            setIsTimezoneOpen(false)
+                          }}
+                          className={cn(
+                            "w-full text-left px-4 py-2.5 text-xs font-bold flex items-center justify-between hover:bg-slate-50 dark:hover:bg-white/5 transition-colors",
+                            isSelected ? "text-purple-600 bg-purple-50/60 dark:bg-purple-950/30" : "text-slate-700 dark:text-slate-300"
+                          )}
+                        >
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-bold">{tz.value}</span>
+                            <span className="text-[10px] text-slate-400 font-medium">{tz.city} ({tz.region})</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] font-mono text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 px-2 py-0.5 rounded">
+                              {info.time} • {info.offset}
+                            </span>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-purple-600 shrink-0" />}
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
 
-              {/* Language Custom Dropdown */}
+              {/* Language Custom Dropdown with Flag Badges & Native Names */}
               <div className="space-y-2 relative" ref={languageRef}>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                   <Globe className="w-3.5 h-3.5 text-slate-400" />
-                  <span>LANGUAGE</span>
+                  <span>{t("settings.language", "LANGUAGE")}</span>
                 </label>
                 <button
                   type="button"
                   onClick={() => setIsLanguageOpen(!isLanguageOpen)}
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-white/5 hover:border-purple-300 text-left flex items-center justify-between transition-all font-medium text-slate-900 dark:text-white shadow-sm text-sm"
                 >
-                  <span>{language}</span>
-                  <ChevronDown className={cn("w-4 h-4 text-slate-400 transition-transform duration-200", isLanguageOpen && "rotate-180")} />
+                  <div className="flex items-center gap-2.5">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img 
+                      src={selectedLanguageOption.flagUrl} 
+                      alt={selectedLanguageOption.name} 
+                      className="w-5 h-3.5 object-cover rounded-xs shadow-xs" 
+                    />
+                    <span className="font-semibold">{selectedLanguageOption.nativeName}</span>
+                    <span className="text-xs text-slate-400 font-medium">({selectedLanguageOption.name})</span>
+                  </div>
+                  <ChevronDown className={cn("w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0", isLanguageOpen && "rotate-180")} />
                 </button>
 
                 {isLanguageOpen && (
-                  <div className="absolute top-full left-0 w-full mt-1.5 bg-white dark:bg-[#150a2e] border border-gray-100 dark:border-white/10 rounded-xl shadow-xl z-50 max-h-52 overflow-y-auto py-1">
-                    {languages.map((lang) => (
-                      <button
-                        key={lang}
-                        type="button"
-                        onClick={() => {
-                          setLanguage(lang)
-                          setIsLanguageOpen(false)
-                        }}
-                        className={cn(
-                          "w-full text-left px-4 py-2 text-xs font-bold flex items-center justify-between hover:bg-slate-50 dark:hover:bg-white/5 transition-colors",
-                          language === lang ? "text-purple-600 bg-purple-50/50 dark:bg-purple-950/30" : "text-slate-700 dark:text-slate-300"
-                        )}
-                      >
-                        <span>{lang}</span>
-                        {language === lang && <Check className="w-3.5 h-3.5 text-purple-600" />}
-                      </button>
-                    ))}
+                  <div className="absolute top-full left-0 w-full mt-1.5 bg-white dark:bg-[#150a2e] border border-gray-100 dark:border-white/10 rounded-xl shadow-2xl z-50 max-h-64 overflow-y-auto py-1">
+                    {SUPPORTED_LANGUAGES.map((lang) => {
+                      const isSelected = selectedLanguageOption.code === lang.code;
+                      return (
+                        <button
+                          key={lang.code}
+                          type="button"
+                          onClick={() => {
+                            setLanguageVal(lang.code)
+                            setGlobalLanguage(lang.code)
+                            setIsLanguageOpen(false)
+                          }}
+                          className={cn(
+                            "w-full text-left px-4 py-2.5 text-xs font-bold flex items-center justify-between hover:bg-slate-50 dark:hover:bg-white/5 transition-colors",
+                            isSelected ? "text-purple-600 bg-purple-50/60 dark:bg-purple-950/30" : "text-slate-700 dark:text-slate-300"
+                          )}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img 
+                              src={lang.flagUrl} 
+                              alt={lang.name} 
+                              className="w-5 h-3.5 object-cover rounded-xs shadow-xs" 
+                            />
+                            <div className="flex flex-col">
+                              <span className="font-bold text-slate-900 dark:text-white">{lang.nativeName}</span>
+                              <span className="text-[10px] text-slate-400">{lang.name}</span>
+                            </div>
+                          </div>
+                          {isSelected && <Check className="w-3.5 h-3.5 text-purple-600" />}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -663,7 +732,7 @@ export function AdminProfileForm() {
                 disabled={isSaving}
                 className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-purple-600/20 cursor-pointer disabled:opacity-50"
               >
-                {isSaving ? "Saving..." : "Save Changes"}
+                {isSaving ? t("common.saving", "Saving...") : t("common.save", "Save Changes")}
               </button>
             </div>
           </div>
@@ -676,7 +745,7 @@ export function AdminProfileForm() {
           {/* Security & Authentication */}
           <div className="bg-white dark:bg-[#150a2e] p-6 md:p-8 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2 tracking-tight">
-              Security & Authentication
+              {t("settings.securityAuth", "Security & Authentication")}
             </h3>
 
             <form onSubmit={handleUpdatePassword} className="space-y-4">
@@ -684,9 +753,9 @@ export function AdminProfileForm() {
               {user?.hasPassword ? (
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between ml-1">
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Current Password</label>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">{t("settings.currentPassword", "Current Password")}</label>
                     <Link href="/forgot-password" className="text-xs font-bold text-purple-600 dark:text-purple-400 hover:underline">
-                      Forgot password?
+                      {t("settings.forgotPassword", "Forgot password?")}
                     </Link>
                   </div>
                   <div className="relative group">
@@ -710,12 +779,12 @@ export function AdminProfileForm() {
                 </div>
               ) : (
                 <div className="p-3.5 rounded-xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/30 text-xs font-medium text-purple-700 dark:text-purple-400">
-                  You signed in via OAuth. Create a master password below to enable direct email login.
+                  {t("settings.oauthNotice", "You signed in via OAuth. Create a master password below to enable direct email login.")}
                 </div>
               )}
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 ml-1">New Password</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 ml-1">{t("settings.newPassword", "New Password")}</label>
                 <div className="relative group">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-purple-500 transition-colors" />
                   <input 
@@ -737,7 +806,7 @@ export function AdminProfileForm() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 ml-1">Confirm New Password</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 ml-1">{t("settings.confirmNewPassword", "Confirm New Password")}</label>
                 <div className="relative group">
                   <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-purple-500 transition-colors" />
                   <input 
@@ -761,7 +830,7 @@ export function AdminProfileForm() {
               <div className="pt-3 border-t border-slate-100 dark:border-white/10 mt-4 flex items-center justify-between">
                 {user?.hasPassword ? (
                   <Link href="/forgot-password" className="text-[11px] font-bold text-slate-500 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-400 transition-colors">
-                    Reset via email code →
+                    {t("settings.resetViaEmail", "Reset via email code →")}
                   </Link>
                 ) : <div />}
                 <button
@@ -772,9 +841,9 @@ export function AdminProfileForm() {
                   {isUpdatingPassword ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : user?.hasPassword ? (
-                    "Update Password"
+                    t("settings.updatePassword", "Update Password")
                   ) : (
-                    "Create Password"
+                    t("settings.createPassword", "Create Password")
                   )}
                 </button>
               </div>
@@ -784,7 +853,7 @@ export function AdminProfileForm() {
           {/* Active Sessions */}
           <div className="bg-white dark:bg-[#150a2e] p-6 md:p-8 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2 tracking-tight">
-              Active Sessions
+              {t("settings.activeSessions", "Active Sessions")}
             </h3>
 
             <div className="space-y-3.5">
@@ -802,7 +871,7 @@ export function AdminProfileForm() {
                       <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{session.location || session.ip}</span>
                       {session.isActive && (
                         <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase tracking-wider">
-                          Current
+                          {t("common.current", "Current")}
                         </span>
                       )}
                     </div>
@@ -811,12 +880,12 @@ export function AdminProfileForm() {
               ))}
               {activeSessions.length === 0 && !isLoadingSessions && (
                 <div className="text-center py-6 text-xs text-slate-500 font-medium bg-slate-50 dark:bg-white/5 rounded-xl border border-dashed border-slate-200 dark:border-white/20">
-                  No other active sessions.
+                  {t("settings.noOtherSessions", "No other active sessions.")}
                 </div>
               )}
               {isLoadingSessions && (
                 <div className="text-center py-6 text-xs text-slate-400 font-medium">
-                  Loading sessions...
+                  {t("settings.loadingSessions", "Loading sessions...")}
                 </div>
               )}
             </div>
@@ -826,7 +895,7 @@ export function AdminProfileForm() {
               disabled={activeSessions.length <= 1}
               className="w-full mt-5 py-2.5 px-4 bg-slate-50 dark:bg-white/5 hover:bg-purple-50 dark:hover:bg-purple-950/30 text-slate-700 dark:text-slate-300 hover:text-purple-600 border border-slate-200 dark:border-white/20 hover:border-purple-200 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer border-dashed disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Log Out All Other Sessions
+              {t("settings.logOutAllSessions", "Log Out All Other Sessions")}
             </button>
           </div>
 
