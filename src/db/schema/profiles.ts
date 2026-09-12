@@ -14,6 +14,8 @@ export const profiles = pgTable('profiles', {
   jobTitle: text('job_title'),
   timezone: text('timezone').default('America/New_York'),
   language: text('language').default('English'),
+  twoFactorEnabled: boolean('two_factor_enabled').default(false).notNull(),
+  twoFactorSecret: text('two_factor_secret'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });

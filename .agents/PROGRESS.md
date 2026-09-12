@@ -3424,6 +3424,47 @@ npm run db:generate: Production SQL migration generator.
 
 ---
 
+## 📍 Milestone 113: RFC 6238 TOTP Two-Factor Authentication & Smart Password Settings
+
+**Status**: Completed  
+**Date**: September 12, 2026
+
+### Summary of Changes
+
+- **RFC 6238 TOTP 2FA Infrastructure ([src/lib/totp.ts](file:///c:/FRONT-END/REACT/recura/src/lib/totp.ts))**:
+  - Implemented 100% self-contained standard TOTP authenticator app support (Google Authenticator, Microsoft Authenticator, Apple Passwords, 1Password, Authy) with zero third-party/SMS fees.
+  - Generates secure Base32 secrets, standard `otpauth://` URIs, and high-resolution base64 QR Code Data URLs (`qrcode`).
+  - Implemented clock-drift tolerance (`epochTolerance: 30`) and HMAC-signed temporary challenge tokens (`create2FATempToken` / `verify2FATempToken`) for secure login step separation.
+
+- **Database Schema & Migration ([src/db/schema/profiles.ts](file:///c:/FRONT-END/REACT/recura/src/db/schema/profiles.ts))**:
+  - Added `twoFactorEnabled: boolean('two_factor_enabled').default(false).notNull()` and `twoFactorSecret: text('two_factor_secret')`.
+  - Pushed migrations live to Neon PostgreSQL using `npm run db:push`.
+
+- **2FA API Endpoints (`/api/v1/auth/2fa/*`)**:
+  - `POST /api/v1/auth/2fa/setup`: Generates temporary secret & QR Code data URL for the authenticated user.
+  - `POST /api/v1/auth/2fa/enable`: Validates 6-digit TOTP code and activates 2FA on the user's profile.
+  - `POST /api/v1/auth/2fa/disable`: Disables 2FA and removes secret key.
+  - `POST /api/v1/auth/2fa/verify-login`: Verifies 6-digit code against HMAC challenge token during sign-in and issues session cookie.
+  - Updated `POST /api/v1/auth/signin` to detect 2FA status and return `{ requires2FA: true, twoFactorToken }`.
+
+- **Interactive In-Modal 2FA UI ([src/components/dashboard/shared/modals/workspace-settings-modals.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/shared/modals/workspace-settings-modals.tsx))**:
+  - Interactive multi-step setup view with scannable QR Code, copyable Base32 secret key, and 6-digit verification code input.
+  - Active/Disabled status indicators and safe disable confirmation flow.
+
+- **2FA Sign-In Challenge Flow ([src/components/authentication/sign-in.tsx](file:///c:/FRONT-END/REACT/recura/src/components/authentication/sign-in.tsx))**:
+  - Smooth challenge transition when 2FA is required, presenting an authenticator challenge screen with monospaced 6-digit input and error handling.
+
+- **Smart Profile Password Management & Email Alerts ([src/components/dashboard/settings/admin-profile-form.tsx](file:///c:/FRONT-END/REACT/recura/src/components/dashboard/settings/admin-profile-form.tsx), [src/app/api/v1/auth/profile/route.ts](file:///c:/FRONT-END/REACT/recura/src/app/api/v1/auth/profile/route.ts))**:
+  - Dynamically distinguishes between OAuth users without a password ("Set a Password") and password users ("Update Password").
+  - Sends branded security email notifications (`sendPasswordUpdatedEmail`) via Resend whenever a password is set or updated.
+
+- **Verification & Quality Checks**:
+  - TypeScript: `npx tsc --noEmit` passed with 0 errors.
+  - ESLint: `npx eslint --max-warnings 0` passed on all modified files.
+  - API Test Suite: Updated [.agents/api-tests.md](file:///c:/FRONT-END/REACT/recura/.agents/api-tests.md) with 2FA endpoints.
+
+---
+
 ## 📍 Future Milestones Log Format Template
 
 _The following template will be populated as new features are built out:_

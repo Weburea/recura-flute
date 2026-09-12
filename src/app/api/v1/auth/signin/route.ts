@@ -52,7 +52,19 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Check if workspace onboarding is completed
+    // 3. Check if 2FA is enabled
+    if (profile.twoFactorEnabled && profile.twoFactorSecret) {
+      const { create2FATempToken } = await import('@/lib/totp');
+      const twoFactorToken = create2FATempToken(profile.id);
+      return NextResponse.json({
+        success: true,
+        requires2FA: true,
+        twoFactorToken,
+        message: 'Please enter the 6-digit code from your Authenticator app',
+      });
+    }
+
+    // 4. Check if workspace onboarding is completed
     const userWorkspaces = await db
       .select()
       .from(schema.userWorkspaces)

@@ -29,6 +29,7 @@ export async function GET() {
         timezone: schema.profiles.timezone,
         language: schema.profiles.language,
         passwordHash: schema.profiles.passwordHash,
+        twoFactorEnabled: schema.profiles.twoFactorEnabled,
       })
       .from(schema.profiles)
       .where(eq(schema.profiles.id, session.userId))
@@ -60,7 +61,8 @@ export async function GET() {
       jobTitle: rawUser.jobTitle,
       timezone: rawUser.timezone,
       language: rawUser.language,
-      hasPassword: rawUser.passwordHash !== null,
+      hasPassword: Boolean(rawUser.passwordHash && rawUser.passwordHash.trim().length > 0),
+      twoFactorEnabled: Boolean(rawUser.twoFactorEnabled),
       providers: connectedAccounts.map(a => a.provider),
     };
 

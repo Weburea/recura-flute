@@ -86,6 +86,77 @@ export async function sendPasswordResetEmail(
   });
 }
 
+/**
+ * Send a security confirmation email after a password change or creation.
+ */
+export async function sendPasswordUpdatedEmail(
+  toEmail: string,
+  fullName: string
+) {
+  const { transporter, fromAddress } = getTransporter();
+
+  await transporter.sendMail({
+    from: fromAddress,
+    to: toEmail,
+    subject: 'Your Recura password was updated',
+    html: `
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Security Alert: Password Updated</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body style="margin:0;padding:0;background-color:#f4f1fa;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 8px;background-color:#f4f1fa;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background-color:#ffffff;border:1px solid #e2e8f0;border-radius:24px;overflow:hidden;box-shadow:0 10px 25px rgba(108,92,231,0.05);">
+          <tr>
+            <td style="padding:0;background-color:#ffffff;text-align:center;">
+              <img src="https://res.cloudinary.com/weburea/image/upload/v1786379722/forgot_password_banner_image_ptlzfi.png" alt="Recura Security" width="560" style="display:block;width:100%;max-width:100%;height:auto;border:none;margin:0;" />
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px 32px 24px;background-color:#ffffff;">
+              <table cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+                <tr>
+                  <td style="background-color:#f3e8ff;border:1px solid #e9d5ff;border-radius:12px;padding:4px 12px;">
+                    <p style="margin:0;font-size:10px;font-weight:800;letter-spacing:0.12em;color:#a855f7;text-transform:uppercase;">
+                      SECURITY ALERT
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              <h1 style="margin:0 0 16px;font-size:22px;font-weight:800;color:#150B2D;line-height:1.25;">
+                Password Successfully Updated
+              </h1>
+              <p style="margin:0 0 20px;font-size:14px;color:#475569;line-height:1.6;">
+                Hi <strong>${fullName}</strong>, this is a confirmation that your Recura account password was recently updated.
+              </p>
+              <div style="padding:16px;background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;margin-bottom:20px;">
+                <p style="margin:0;font-size:13px;color:#334155;line-height:1.5;">
+                  If you performed this action, no further steps are needed. If you did <strong>not</strong> make this change, please reset your password immediately or contact our support team.
+                </p>
+              </div>
+              <p style="margin:0;font-size:12px;color:#64748b;">
+                Thank you,<br/><strong>The Recura Team</strong>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `.trim(),
+  });
+}
+
 /* ─── Shared HTML Email Template (Compact Desktop View & Single-Line Mobile OTP) ─── */
 function buildEmailHtml({
   badge,

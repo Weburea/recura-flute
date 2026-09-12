@@ -100,6 +100,16 @@ export async function PUT(request: Request) {
         .update(schema.profiles)
         .set(updateData)
         .where(eq(schema.profiles.id, session.userId));
+
+      // If password was updated, send a security email notification
+      if (newPassword) {
+        try {
+          const { sendPasswordUpdatedEmail } = await import('@/lib/email');
+          await sendPasswordUpdatedEmail(profile.email, profile.fullName);
+        } catch (emailErr) {
+          console.error('[EMAIL ERROR] Failed to send password update notification:', emailErr);
+        }
+      }
     }
 
     return NextResponse.json({
@@ -107,8 +117,8 @@ export async function PUT(request: Request) {
       message: 'Profile updated successfully!',
     });
   } catch (err) {
-    console.error('Error in PUT /api/v1/auth/profile:', err);
-    return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
+    console.error('[PROFILE ERROR] Error in PUT /api/v1/auth/profile:', err);
+    return NextResponse.json({ success: false, error: 'Unable to update profile. Please try again later.' }, { status: 500 });
   }
 }
 

@@ -12,6 +12,7 @@ export interface User {
   timezone: string | null;
   language: string | null;
   hasPassword: boolean;
+  twoFactorEnabled: boolean;
   providers: string[];
 }
 

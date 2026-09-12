@@ -63,7 +63,8 @@ export function WorkspaceOverview() {
   const [statusMessage, setStatusMessage] = useState("");
 
   // Security & Billing Config State
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [local2FAEnabled, setLocal2FAEnabled] = useState<boolean | null>(null);
+  const twoFactorEnabled = local2FAEnabled !== null ? local2FAEnabled : Boolean(user?.twoFactorEnabled);
   const [activeProvider, setActiveProvider] = useState<string>('flutterwave');
   const [providersConfig, setProvidersConfig] = useState<Record<string, { enabled: boolean; apiKey: string; secretKey?: string }>>({
     flutterwave: { enabled: true, apiKey: 'flw_live_••••••••••••••••' },
@@ -344,7 +345,7 @@ export function WorkspaceOverview() {
   };
 
   const toggle2FA = () => {
-    setTwoFactorEnabled(!twoFactorEnabled);
+    setLocal2FAEnabled(!twoFactorEnabled);
   };
 
   const toggleProvider = (provider: string) => {
