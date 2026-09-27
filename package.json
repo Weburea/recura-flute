@@ -16,6 +16,7 @@
     "@neondatabase/serverless": "^1.1.0",
     "@radix-ui/react-slot": "^1.2.4",
     "@types/nodemailer": "^8.0.1",
+    "@webprodigies/flute": "^0.1.2",
     "axios": "^1.13.5",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
