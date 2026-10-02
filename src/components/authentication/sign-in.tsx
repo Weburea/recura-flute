@@ -9,6 +9,7 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2, CreditCard, Wallet, 
 import { SocialButton } from './social-button';
 import { CLOUDINARY_AVATARS } from './sign-up';
 import { cn } from "@/lib/utils";
+import { AUTH_BYPASS_CONFIG, setupBypassSession } from '@/config/auth-bypass';
 
 // 5 Business Category Models with 100% unique avatars & dynamic transaction cards
 export const SIGN_IN_BUSINESS_MODELS = [
@@ -294,6 +295,23 @@ function SignInContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // ─── AUTH BYPASS: PREVIEW MODE DIRECT ACCESS ───
+    if (AUTH_BYPASS_CONFIG.enabled) {
+      setIsLoading(true);
+      setupBypassSession({
+        email: formData.email.trim() || undefined,
+      });
+
+      setTimeout(() => {
+        setIsLoading(false);
+        // If onboarding was previously completed, go to dashboard, otherwise onboarding
+        const hasCompleted = typeof window !== 'undefined' && localStorage.getItem('recura_onboarding_completed') === 'true';
+        router.push(hasCompleted ? '/dashboard' : AUTH_BYPASS_CONFIG.onboardingEntryRoute);
+      }, 300);
+      return;
+    }
+
     setApiError('');
     const newErrors: Record<string, string> = {};
 
@@ -754,7 +772,7 @@ function SignInContent() {
                   disabled={isLoading}
                   className="w-full bg-[#1A1829] dark:bg-purple-600 hover:bg-black dark:hover:bg-purple-500 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-xl shadow-gray-900/10 dark:shadow-purple-950/50 flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-50 text-sm"
                 >
-                  <span>{isLoading ? "Signing in..." : "Sign in"}</span>
+                  <span>{isLoading ? "Signing in..." : AUTH_BYPASS_CONFIG.enabled ? "Sign in (Preview Mode)" : "Sign in"}</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
               </form>

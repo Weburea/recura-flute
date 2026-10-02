@@ -3,12 +3,40 @@ import { db } from '@/db';
 import * as schema from '@/db/schema';
 import { getSession } from '@/lib/session';
 import { eq } from 'drizzle-orm';
+import { AUTH_BYPASS_CONFIG } from '@/config/auth-bypass';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
     const session = await getSession();
+
+    if (AUTH_BYPASS_CONFIG.enabled) {
+      return NextResponse.json({
+        success: true,
+        user: {
+          id: session?.userId || AUTH_BYPASS_CONFIG.defaultUser.id,
+          email: session?.email || AUTH_BYPASS_CONFIG.defaultUser.email,
+          fullName: session?.fullName || AUTH_BYPASS_CONFIG.defaultUser.fullName,
+          avatarUrl: AUTH_BYPASS_CONFIG.defaultUser.avatarUrl,
+          phone: AUTH_BYPASS_CONFIG.defaultUser.phone,
+          jobTitle: AUTH_BYPASS_CONFIG.defaultUser.jobTitle,
+          timezone: AUTH_BYPASS_CONFIG.defaultUser.timezone,
+          language: AUTH_BYPASS_CONFIG.defaultUser.language,
+          hasPassword: true,
+          twoFactorEnabled: false,
+          providers: ['credentials'],
+        },
+        workspace: {
+          id: AUTH_BYPASS_CONFIG.defaultWorkspace.id,
+          name: AUTH_BYPASS_CONFIG.defaultWorkspace.name,
+          niche: AUTH_BYPASS_CONFIG.defaultWorkspace.niche,
+          businessType: AUTH_BYPASS_CONFIG.defaultWorkspace.businessType,
+          settings: AUTH_BYPASS_CONFIG.defaultWorkspace.settings,
+          metadata: AUTH_BYPASS_CONFIG.defaultWorkspace.metadata,
+        },
+      });
+    }
 
     if (!session?.userId) {
       return NextResponse.json(

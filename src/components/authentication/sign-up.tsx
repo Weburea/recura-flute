@@ -9,6 +9,7 @@ import { User, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { SocialButton } from './social-button';
 import { AnimatedStepBadge } from './onboarding-shell';
 import { cn } from "@/lib/utils";
+import { AUTH_BYPASS_CONFIG, setupBypassSession } from '@/config/auth-bypass';
 
 // All 16 Cloudinary CDN Avatar Assets
 export const CLOUDINARY_AVATARS = {
@@ -157,6 +158,22 @@ export function SignUp() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // ─── AUTH BYPASS: DIRECT ONBOARDING TRANSITION (DESIGN DEMO MODE) ───
+    if (AUTH_BYPASS_CONFIG.enabled) {
+      setIsLoading(true);
+      setupBypassSession({
+        fullName: formData.fullName.trim() || undefined,
+        email: formData.email.trim() || undefined,
+      });
+
+      setTimeout(() => {
+        setIsLoading(false);
+        router.push(AUTH_BYPASS_CONFIG.onboardingEntryRoute);
+      }, 300);
+      return;
+    }
+
     setApiError('');
     const newErrors: Record<string, string> = {};
 
@@ -415,6 +432,31 @@ export function SignUp() {
             </p>
           </div>
 
+          {/* Designer Team Preview Mode Badge */}
+          {AUTH_BYPASS_CONFIG.enabled && (
+            <div className="p-3.5 rounded-2xl bg-purple-50/80 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-800/60 flex items-center justify-between gap-3 text-xs shadow-xs">
+              <div className="flex items-center gap-2">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <span className="font-semibold text-purple-900 dark:text-purple-200 text-[11px] sm:text-xs">
+                  Designer Preview: Auth bypassed. Click below to demo onboarding steps.
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setupBypassSession({
+                    fullName: formData.fullName.trim() || undefined,
+                    email: formData.email.trim() || undefined,
+                  });
+                  router.push(AUTH_BYPASS_CONFIG.onboardingEntryRoute);
+                }}
+                className="px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] shrink-0 transition-colors cursor-pointer"
+              >
+                Fast Track →
+              </button>
+            </div>
+          )}
+
           {/* Social Auth Buttons (Google & GitHub) */}
           <div className="grid grid-cols-2 gap-3.5 pt-2">
             <SocialButton label="Google" onClick={() => window.location.href = '/api/v1/auth/oauth/google'} />
@@ -548,7 +590,13 @@ export function SignUp() {
               disabled={isLoading}
               className="w-full bg-[#111827] dark:bg-purple-600 hover:bg-black dark:hover:bg-purple-500 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-gray-900/10 dark:shadow-purple-950/50 flex items-center justify-center gap-2 group mt-2 disabled:opacity-50 cursor-pointer"
             >
-              <span>{isLoading ? 'Creating account...' : 'Create account'}</span>
+              <span>
+                {isLoading 
+                  ? 'Entering onboarding...' 
+                  : AUTH_BYPASS_CONFIG.enabled 
+                    ? 'Continue to onboarding process' 
+                    : 'Create account'}
+              </span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
 

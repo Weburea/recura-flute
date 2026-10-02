@@ -15,6 +15,7 @@ import {
 import { OnboardingShell } from './onboarding-shell';
 import Image from 'next/image';
 import { UNIVERSAL_INTEGRATIONS, NICHE_INTEGRATIONS } from '@/config/integrations';
+import { AUTH_BYPASS_CONFIG, setupBypassSession } from '@/config/auth-bypass';
 
 // Helper map for payment provider brand icons
 const PAYMENT_LOGOS: Record<string, string> = {
@@ -333,6 +334,26 @@ function CompletionSummaryContent() {
 
   const handleGoToDashboard = async () => {
     setIsLoading(true);
+
+    // ─── AUTH BYPASS: DIRECT DASHBOARD ENTRY WITHOUT BACKEND DB WRITE ───
+    if (AUTH_BYPASS_CONFIG.enabled) {
+      setupBypassSession({
+        businessType: nicheType,
+        businessName,
+      });
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('recura_onboarding_completed', 'true');
+        sessionStorage.setItem('recura_onboarding_completed', 'true');
+      }
+
+      setTimeout(() => {
+        setIsLoading(false);
+        router.push('/dashboard');
+      }, 350);
+      return;
+    }
+
     try {
       await fetch('/api/v1/onboarding', {
         method: 'POST',

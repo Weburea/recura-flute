@@ -2,6 +2,7 @@ import { cookies, headers } from 'next/headers';
 import { db } from '@/db';
 import * as schema from '@/db/schema';
 import { eq, and, gte } from 'drizzle-orm';
+import { AUTH_BYPASS_CONFIG } from '@/config/auth-bypass';
 
 export interface SessionData {
   userId: string;
@@ -51,6 +52,26 @@ export async function getSession(): Promise<SessionData | null> {
   try {
     const cookieStore = await cookies();
     const cookie = cookieStore.get(SESSION_COOKIE_NAME);
+
+    // If auth bypass is enabled for design demos, return sessionData or default mock session
+    if (AUTH_BYPASS_CONFIG.enabled) {
+      if (cookie?.value) {
+        try {
+          const sessionValue = Buffer.from(cookie.value, 'base64').toString('utf-8');
+          const sessionData = JSON.parse(sessionValue) as SessionData;
+          if (sessionData?.userId) return sessionData;
+        } catch {
+          // fallback to default mock session below
+        }
+      }
+      return {
+        userId: AUTH_BYPASS_CONFIG.defaultUser.id,
+        email: AUTH_BYPASS_CONFIG.defaultUser.email,
+        fullName: AUTH_BYPASS_CONFIG.defaultUser.fullName,
+        role: AUTH_BYPASS_CONFIG.defaultUser.role,
+        activeWorkspaceId: AUTH_BYPASS_CONFIG.defaultWorkspace.id,
+      };
+    }
 
     if (!cookie?.value) return null;
 

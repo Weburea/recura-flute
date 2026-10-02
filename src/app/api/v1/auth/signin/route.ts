@@ -4,11 +4,29 @@ import { db } from '@/db';
 import * as schema from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { createSession } from '@/lib/session';
+import { AUTH_BYPASS_CONFIG } from '@/config/auth-bypass';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { email, password } = body;
+
+    const cleanEmail = email ? email.trim().toLowerCase() : AUTH_BYPASS_CONFIG.defaultUser.email;
+
+    if (AUTH_BYPASS_CONFIG.enabled) {
+      await createSession({
+        userId: AUTH_BYPASS_CONFIG.defaultUser.id,
+        email: cleanEmail,
+        fullName: AUTH_BYPASS_CONFIG.defaultUser.fullName,
+        role: AUTH_BYPASS_CONFIG.defaultUser.role,
+        activeWorkspaceId: AUTH_BYPASS_CONFIG.defaultWorkspace.id,
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Sign in successful (preview mode)',
+      });
+    }
 
     if (!email || !password) {
       return NextResponse.json(

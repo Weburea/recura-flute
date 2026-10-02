@@ -4,9 +4,17 @@ import * as schema from '@/db/schema';
 import { authenticateRequest } from '@/lib/auth';
 import { getSession, createSession } from '@/lib/session';
 import crypto from 'crypto';
+import { AUTH_BYPASS_CONFIG } from '@/config/auth-bypass';
 
 export async function POST(request: Request) {
   try {
+    if (AUTH_BYPASS_CONFIG.enabled) {
+      return NextResponse.json({
+        success: true,
+        message: 'Workspace onboarding completed successfully (preview mode)',
+      });
+    }
+
     const authResult = await authenticateRequest();
 
     if (!authResult.isAuthenticated || !authResult.userId) {

@@ -4,11 +4,22 @@ import { db } from '@/db';
 import * as schema from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { sendVerificationEmail } from '@/lib/email';
+import { AUTH_BYPASS_CONFIG } from '@/config/auth-bypass';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { fullName, email, password } = body;
+
+    const cleanEmail = email ? email.trim().toLowerCase() : AUTH_BYPASS_CONFIG.defaultUser.email;
+
+    if (AUTH_BYPASS_CONFIG.enabled) {
+      return NextResponse.json({
+        success: true,
+        message: 'Account created successfully (preview mode).',
+        email: cleanEmail,
+      });
+    }
 
     if (!fullName || !email || !password) {
       return NextResponse.json(

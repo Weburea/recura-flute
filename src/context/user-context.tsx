@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { AUTH_BYPASS_CONFIG, getBypassUserAndWorkspace } from '@/config/auth-bypass';
 
 export interface User {
   id: string;
@@ -44,18 +45,30 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       const res = await fetch('/api/v1/auth/me');
       if (res.ok) {
         const data = await res.json();
-        if (data.success) {
+        if (data.success && data.user) {
           setUser(data.user);
           setWorkspace(data.workspace);
-        } else {
-          setUser(null);
-          setWorkspace(null);
+          return;
         }
-      } else {
-        setUser(null);
-        setWorkspace(null);
       }
+
+      // If auth bypass is enabled, dynamically read mock data from localStorage
+      if (AUTH_BYPASS_CONFIG.enabled) {
+        const bypass = getBypassUserAndWorkspace();
+        setUser(bypass.user as User);
+        setWorkspace(bypass.workspace as Workspace);
+        return;
+      }
+
+      setUser(null);
+      setWorkspace(null);
     } catch (err) {
+      if (AUTH_BYPASS_CONFIG.enabled) {
+        const bypass = getBypassUserAndWorkspace();
+        setUser(bypass.user as User);
+        setWorkspace(bypass.workspace as Workspace);
+        return;
+      }
       console.error('Failed to fetch user context:', err);
       setUser(null);
       setWorkspace(null);

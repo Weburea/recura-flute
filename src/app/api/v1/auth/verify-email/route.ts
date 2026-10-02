@@ -4,9 +4,18 @@ import { db } from '@/db';
 import * as schema from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { createSession } from '@/lib/session';
+import { AUTH_BYPASS_CONFIG } from '@/config/auth-bypass';
 
 export async function POST(request: Request) {
   try {
+    if (AUTH_BYPASS_CONFIG.enabled) {
+      return NextResponse.json({
+        success: true,
+        redirectUrl: '/choose-business',
+        message: 'Email verification bypassed in preview mode',
+      });
+    }
+
     const body = await request.json();
     const { email, code } = body;
 

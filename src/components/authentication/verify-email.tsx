@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowRight, Mail, ArrowLeft } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { OnboardingShell } from './onboarding-shell';
+import { AUTH_BYPASS_CONFIG, setupBypassSession } from '@/config/auth-bypass';
 
 function VerifyEmailContent() {
   const router = useRouter();
@@ -65,6 +66,18 @@ function VerifyEmailContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // ─── AUTH BYPASS: VERIFICATION BYPASS (DESIGN DEMO MODE) ───
+    if (AUTH_BYPASS_CONFIG.enabled) {
+      setIsLoading(true);
+      setupBypassSession({ email: emailParam });
+      setTimeout(() => {
+        setIsLoading(false);
+        router.push('/choose-business');
+      }, 300);
+      return;
+    }
+
     const fullCode = code.join('');
     if (fullCode.length < 6) {
       setError('Please enter the complete 6-digit code');
@@ -204,14 +217,27 @@ function VerifyEmailContent() {
             )}
           </div>
 
-          <div>
+          <div className="flex items-center justify-center gap-4 flex-wrap">
             <Link 
               href="/sign-up"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-300 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Use a different email</span>
             </Link>
+
+            {AUTH_BYPASS_CONFIG.enabled && (
+              <button
+                type="button"
+                onClick={() => {
+                  setupBypassSession({ email: emailParam });
+                  router.push('/choose-business');
+                }}
+                className="inline-flex items-center gap-1 text-xs font-bold text-purple-600 dark:text-purple-400 hover:underline cursor-pointer"
+              >
+                <span>Skip to onboarding (Preview) →</span>
+              </button>
+            )}
           </div>
         </div>
 
