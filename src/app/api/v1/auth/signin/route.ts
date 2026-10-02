@@ -35,8 +35,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const cleanEmail = email.trim().toLowerCase();
-
     // 1. Fetch profile
     const profiles = await db
       .select()

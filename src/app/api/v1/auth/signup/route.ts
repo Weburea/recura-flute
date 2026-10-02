@@ -28,8 +28,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const cleanEmail = email.trim().toLowerCase();
-
     // 1. Check if user already exists
     const existingProfiles = await db
       .select()
